@@ -22,6 +22,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
   var chat;
   var conversations;
+  var currentConversation;
+  var messages = [];
   var chatConnection = Fliplet.Chat.connect(data);
 
   // ---------------------------------------------------------------
@@ -64,7 +66,25 @@ Fliplet.Widget.instance('chat', function (data) {
       // we assume the new conversation is the first one in the list
       $chat.find('[data-conversation-id]:eq(0)').click();
     });
-  })
+  });
+
+  $chat.on('submit', '.new-message', function (event) {
+    event.preventDefault();
+    var $message = $('[type="text"]');
+    var text = $message.val();
+
+    if (!text) {
+      return;
+    }
+
+    $message.val('');
+
+    chat.message({
+      body: text
+    }).then(function () {
+      // scroll to bottom
+    });
+  });
 
   // Handler to log in
   $loginForm.submit(function (event) {
@@ -91,9 +111,10 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function onLogin() {
     $chat.removeClass('hidden');
+
     getConversations().then(function () {
-      return chat.stream(renderMessage);
-    })
+      return chat.stream(onMessage);
+    });
   }
 
   function getConversations() {
@@ -101,13 +122,18 @@ Fliplet.Widget.instance('chat', function (data) {
       $conversationsList.html('');
 
       conversations = response;
-      conversations.forEach(renderConversation);
+      conversations.forEach(renderConversationItem);
     })
   }
 
   function viewConversation(conversation) {
+    currentConversation = conversation;
+
     var html = Fliplet.Widget.Templates['templates.conversation-content'](conversation);
     $content.html(html);
+
+    var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
+    conversationMessages.forEach(renderMessage);
   }
 
   function viewNewConversation() {
@@ -125,11 +151,20 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
-  function renderMessage(message) {
-    console.log(message)
+  function onMessage(message) {
+    messages.push(message);
+
+    if (message.dataSourceId === currentConversation.id) {
+      renderMessage(message);
+    }
   }
 
-  function renderConversation(conversation) {
+  function renderMessage(message) {
+    var html = Fliplet.Widget.Templates['templates.message'](message);
+    $content.find('.messages').append(html);
+  }
+
+  function renderConversationItem(conversation) {
     var html = Fliplet.Widget.Templates['templates.conversation-item'](conversation);
     $conversationsList.append(html);
   }
