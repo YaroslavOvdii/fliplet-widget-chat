@@ -49,6 +49,21 @@ Fliplet.Widget.instance('chat', function (data) {
   $chat.on('click', '[data-new-conversation]', function (event) {
     event.preventDefault();
     viewNewConversation();
+  });
+
+  $chat.on('click', '[data-create-conversation]', function (event) {
+    event.preventDefault();
+    var id = $(this).data('create-conversation');
+
+    chat.create({
+      name: $(this).text(),
+      group: [id]
+    }).then(function (conversationId) {
+      return getConversations();
+    }).then(function () {
+      // we assume the new conversation is the first one in the list
+      $chat.find('[data-conversation-id]:eq(0)').click();
+    });
   })
 
   // Handler to log in
@@ -82,9 +97,9 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function getConversations() {
-    $conversationsList.html('');
-
     return chat.conversations().then(function (response) {
+      $conversationsList.html('');
+
       conversations = response;
       conversations.forEach(renderConversation);
     })
