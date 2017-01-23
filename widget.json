@@ -19,6 +19,7 @@
   },
   "build": {
     "dependencies": [
+      "lodash",
       "bootstrap-css",
       "handlebars",
       "fliplet-core",
@@ -26,7 +27,8 @@
     ],
     "assets": [
       "js/build.templates.js",
-      "js/build.js"
+      "js/build.js",
+      "css/chat.css"
     ]
   }
 }

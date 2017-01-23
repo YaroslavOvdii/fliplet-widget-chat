@@ -1,0 +1,11 @@
+<h4>New conversation</h4>
+
+<p>Select contact</p>
+
+<ul class="contacts">
+  {{#each contacts}}
+    <li>
+      <a href="#" data-id="{{ id }}">{{ name }}</a>
+    </li>
+  {{/each}}
+</ul>

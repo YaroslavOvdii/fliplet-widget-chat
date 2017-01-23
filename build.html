@@ -6,20 +6,19 @@
     <input type="submit" class="btn btn-primary" value="Log in" />
   </form>
   <div class="chat hidden">
-    <div class="conversations">
-      <h4>Conversations</h4>
-      <ul></ul>
+    <div class="chat-frame">
+      <div class="conversations">
+        <a href="#" data-new-conversation class="btn btn-primary btn-sm">New conversation</a>
+        <hr />
+        <h4>Conversations</h4>
+        <ul></ul>
+      </div>
+      <hr />
+      <div class="chat-content"></div>
     </div>
     <hr />
-    <div class="conversation">
-      <h4>Conversation</h4>
-      <ul></ul>
-      <form class="message">
-        <h4>New message</h4>
-        <input type="text" placeholder="Message">
-      </form>
+    <div class="profile">
+      <a href="#" data-logout class="btn btn-primary">Log out</a>
     </div>
-    <hr />
-    <a href="#" data-logout>Log out</a>
   </div>
 </div>

@@ -1,25 +1,33 @@
 Fliplet.Widget.instance('chat', function (data) {
-
-  // ---------------------------------------------------------------
-  // variables setup
-
-  var USER_STORAGE_KEY = '__flChatUser';
-
-  var $wrapper = $(this);
-  var $login = $wrapper.find('form.login');
-  var $chat = $wrapper.find('.chat');
-  var $conversations = $chat.find('.conversations ul');
-  var chat;
-
   if (!data.dataSourceId) {
     return;
   }
 
+  // ---------------------------------------------------------------
+  // const setup
+
+  var USER_STORAGE_KEY = '__flChatUser';
+
+  // ---------------------------------------------------------------
+  // jquery elements setup
+
+  var $wrapper = $(this);
+  var $loginForm = $wrapper.find('form.login');
+  var $chat = $wrapper.find('.chat');
+  var $conversationsList = $chat.find('.conversations ul');
+  var $content = $chat.find('.chat-content');
+
+  // ---------------------------------------------------------------
+  // variables setup
+
+  var chat;
+  var conversations;
   var chatConnection = Fliplet.Chat.connect(data);
 
   // ---------------------------------------------------------------
   // events setup
 
+  // Handler to log out
   $chat.find('[data-logout]').click(function (event) {
     event.preventDefault();
     Fliplet.Storage.remove(USER_STORAGE_KEY).then(function () {
@@ -27,16 +35,33 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   });
 
-  $login.submit(function (event) {
+  // Handler to view a conversation
+  $chat.on('click', '[data-conversation-id]', function (event) {
+    event.preventDefault();
+
+    var id = $(this).data('conversation-id');
+    var conversation = _.find(conversations, { id: id });
+
+    viewConversation(conversation);
+  });
+
+  // Handler to create a new conversation
+  $chat.on('click', '[data-new-conversation]', function (event) {
+    event.preventDefault();
+    viewNewConversation();
+  })
+
+  // Handler to log in
+  $loginForm.submit(function (event) {
     event.preventDefault();
 
     chatConnection.then(function () {
       return chat.login({
-        email: $login.find('[type="email"]').val(),
-        password: $login.find('[type="password"]').val()
+        email: $loginForm.find('[type="email"]').val(),
+        password: $loginForm.find('[type="password"]').val()
       });
     }).then(function onLogin(user) {
-      $login.addClass('hidden');
+      $loginForm.addClass('hidden');
       return Fliplet.Storage.set(USER_STORAGE_KEY, user);
     }).then(onLogin);
   });
@@ -46,7 +71,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function showLoginForm() {
     $chat.addClass('hidden');
-    $login.removeClass('hidden');
+    $loginForm.removeClass('hidden');
   }
 
   function onLogin() {
@@ -57,11 +82,32 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function getConversations() {
-    $conversations.html('');
+    $conversationsList.html('');
 
-    return chat.conversations().then(function (conversations) {
+    return chat.conversations().then(function (response) {
+      conversations = response;
       conversations.forEach(renderConversation);
     })
+  }
+
+  function viewConversation(conversation) {
+    var html = Fliplet.Widget.Templates['templates.conversation-content'](conversation);
+    $content.html(html);
+  }
+
+  function viewNewConversation() {
+    chat.contacts().then(function (contacts) {
+      var html = Fliplet.Widget.Templates['templates.new-conversation']({
+        contacts: contacts.map(function (contact) {
+          return {
+            id: contact.id,
+            name: contact.data.Name
+          }
+        })
+      });
+
+      $content.html(html);
+    });
   }
 
   function renderMessage(message) {
@@ -69,8 +115,8 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function renderConversation(conversation) {
-    console.log(conversation)
-    // $conversations.append()
+    var html = Fliplet.Widget.Templates['templates.conversation-item'](conversation);
+    $conversationsList.append(html);
   }
 
   // ---------------------------------------------------------------

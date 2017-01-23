@@ -1,0 +1,15 @@
+.chat-frame {
+  display: flex;
+  flex-direction: row;
+}
+
+.conversations {
+  background: #DDD;
+  padding: 20px;
+}
+
+.chat-content {
+  flex: 1;
+  background: #EEE;
+  padding: 20px;
+}
