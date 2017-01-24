@@ -13,6 +13,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $chat = $wrapper.find('.chat');
   var $conversationsList = $chat.find('.conversations ul');
   var $content = $chat.find('.chat-content');
+  var onlineInputsSelector = '.new-message input';
 
   if (!data.dataSourceId) {
     return $wrapper.find('.chat-not-configured').removeClass('hidden');
@@ -228,6 +229,14 @@ Fliplet.Widget.instance('chat', function (data) {
 
   // ---------------------------------------------------------------
   // init
+
+  Fliplet.Navigator.onOnline(function () {
+    $(onlineInputsSelector).prop('disabled', false);
+  });
+
+  Fliplet.Navigator.onOffline(function () {
+    $(onlineInputsSelector).prop('disabled', true);
+  });
 
   chatConnection.then(function (chatInstance) {
     chat = chatInstance;
