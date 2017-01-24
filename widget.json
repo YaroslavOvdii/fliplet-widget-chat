@@ -20,7 +20,7 @@
   },
   "build": {
     "dependencies": [
-      "lodash",
+      "moment",
       "bootstrap-css",
       "handlebars",
       "fliplet-core",

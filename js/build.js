@@ -25,6 +25,8 @@ Fliplet.Widget.instance('chat', function (data) {
   var conversations;
   var currentConversation;
   var messages = [];
+  var contacts = [];
+  var currentUser;
   var chatConnection = Fliplet.Chat.connect(data);
 
   // ---------------------------------------------------------------
@@ -99,6 +101,7 @@ Fliplet.Widget.instance('chat', function (data) {
         password: $loginForm.find('[type="password"]').val()
       });
     }).then(function onLogin(user) {
+      currentUser = user.data;
       $loginForm.addClass('hidden');
       return Fliplet.App.Storage.set(USERTOKEN_STORAGE_KEY, user.data.flUserToken);
     }).then(onLogin)
@@ -119,7 +122,9 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     $chat.removeClass('hidden');
 
-    getConversations().then(function () {
+    getContacts().then(function () {
+      return getConversations();
+    }).then(function () {
       return chat.stream(onMessage);
     });
   }
@@ -143,15 +148,24 @@ Fliplet.Widget.instance('chat', function (data) {
     conversationMessages.forEach(renderMessage);
   }
 
+  function getContacts(cache) {
+    return chat.contacts().then(function (response) {
+      contacts = response;
+      return Promise.resolve();
+    });
+  }
+
   function viewNewConversation() {
-    chat.contacts().then(function (contacts) {
+    getContacts().then(function () {
       var html = Fliplet.Widget.Templates['templates.new-conversation']({
-        contacts: contacts.map(function (contact) {
-          return {
-            id: contact.id,
-            name: contact.data.fullName
-          }
-        })
+        contacts: _.reject(
+          contacts.map(function (contact) {
+            var data = contact.data;
+            data.id = contact.id;
+            return data;
+          }), function (contact) {
+            return contact.flUserId === currentUser.flUserId;
+          })
       });
 
       $content.html(html);
@@ -164,10 +178,30 @@ Fliplet.Widget.instance('chat', function (data) {
     if (currentConversation && message.dataSourceId === currentConversation.id) {
       renderMessage(message);
     }
+
+    var conversation = _.find(conversations, { id: message.dataSourceId });
+    if (!conversation) {
+      // If we don't find the conversation of this message, most likely means a user just
+      // started messaging us on a new conversation so let's just refetch the list
+      getConversations();
+    }
   }
 
   function renderMessage(message) {
-    var html = Fliplet.Widget.Templates['templates.message'](message);
+    var sender = _.find(contacts, function (contact) {
+      return contact.data.flUserId === message.data.fromUserId;
+    })
+
+    if (!sender) {
+      return;
+    }
+
+    var html = Fliplet.Widget.Templates['templates.message']({
+      sender: sender.data,
+      message: message.data,
+      timeAgo: moment(message.createdAt).fromNow()
+    });
+
     $content.find('.messages').append(html);
   }
 
@@ -186,7 +220,10 @@ Fliplet.Widget.instance('chat', function (data) {
     if (userToken) {
       return chat.login({
         flUserToken: userToken
-      }).then(onLogin, showLoginForm);
+      }).then(function (user) {
+        currentUser = user.data;
+        onLogin();
+      }, showLoginForm);
     }
 
     showLoginForm();

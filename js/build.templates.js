@@ -21,11 +21,15 @@ this["Fliplet"]["Widget"]["Templates"]["templates.conversation-item"] = Handleba
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.message"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var helper;
+    var stack1, helper, alias1=container.lambda, alias2=container.escapeExpression;
 
-  return "<li>\n  <p>"
-    + container.escapeExpression(((helper = (helper = helpers.body || (depth0 != null ? depth0.body : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"body","hash":{},"data":data}) : helper)))
-    + "</p>\n</li>";
+  return "<li>\n  <p>\n    <strong>"
+    + alias2(alias1(((stack1 = (depth0 != null ? depth0.sender : depth0)) != null ? stack1.fullName : stack1), depth0))
+    + "</strong> ("
+    + alias2(((helper = (helper = helpers.timeAgo || (depth0 != null ? depth0.timeAgo : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"timeAgo","hash":{},"data":data}) : helper)))
+    + ")<br />\n    "
+    + alias2(alias1(((stack1 = (depth0 != null ? depth0.message : depth0)) != null ? stack1.body : stack1), depth0))
+    + "\n  </p>\n</li>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.new-conversation"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -34,7 +38,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.new-conversation"] = Handlebar
   return "    <li>\n      <a href=\"#\" data-create-conversation=\""
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
     + "\">"
-    + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
+    + alias4(((helper = (helper = helpers.fullName || (depth0 != null ? depth0.fullName : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"fullName","hash":{},"data":data}) : helper)))
     + "</a>\n    </li>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;
