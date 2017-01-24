@@ -33,7 +33,9 @@ Fliplet.Widget.instance('chat', function (data) {
   // Handler to log out
   $chat.find('[data-logout]').click(function (event) {
     event.preventDefault();
-    Fliplet.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+    Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+      return chat.logout();
+    }).then(function () {
       showLoginForm();
     });
   });
@@ -56,11 +58,10 @@ Fliplet.Widget.instance('chat', function (data) {
 
   $chat.on('click', '[data-create-conversation]', function (event) {
     event.preventDefault();
-    var id = $(this).data('create-conversation');
+    var targetUserId = $(this).data('create-conversation');
 
     chat.create({
-      name: $(this).text(),
-      group: [id]
+      participants: [targetUserId]
     }).then(function (conversationId) {
       return getConversations();
     }).then(function () {
@@ -98,7 +99,7 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     }).then(function onLogin(user) {
       $loginForm.addClass('hidden');
-      return Fliplet.Storage.set(USERTOKEN_STORAGE_KEY, user.data.flUserToken);
+      return Fliplet.App.Storage.set(USERTOKEN_STORAGE_KEY, user.data.flUserToken);
     }).then(onLogin)
     .catch(function (error) {
       // TODO: replace with better error UI
@@ -179,7 +180,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   chatConnection.then(function (chatInstance) {
     chat = chatInstance;
-    return Fliplet.Storage.get(USERTOKEN_STORAGE_KEY);
+    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY);
   }).then(function (userToken) {
     if (userToken) {
       return chat.login({
