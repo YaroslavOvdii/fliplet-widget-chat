@@ -3,7 +3,7 @@ Fliplet.Widget.instance('chat', function (data) {
   // ---------------------------------------------------------------
   // const setup
 
-  var USERTOKEN_STORAGE_KEY = '__flChatUserToken';
+  var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
 
   // ---------------------------------------------------------------
   // jquery elements setup
