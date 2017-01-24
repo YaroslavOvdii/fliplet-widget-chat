@@ -84,7 +84,8 @@ Fliplet.Widget.instance('chat', function (data) {
     chat.message(currentConversation.id, {
       body: text
     }).then(function () {
-      // scroll to bottom
+      // TODO: scroll to bottom on next frame (or CPU cycle)
+      // No need to render messages as observables will run automatically
     });
   });
 
@@ -160,7 +161,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function onMessage(message) {
     messages.push(message);
 
-    if (message.dataSourceId === currentConversation.id) {
+    if (currentConversation && message.dataSourceId === currentConversation.id) {
       renderMessage(message);
     }
   }
