@@ -27,6 +27,9 @@ Fliplet.Widget.instance('chat', function (data) {
   var messages = [];
   var contacts = [];
   var currentUser;
+  var scrollToMessageTimeout;
+  var scrollToMessageTs = 0;
+  var scrollToMessageSpeed = 500;
   var chatConnection = Fliplet.Chat.connect(data);
 
   // ---------------------------------------------------------------
@@ -49,6 +52,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var id = $(this).data('conversation-id');
     var conversation = _.find(conversations, { id: id });
 
+    scrollToMessageTs = 0;
     viewConversation(conversation);
   });
 
@@ -85,9 +89,6 @@ Fliplet.Widget.instance('chat', function (data) {
 
     chat.message(currentConversation.id, {
       body: text
-    }).then(function () {
-      // TODO: scroll to bottom on next frame (or CPU cycle)
-      // No need to render messages as observables will run automatically
     });
   });
 
@@ -188,6 +189,11 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function renderMessage(message) {
+    if (scrollToMessageTimeout) {
+      clearTimeout(scrollToMessageTimeout);
+      scrollToMessageTimeout = undefined;
+    }
+
     var sender = _.find(contacts, function (contact) {
       return contact.data.flUserId === message.data.fromUserId;
     })
@@ -202,7 +208,17 @@ Fliplet.Widget.instance('chat', function (data) {
       timeAgo: moment(message.createdAt).fromNow()
     });
 
-    $content.find('.messages').append(html);
+    var $messages = $content.find('.messages');
+
+    $messages.append(html);
+
+    // scroll to bottom
+    scrollToMessageTimeout = setTimeout(function () {
+      $messages.stop( true, true ).animate({
+        scrollTop: $messages.prop('scrollHeight')
+      }, scrollToMessageTs ? scrollToMessageSpeed : 0);
+      scrollToMessageTs = 10;
+    }, scrollToMessageTs);
   }
 
   function renderConversationItem(conversation) {

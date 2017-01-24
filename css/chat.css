@@ -13,3 +13,8 @@
   background: #EEE;
   padding: 20px;
 }
+
+.messages {
+  overflow-y: auto;
+  height: 150px;
+}
