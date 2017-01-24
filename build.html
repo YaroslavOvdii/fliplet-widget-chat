@@ -1,10 +1,15 @@
 <div class="chat-wrapper" data-chat-id="{{ id }}">
+  <div class="alert alert-warning chat-not-configured hidden" role="alert">
+    <strong>Chat component</strong> — The data source for this component has not been configured yet.
+  </div>
+
   <form class="login hidden">
     <h4>Login</h4>
     <input type="email" placeholder="Email address" />
     <input type="password" placeholder="Password" />
     <input type="submit" class="btn btn-primary" value="Log in" />
   </form>
+
   <div class="chat hidden">
     <div class="chat-frame">
       <div class="conversations">

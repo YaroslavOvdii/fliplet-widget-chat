@@ -1,8 +1,22 @@
-<div>
-  <form>
-    <div class="form-group">
-      <label>Contacts list</label>
-      <select name="dataSource" required></select>
+<form class="form-horizontal">
+  <header>
+    <p>Configure your form</p>
+    <a id="help_tip" href="#">Need help?</a>
+  </header>
+
+  <div class="form-group clearfix">
+    <div class="col-sm-4 control-label">
+      <label for="contactsList">Contacts list</label>
     </div>
-  </form>
-</div>
+    <div class="col-sm-8">
+      <select id="contactsList" name="dataSource" required></select>
+      <hr />
+      <p>Data source requirements:</p>
+      <ul>
+        <li>email</li>
+        <li>password</li>
+        <li>fullName</li>
+      </ul>
+    </div>
+  </div>
+</form>

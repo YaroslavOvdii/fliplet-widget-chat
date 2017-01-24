@@ -1,12 +1,9 @@
 Fliplet.Widget.instance('chat', function (data) {
-  if (!data.dataSourceId) {
-    return;
-  }
 
   // ---------------------------------------------------------------
   // const setup
 
-  var USER_STORAGE_KEY = '__flChatUser';
+  var USERTOKEN_STORAGE_KEY = '__flChatUserToken';
 
   // ---------------------------------------------------------------
   // jquery elements setup
@@ -16,6 +13,10 @@ Fliplet.Widget.instance('chat', function (data) {
   var $chat = $wrapper.find('.chat');
   var $conversationsList = $chat.find('.conversations ul');
   var $content = $chat.find('.chat-content');
+
+  if (!data.dataSourceId) {
+    return $wrapper.find('.chat-not-configured').removeClass('hidden');
+  }
 
   // ---------------------------------------------------------------
   // variables setup
@@ -32,7 +33,7 @@ Fliplet.Widget.instance('chat', function (data) {
   // Handler to log out
   $chat.find('[data-logout]').click(function (event) {
     event.preventDefault();
-    Fliplet.Storage.remove(USER_STORAGE_KEY).then(function () {
+    Fliplet.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
       showLoginForm();
     });
   });
@@ -79,7 +80,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     $message.val('');
 
-    chat.message({
+    chat.message(currentConversation.id, {
       body: text
     }).then(function () {
       // scroll to bottom
@@ -97,8 +98,12 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     }).then(function onLogin(user) {
       $loginForm.addClass('hidden');
-      return Fliplet.Storage.set(USER_STORAGE_KEY, user);
-    }).then(onLogin);
+      return Fliplet.Storage.set(USERTOKEN_STORAGE_KEY, user.data.flUserToken);
+    }).then(onLogin)
+    .catch(function (error) {
+      // TODO: replace with better error UI
+      alert(error.message || error);
+    });
   });
 
   // ---------------------------------------------------------------
@@ -142,7 +147,7 @@ Fliplet.Widget.instance('chat', function (data) {
         contacts: contacts.map(function (contact) {
           return {
             id: contact.id,
-            name: contact.data.Name
+            name: contact.data.fullName
           }
         })
       });
@@ -174,13 +179,13 @@ Fliplet.Widget.instance('chat', function (data) {
 
   chatConnection.then(function (chatInstance) {
     chat = chatInstance;
-    return Fliplet.Storage.get(USER_STORAGE_KEY);
-  }).then(function (user) {
-    if (user) {
-      return chat.authenticate(user).then(onLogin, showLoginForm);
+    return Fliplet.Storage.get(USERTOKEN_STORAGE_KEY);
+  }).then(function (userToken) {
+    if (userToken) {
+      return chat.login({
+        flUserToken: userToken
+      }).then(onLogin, showLoginForm);
     }
-
-    console.log('show')
 
     showLoginForm();
   });

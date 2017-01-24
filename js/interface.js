@@ -1,7 +1,7 @@
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 
-var $dataSources = $('select');
+var $dataSources = $('[name="dataSource"]');
 
 $('form').submit(function (event) {
   event.preventDefault();
@@ -10,6 +10,7 @@ $('form').submit(function (event) {
 
   Fliplet.Widget.save(data).then(function () {
     Fliplet.Widget.complete();
+    Fliplet.Studio.emit('reload-page-preview');
   });
 });
 
@@ -20,7 +21,7 @@ Fliplet.Widget.onSaveRequest(function () {
 
 // Load the data source for the contacts
 $dataSources.prop('disabled', 'disabled');
-$dataSources.append('<option value="">Please wait...</option>');
+$dataSources.append('<option value="">-- Please wait...</option>');
 
 Fliplet.DataSources.get({
   organizationId: organizationId
