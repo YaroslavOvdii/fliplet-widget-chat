@@ -82,7 +82,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   $chat.on('submit', '[data-new-message]', function (event) {
     event.preventDefault();
-    var $message = $('[type="text"]');
+    var $message = $('[data-message-body]');
     var text = $message.val();
 
     if (!text) {
@@ -179,6 +179,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
     var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
     conversationMessages.forEach(renderMessage);
+
+    $('[data-message-body]').focus();
   }
 
   function getContacts(cache) {
