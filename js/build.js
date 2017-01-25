@@ -71,15 +71,17 @@ Fliplet.Widget.instance('chat', function (data) {
     event.preventDefault();
     var targetUserId = $(this).data('create-conversation');
 
-    return getContacts(false).then(function () {
-      return getConversations();
-    }).then(function () {
+    return getConversations().then(function () {
       return chat.create({
         name: DEFAULT_CHAT_NAME,
         participants: [targetUserId]
       });
     }).then(function (conversation) {
-      return getConversations().then(function () {
+      var fetchRequiredData = conversation.isNew
+        ? getContacts(false).then(function () { return getConversations(); })
+        : Promise.resolve();
+
+      return fetchRequiredData.then(function () {
         $chat.find('[data-conversation-id="' + conversation.id + '"]').click();
       });
     });
@@ -215,7 +217,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function viewNewConversation() {
-    getContacts().then(function () {
+    getContacts(false).then(function () {
       var html = Fliplet.Widget.Templates['templates.new-conversation']({
         contacts: getContactsWithoutCurrentUser().map(function (contact) {
           var data = contact.data;
