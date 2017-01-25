@@ -114,7 +114,7 @@ Fliplet.Widget.instance('chat', function (data) {
         password: $loginForm.find('[type="password"]').val()
       });
     }).then(function onLogin(user) {
-      currentUser = user.data;
+      setCurrentUser(user.data);
       $loginForm.addClass('hidden');
       return Fliplet.App.Storage.set(USERTOKEN_STORAGE_KEY, user.data.flUserToken);
     }).then(onLogin)
@@ -140,6 +140,10 @@ Fliplet.Widget.instance('chat', function (data) {
     }).then(function () {
       return chat.stream(onMessage);
     });
+  }
+
+  function setCurrentUser(user) {
+    currentUser = user;
   }
 
   // All contacts apart from the logged user
@@ -339,7 +343,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return chat.login({
         flUserToken: userToken
       }).then(function (user) {
-        currentUser = user.data;
+        setCurrentUser(user.data);
         onLogin();
       }, showLoginForm);
     }
