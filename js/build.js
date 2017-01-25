@@ -71,11 +71,16 @@ Fliplet.Widget.instance('chat', function (data) {
     event.preventDefault();
     var targetUserId = $(this).data('create-conversation');
 
+    // Make sure we get the updated contacts list after creating a conversation
+    Fliplet.API.clearCache();
+
     chat.create({
       name: DEFAULT_CHAT_NAME,
       participants: [targetUserId]
     }).then(function (conversation) {
-      return getConversations().then(function () {
+      return getContacts().then(function () {
+        return getConversations()
+      }).then(function () {
         $chat.find('[data-conversation-id="' + conversation.id + '"]').click();
       });
     });
@@ -146,7 +151,6 @@ Fliplet.Widget.instance('chat', function (data) {
   function getConversations() {
     return chat.conversations().then(function (response) {
       conversations = response.map(function (c) {
-
         var existingConversation = _.find(conversations, { id: c.id });
         if (existingConversation) {
           c.unreadMessages = existingConversation.unreadMessages;
@@ -204,7 +208,7 @@ Fliplet.Widget.instance('chat', function (data) {
     renderConversationItem(conversation, true);
   }
 
-  function getContacts(cache) {
+  function getContacts() {
     return chat.contacts().then(function (response) {
       contacts = response;
       return Promise.resolve();
