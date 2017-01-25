@@ -72,11 +72,10 @@ Fliplet.Widget.instance('chat', function (data) {
 
     chat.create({
       participants: [targetUserId]
-    }).then(function (conversationId) {
-      return getConversations();
-    }).then(function () {
-      // we assume the new conversation is the first one in the list
-      $chat.find('[data-conversation-id]:eq(0)').click();
+    }).then(function (conversation) {
+      return getConversations().then(function () {
+        $chat.find('[data-conversation-id="' + conversation.id + '"]').click();
+      });
     });
   });
 
