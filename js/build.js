@@ -135,7 +135,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     $chat.removeClass('hidden');
 
-    getContacts().then(function () {
+    getContacts(false).then(function () {
       return getConversations();
     }).then(function () {
       return chat.stream(onMessage);
