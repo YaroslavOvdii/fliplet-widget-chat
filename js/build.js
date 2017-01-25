@@ -295,6 +295,7 @@ Fliplet.Widget.instance('chat', function (data) {
       }
 
       var $message = $(Fliplet.Widget.Templates['templates.message']({
+        isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         sender: sender.data,
         message: message.data,
         timeAgo: message.createdAtDate.fromNow()

@@ -1,4 +1,4 @@
-<li>
+<li class="{{#if isFromCurrentUser}}left{{else}}right{{/if}}">
   <p>
     <strong>{{ sender.fullName }}</strong> ({{timeAgo}})<br />
     {{ message.body }}
