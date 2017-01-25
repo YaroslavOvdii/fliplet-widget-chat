@@ -7,7 +7,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.conversation-content"] = Handl
 
   return "<h4>"
     + container.escapeExpression(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"name","hash":{},"data":data}) : helper)))
-    + "</h4>\n<hr />\n<ul class=\"messages\"></ul>\n<hr />\n<form class=\"new-message\">\n  <input type=\"text\" placeholder=\"Write message\">\n  <input type=\"submit\" class=\"btn btn-primary\" value=\"Send\" />\n</form>";
+    + "</h4>\n<hr />\n<ul data-conversation-messages></ul>\n<hr />\n<form data-new-message>\n  <input type=\"text\" placeholder=\"Write message\">\n  <input type=\"submit\" class=\"btn btn-primary\" value=\"Send\" />\n</form>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.conversation-item"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

@@ -8,13 +8,13 @@
   padding: 20px;
 }
 
-.chat-content {
+[data-conversation] {
   flex: 1;
   background: #EEE;
   padding: 20px;
 }
 
-.messages {
+[data-conversation-messages] {
   overflow-y: auto;
   height: 150px;
 }

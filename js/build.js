@@ -4,6 +4,8 @@ Fliplet.Widget.instance('chat', function (data) {
   // const setup
 
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
+  var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
+  var SCROLL_TO_MESSAGE_SPEED = 500;
 
   // ---------------------------------------------------------------
   // jquery elements setup
@@ -11,9 +13,9 @@ Fliplet.Widget.instance('chat', function (data) {
   var $wrapper = $(this);
   var $loginForm = $wrapper.find('form.login');
   var $chat = $wrapper.find('.chat');
-  var $conversationsList = $chat.find('.conversations ul');
-  var $content = $chat.find('.chat-content');
-  var onlineInputsSelector = '.new-message input';
+  var $conversationsList = $chat.find('[data-conversations-list]');
+  var $content = $chat.find('[data-conversation]');
+  var $messages;
 
   if (!data.dataSourceId) {
     return $wrapper.find('.chat-not-configured').removeClass('hidden');
@@ -30,7 +32,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var currentUser;
   var scrollToMessageTimeout;
   var scrollToMessageTs = 0;
-  var scrollToMessageSpeed = 500;
   var chatConnection = Fliplet.Chat.connect(data);
 
   // ---------------------------------------------------------------
@@ -77,7 +78,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   });
 
-  $chat.on('submit', '.new-message', function (event) {
+  $chat.on('submit', '[data-new-message]', function (event) {
     event.preventDefault();
     var $message = $('[type="text"]');
     var text = $message.val();
@@ -146,6 +147,8 @@ Fliplet.Widget.instance('chat', function (data) {
     var html = Fliplet.Widget.Templates['templates.conversation-content'](conversation);
     $content.html(html);
 
+    $messages = $content.find('[data-conversation-messages]');
+
     var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
     conversationMessages.forEach(renderMessage);
   }
@@ -203,21 +206,23 @@ Fliplet.Widget.instance('chat', function (data) {
       return;
     }
 
-    var html = Fliplet.Widget.Templates['templates.message']({
+    var $message = $(Fliplet.Widget.Templates['templates.message']({
       sender: sender.data,
       message: message.data,
       timeAgo: moment(message.createdAt).fromNow()
-    });
+    }));
 
-    var $messages = $content.find('.messages');
+    $message.css('opacity', 0);
 
-    $messages.append(html);
+    $messages.append($message);
+
+    $message.animate({ opacity: 1}, 500);
 
     // scroll to bottom
     scrollToMessageTimeout = setTimeout(function () {
       $messages.stop( true, true ).animate({
         scrollTop: $messages.prop('scrollHeight')
-      }, scrollToMessageTs ? scrollToMessageSpeed : 0);
+      }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
       scrollToMessageTs = 10;
     }, scrollToMessageTs);
   }
@@ -231,11 +236,11 @@ Fliplet.Widget.instance('chat', function (data) {
   // init
 
   Fliplet.Navigator.onOnline(function () {
-    $(onlineInputsSelector).prop('disabled', false);
+    $(ONLINE_INPUTS_SELECTOR).prop('disabled', false);
   });
 
   Fliplet.Navigator.onOffline(function () {
-    $(onlineInputsSelector).prop('disabled', true);
+    $(ONLINE_INPUTS_SELECTOR).prop('disabled', true);
   });
 
   chatConnection.then(function (chatInstance) {
