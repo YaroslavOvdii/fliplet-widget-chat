@@ -7,7 +7,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
   var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
   var SCROLL_TO_MESSAGE_SPEED = 500;
-  var TODAY = moment().startOf('day');
 
   // ---------------------------------------------------------------
   // jquery elements setup
@@ -60,12 +59,13 @@ Fliplet.Widget.instance('chat', function (data) {
     viewConversation(conversation);
   });
 
-  // Handler to create a new conversation
+  // Handler to view the frame to create a new conversation
   $chat.on('click', '[data-new-conversation]', function (event) {
     event.preventDefault();
     viewNewConversation();
   });
 
+  // Handler to create a new conversation
   $chat.on('click', '[data-create-conversation]', function (event) {
     event.preventDefault();
     var targetUserId = $(this).data('create-conversation');
@@ -80,6 +80,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   });
 
+  // Handler to post a message to a conversation
   $chat.on('submit', '[data-new-message]', function (event) {
     event.preventDefault();
     var $message = $('[data-message-body]');
@@ -96,7 +97,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   });
 
-  // Handler to log in
+  // Handler to log the user in by email and password
   $loginForm.submit(function (event) {
     event.preventDefault();
 
@@ -134,20 +135,29 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
+  // All contacts apart from the logged user
+  function getContactsWithoutCurrentUser() {
+    return _.reject(contacts, function (c) {
+      return c.data.flUserId === currentUser.flUserId;
+    });
+  }
+
   function getConversations() {
     return chat.conversations().then(function (response) {
       conversations = response.map(function (c) {
+
         var existingConversation = _.find(conversations, { id: c.id });
         if (existingConversation) {
+          c.unreadMessages = existingConversation.unreadMessages;
           c.lastMessage = existingConversation.lastMessage;
+        } else {
+          c.unreadMessages = 0;
         }
 
         return c;
       });
 
-      var otherPeople = _.reject(contacts, function (c) {
-        return c.data.flUserId === currentUser.flUserId;
-      });
+      var otherPeople = getContactsWithoutCurrentUser();
 
       // Add a readable name to the conversation, based on the other people in the group
       conversations.forEach(function (conversation) {
@@ -181,6 +191,11 @@ Fliplet.Widget.instance('chat', function (data) {
     conversationMessages.forEach(renderMessage);
 
     $('[data-message-body]').focus();
+
+    chat.markMessagesAsRead(messages);
+
+    currentConversation.unreadMessages = 0;
+    renderConversationItem(conversation, true);
   }
 
   function getContacts(cache) {
@@ -193,14 +208,11 @@ Fliplet.Widget.instance('chat', function (data) {
   function viewNewConversation() {
     getContacts().then(function () {
       var html = Fliplet.Widget.Templates['templates.new-conversation']({
-        contacts: _.reject(
-          contacts.map(function (contact) {
-            var data = contact.data;
-            data.id = contact.id;
-            return data;
-          }), function (contact) {
-            return contact.flUserId === currentUser.flUserId;
-          })
+        contacts: getContactsWithoutCurrentUser().map(function (contact) {
+          var data = contact.data;
+          data.id = contact.id;
+          return data;
+        })
       });
 
       $content.html(html);
@@ -209,9 +221,12 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function onMessage(message) {
     message.createdAtDate = moment(message.createdAt);
+
     messages.push(message);
 
-    if (currentConversation && message.dataSourceId === currentConversation.id) {
+    var isCurrentConversation = currentConversation && message.dataSourceId === currentConversation.id;
+
+    if (isCurrentConversation) {
       renderMessage(message);
     }
 
@@ -227,6 +242,16 @@ Fliplet.Widget.instance('chat', function (data) {
         date: message.createdAtDate.calendar()
       };
 
+      if (!message.isReadByCurrentUser && !currentConversation) {
+        if (!currentConversation) {
+          // Message is unread and is not in the current conversation
+          conversation.unreadMessages++;
+        } else {
+          // Mark the message as read by the current user, since he's looking at this conversation
+          chat.markMessagesAsRead([message]);
+        }
+      }
+
       // Let's update the UI to reflect the last message
       renderConversationItem(conversation, true);
     }
@@ -240,7 +265,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     var sender = _.find(contacts, function (contact) {
       return contact.data.flUserId === message.data.fromUserId;
-    })
+    });
 
     if (!sender) {
       return;
@@ -253,9 +278,7 @@ Fliplet.Widget.instance('chat', function (data) {
     }));
 
     $message.css('opacity', 0);
-
     $messages.append($message);
-
     $message.animate({ opacity: 1}, 500);
 
     // scroll to bottom

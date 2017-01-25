@@ -18,6 +18,12 @@ this["Fliplet"]["Widget"]["Templates"]["templates.conversation-item"] = Handleba
     + " - "
     + alias4(((helper = (helper = helpers.date || (depth0 != null ? depth0.date : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"date","hash":{},"data":data}) : helper)))
     + "\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return " ("
+    + container.escapeExpression(((helper = (helper = helpers.unreadMessages || (depth0 != null ? depth0.unreadMessages : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"unreadMessages","hash":{},"data":data}) : helper)))
+    + " unread) ";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
@@ -27,7 +33,9 @@ this["Fliplet"]["Widget"]["Templates"]["templates.conversation-item"] = Handleba
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
     + "</strong><br />\n"
     + ((stack1 = helpers["with"].call(alias1,(depth0 != null ? depth0.lastMessage : depth0),{"name":"with","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "  </p>\n</li>";
+    + "    "
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.unreadMessages : depth0),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "\n  </p>\n</li>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.message"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

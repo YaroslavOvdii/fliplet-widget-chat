@@ -4,5 +4,6 @@
     {{#with lastMessage}}
       {{ body }} - {{ date }}
     {{/with}}
+    {{#if unreadMessages}} ({{ unreadMessages }} unread) {{/if}}
   </p>
 </li>
