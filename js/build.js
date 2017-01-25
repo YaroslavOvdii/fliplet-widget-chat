@@ -5,6 +5,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
+  var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
   var SCROLL_TO_MESSAGE_SPEED = 500;
 
   // ---------------------------------------------------------------
@@ -134,9 +135,26 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function getConversations() {
     return chat.conversations().then(function (response) {
-      $conversationsList.html('');
-
       conversations = response;
+
+      var otherPeople = _.reject(contacts, function (c) {
+        return c.data.flUserId === currentUser.flUserId;
+      });
+
+      // Add a readable name to the conversation, based on the other people in the group
+      conversations.forEach(function (conversation) {
+        var participants = conversation.definition.participants;
+
+        var conversationName = _.compact(_.filter(otherPeople, function (c) {
+          return participants.indexOf(c.data.flUserId) !== -1;
+        }).map(function (c) {
+          return c.data[PARTICIPANT_FULLNAME_COLUMN];
+        })).join(', ').trim();
+
+        conversation.name = conversationName || conversation.name;
+      });
+
+      $conversationsList.html('');
       conversations.forEach(renderConversationItem);
     })
   }
