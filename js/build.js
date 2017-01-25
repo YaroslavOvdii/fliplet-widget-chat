@@ -242,7 +242,7 @@ Fliplet.Widget.instance('chat', function (data) {
         date: message.createdAtDate.calendar()
       };
 
-      if (!message.isReadByCurrentUser && !currentConversation) {
+      if (!message.isReadByCurrentUser) {
         if (!currentConversation) {
           // Message is unread and is not in the current conversation
           conversation.unreadMessages++;
