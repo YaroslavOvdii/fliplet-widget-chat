@@ -1,3 +1,8 @@
-<li>
-  <a href="#" data-conversation-id="{{ id }}">{{ name }}</a>
+<li data-conversation-id="{{ id }}">
+  <p>
+    <strong>{{ name }}</strong><br />
+    {{#with lastMessage}}
+      {{ body }} - {{ date }}
+    {{/with}}
+  </p>
 </li>

@@ -7,6 +7,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
   var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
   var SCROLL_TO_MESSAGE_SPEED = 500;
+  var TODAY = moment().startOf('day');
 
   // ---------------------------------------------------------------
   // jquery elements setup
@@ -135,7 +136,14 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function getConversations() {
     return chat.conversations().then(function (response) {
-      conversations = response;
+      conversations = response.map(function (c) {
+        var existingConversation = _.find(conversations, { id: c.id });
+        if (existingConversation) {
+          c.lastMessage = existingConversation.lastMessage;
+        }
+
+        return c;
+      });
 
       var otherPeople = _.reject(contacts, function (c) {
         return c.data.flUserId === currentUser.flUserId;
@@ -155,8 +163,10 @@ Fliplet.Widget.instance('chat', function (data) {
       });
 
       $conversationsList.html('');
-      conversations.forEach(renderConversationItem);
-    })
+      conversations.forEach(function (conversation) {
+        renderConversationItem(conversation);
+      });
+    });
   }
 
   function viewConversation(conversation) {
@@ -196,6 +206,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function onMessage(message) {
+    message.createdAtDate = moment(message.createdAt);
     messages.push(message);
 
     if (currentConversation && message.dataSourceId === currentConversation.id) {
@@ -203,10 +214,19 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     var conversation = _.find(conversations, { id: message.dataSourceId });
+
     if (!conversation) {
       // If we don't find the conversation of this message, most likely means a user just
       // started messaging us on a new conversation so let's just refetch the list
       getConversations();
+    } else {
+      conversation.lastMessage = {
+        body: message.data.body,
+        date: message.createdAtDate.calendar()
+      };
+
+      // Let's update the UI to reflect the last message
+      renderConversationItem(conversation, true);
     }
   }
 
@@ -227,7 +247,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var $message = $(Fliplet.Widget.Templates['templates.message']({
       sender: sender.data,
       message: message.data,
-      timeAgo: moment(message.createdAt).fromNow()
+      timeAgo: message.createdAtDate.fromNow()
     }));
 
     $message.css('opacity', 0);
@@ -245,8 +265,13 @@ Fliplet.Widget.instance('chat', function (data) {
     }, scrollToMessageTs);
   }
 
-  function renderConversationItem(conversation) {
-    var html = Fliplet.Widget.Templates['templates.conversation-item'](conversation);
+  function renderConversationItem(data, replace) {
+    var html = Fliplet.Widget.Templates['templates.conversation-item'](data);
+
+    if (replace === true) {
+      return $('[data-conversation-id="' + data.id + '"]').replaceWith(html);
+    }
+
     $conversationsList.append(html);
   }
 
