@@ -3,6 +3,7 @@ Fliplet.Widget.instance('chat', function (data) {
   // ---------------------------------------------------------------
   // const setup
 
+  var DEFAULT_CHAT_NAME = 'Conversation';
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
   var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
@@ -71,6 +72,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var targetUserId = $(this).data('create-conversation');
 
     chat.create({
+      name: DEFAULT_CHAT_NAME,
       participants: [targetUserId]
     }).then(function (conversation) {
       return getConversations().then(function () {
@@ -160,6 +162,11 @@ Fliplet.Widget.instance('chat', function (data) {
 
       // Add a readable name to the conversation, based on the other people in the group
       conversations.forEach(function (conversation) {
+        // Let's first check whether the conversation name has been changed by the user
+        if (conversation.name !== DEFAULT_CHAT_NAME) {
+          return;
+        }
+
         var participants = conversation.definition.participants;
 
         var conversationName = _.compact(_.filter(otherPeople, function (c) {
