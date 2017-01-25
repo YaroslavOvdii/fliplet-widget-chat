@@ -71,16 +71,15 @@ Fliplet.Widget.instance('chat', function (data) {
     event.preventDefault();
     var targetUserId = $(this).data('create-conversation');
 
-    // Make sure we get the updated contacts list after creating a conversation
-    Fliplet.API.clearCache();
-
-    chat.create({
-      name: DEFAULT_CHAT_NAME,
-      participants: [targetUserId]
+    return getContacts(false).then(function () {
+      return getConversations();
+    }).then(function () {
+      return chat.create({
+        name: DEFAULT_CHAT_NAME,
+        participants: [targetUserId]
+      });
     }).then(function (conversation) {
-      return getContacts().then(function () {
-        return getConversations()
-      }).then(function () {
+      return getConversations().then(function () {
         $chat.find('[data-conversation-id="' + conversation.id + '"]').click();
       });
     });
@@ -208,8 +207,8 @@ Fliplet.Widget.instance('chat', function (data) {
     renderConversationItem(conversation, true);
   }
 
-  function getContacts() {
-    return chat.contacts().then(function (response) {
+  function getContacts(cache) {
+    return chat.contacts({ cache: cache }).then(function (response) {
       contacts = response;
       return Promise.resolve();
     });
@@ -267,37 +266,46 @@ Fliplet.Widget.instance('chat', function (data) {
     }
   }
 
+  function findContact(flUserId) {
+    return _.find(contacts, function (contact) {
+      return contact.data.flUserId === flUserId;
+    });
+  }
+
   function renderMessage(message) {
     if (scrollToMessageTimeout) {
       clearTimeout(scrollToMessageTimeout);
       scrollToMessageTimeout = undefined;
     }
 
-    var sender = _.find(contacts, function (contact) {
-      return contact.data.flUserId === message.data.fromUserId;
+    var sender = findContact(message.data.fromUserId);
+    var fetchContactsIfRequired = sender ? Promise.resolve() : getContacts(false);
+
+    fetchContactsIfRequired.then(function () {
+      sender = findContact(message.data.fromUserId);
+
+      if (!sender) {
+        return;
+      }
+
+      var $message = $(Fliplet.Widget.Templates['templates.message']({
+        sender: sender.data,
+        message: message.data,
+        timeAgo: message.createdAtDate.fromNow()
+      }));
+
+      $message.css('opacity', 0);
+      $messages.append($message);
+      $message.animate({ opacity: 1}, 500);
+
+      // scroll to bottom
+      scrollToMessageTimeout = setTimeout(function () {
+        $messages.stop( true, true ).animate({
+          scrollTop: $messages.prop('scrollHeight')
+        }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
+        scrollToMessageTs = 10;
+      }, scrollToMessageTs);
     });
-
-    if (!sender) {
-      return;
-    }
-
-    var $message = $(Fliplet.Widget.Templates['templates.message']({
-      sender: sender.data,
-      message: message.data,
-      timeAgo: message.createdAtDate.fromNow()
-    }));
-
-    $message.css('opacity', 0);
-    $messages.append($message);
-    $message.animate({ opacity: 1}, 500);
-
-    // scroll to bottom
-    scrollToMessageTimeout = setTimeout(function () {
-      $messages.stop( true, true ).animate({
-        scrollTop: $messages.prop('scrollHeight')
-      }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
-      scrollToMessageTs = 10;
-    }, scrollToMessageTs);
   }
 
   function renderConversationItem(data, replace) {
