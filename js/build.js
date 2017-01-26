@@ -266,11 +266,15 @@ Fliplet.Widget.instance('chat', function (data) {
 
           var sender = findContact(message.data.fromUserId);
           if (sender) {
-            Notification(sender.data.fullName, {
+            var notification = Notification(sender.data.fullName, {
               body: message.data.body,
               icon: $('link[rel="icon"]').attr('href'),
               timestamp: message.createdAtDate.unix()
             });
+
+            notification.onclick = function () {
+              viewConversation(conversation);
+            };
           }
         } else {
           // Mark the message as read by the current user, since he's looking at this conversation
