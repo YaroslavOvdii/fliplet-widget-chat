@@ -1,6 +1,12 @@
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 
+$(document).on('change', '.hidden-select', function(){
+  var selectedValue = $(this).val();
+  var selectedText = $(this).find("option:selected").text();
+  $(this).parents('.select-proxy-display').find('.select-value-proxy').text(selectedText);
+});
+
 var $dataSources = $('[name="dataSource"]');
 
 $('form').submit(function (event) {
@@ -20,9 +26,6 @@ Fliplet.Widget.onSaveRequest(function () {
 });
 
 // Load the data source for the contacts
-$dataSources.prop('disabled', 'disabled');
-$dataSources.append('<option value="">-- Please wait...</option>');
-
 Fliplet.DataSources.get({
   organizationId: organizationId
 }).then(function (dataSources) {
@@ -34,6 +37,7 @@ Fliplet.DataSources.get({
   if (data.dataSourceId) {
     $dataSources.val(data.dataSourceId);
   }
+  $dataSources.trigger('change');
 
   $dataSources.prop('disabled', '');
 });
