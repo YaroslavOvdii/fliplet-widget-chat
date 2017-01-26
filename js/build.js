@@ -346,13 +346,8 @@ Fliplet.Widget.instance('chat', function (data) {
   // ---------------------------------------------------------------
   // init
 
-  window.onblur = function() {
-    isActiveWindow = false;
-  };
-
-  window.onfocus = function () {
-    isActiveWindow = true;
-  };
+  $(window).blur(function() { isActiveWindow = false; });
+  $(window).focus(function() { isActiveWindow = true; });
 
   Fliplet.Navigator.onOnline(function () {
     $(ONLINE_INPUTS_SELECTOR).prop('disabled', false);
