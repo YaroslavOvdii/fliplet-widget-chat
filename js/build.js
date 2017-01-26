@@ -266,7 +266,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
           var sender = findContact(message.data.fromUserId);
           if (sender) {
-            Notification(sender.fullName, {
+            Notification(sender.data.fullName, {
               body: message.data.body
             });
           }
