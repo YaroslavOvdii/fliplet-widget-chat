@@ -35,6 +35,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var scrollToMessageTimeout;
   var scrollToMessageTs = 0;
   var chatConnection = Fliplet.Chat.connect(data);
+  var isActiveWindow = true;
 
   // ---------------------------------------------------------------
   // events setup
@@ -263,7 +264,12 @@ Fliplet.Widget.instance('chat', function (data) {
         if (!currentConversation) {
           // Message is unread and is not in the current conversation
           conversation.unreadMessages++;
+        } else {
+          // Mark the message as read by the current user, since he's looking at this conversation
+          chat.markMessagesAsRead([message]);
+        }
 
+        if (!currentConversation || !isActiveWindow) {
           var sender = findContact(message.data.fromUserId);
           if (sender) {
             var notification = Notification(sender.data.fullName, {
@@ -276,9 +282,6 @@ Fliplet.Widget.instance('chat', function (data) {
               viewConversation(conversation);
             };
           }
-        } else {
-          // Mark the message as read by the current user, since he's looking at this conversation
-          chat.markMessagesAsRead([message]);
         }
       }
 
@@ -342,6 +345,14 @@ Fliplet.Widget.instance('chat', function (data) {
 
   // ---------------------------------------------------------------
   // init
+
+  window.onblur = function() {
+    isActiveWindow = false;
+  };
+
+  window.onfocus = function () {
+    isActiveWindow = true;
+  };
 
   Fliplet.Navigator.onOnline(function () {
     $(ONLINE_INPUTS_SELECTOR).prop('disabled', false);
