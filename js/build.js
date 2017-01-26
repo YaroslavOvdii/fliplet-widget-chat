@@ -319,17 +319,22 @@ Fliplet.Widget.instance('chat', function (data) {
         timeAgo: message.createdAtDate.fromNow()
       }));
 
+      var scrollTop = $messages.scrollTop();
+      var shouldScrollToBottom = scrollTop === 0 || $messages[0].scrollHeight - scrollTop === $messages.outerHeight();
+
       $message.css('opacity', 0);
       $messages.append($message);
       $message.animate({ opacity: 1}, 500);
 
       // scroll to bottom
-      scrollToMessageTimeout = setTimeout(function () {
-        $messages.stop( true, true ).animate({
-          scrollTop: $messages.prop('scrollHeight')
-        }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
-        scrollToMessageTs = 10;
-      }, scrollToMessageTs);
+      if (shouldScrollToBottom) {
+        scrollToMessageTimeout = setTimeout(function () {
+          $messages.stop( true, true ).animate({
+            scrollTop: $messages.prop('scrollHeight')
+          }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
+          scrollToMessageTs = 10;
+        }, scrollToMessageTs);
+      }
     });
   }
 
