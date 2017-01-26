@@ -6,17 +6,22 @@
 
   <div class="form-group clearfix">
     <div class="col-sm-4 control-label">
-      <label for="contactsList">Contacts list</label>
+      <label for="select-menu">Select a data source for the contacts list</label>
     </div>
     <div class="col-sm-8">
-      <select id="contactsList" name="dataSource" required></select>
-      <hr />
-      <p>Data source requirements:</p>
-      <ul>
-        <li>email</li>
-        <li>password</li>
-        <li>fullName</li>
-      </ul>
+      <label for="select_datasource" class="select-proxy-display">
+        <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>-- Please wait...</select>
+        <span class="icon fa fa-chevron-down"></span>
+        <span class="select-value-proxy">-- Please wait...</span>
+      </label>
+      <div class="help-block">
+        <p>Data source requirements:</p>
+        <ul>
+          <li>email</li>
+          <li>password</li>
+          <li>fullName</li>
+        </ul>
+      </div>
     </div>
   </div>
 </form>
