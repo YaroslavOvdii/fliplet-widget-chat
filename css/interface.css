@@ -86,10 +86,6 @@ label {
   z-index: 1;
 }
 
-.select-proxy-display > .hidden-select {
-  cursor: not-allowed;
-}
-
 .select-proxy-display > .select-value-proxy {
   position: absolute;
   left: 0;
