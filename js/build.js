@@ -133,6 +133,8 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function onLogin() {
+    Notification.requestPermission();
+
     $chat.removeClass('hidden');
 
     getContacts(false).then(function () {
@@ -261,6 +263,13 @@ Fliplet.Widget.instance('chat', function (data) {
         if (!currentConversation) {
           // Message is unread and is not in the current conversation
           conversation.unreadMessages++;
+
+          var sender = findContact(message.data.fromUserId);
+          if (sender) {
+            Notification(sender.fullName, {
+              body: message.body
+            });
+          }
         } else {
           // Mark the message as read by the current user, since he's looking at this conversation
           chat.markMessagesAsRead([message]);

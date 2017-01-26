@@ -27,6 +27,7 @@
       "fliplet-chat"
     ],
     "assets": [
+      "vendor/notification.js",
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"
