@@ -290,7 +290,11 @@ Fliplet.Widget.instance('chat', function (data) {
             });
 
             notification.onclick = function () {
-              viewConversation(conversation);
+              window.focus();
+              setTimeout(function () {
+                viewConversation(conversation);
+              }, 0);
+              this.cancel();
             };
           }
         }
