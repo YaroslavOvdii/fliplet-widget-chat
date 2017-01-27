@@ -286,7 +286,7 @@ Fliplet.Widget.instance('chat', function (data) {
               body: message.data.body,
               icon: $('link[rel="icon"]').attr('href'),
               timestamp: message.createdAtDate.unix(),
-              tag: currentConversation ? currentConversation.id : 'chat-message'
+              tag: 'message' + message.id
             });
 
             notification.onclick = function () {
