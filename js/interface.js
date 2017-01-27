@@ -12,6 +12,9 @@ var $dataSources = $('[name="dataSource"]');
 $('form').submit(function (event) {
   event.preventDefault();
 
+  // Push notifications are always enabled for the chat
+  data.pushNotifications = true;
+
   data.dataSourceId = $dataSources.val();
 
   Fliplet.Widget.save(data).then(function () {

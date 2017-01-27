@@ -5,6 +5,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   var DEFAULT_CHAT_NAME = 'Conversation';
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
+  var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
   var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
   var SCROLL_TO_MESSAGE_SPEED = 500;
@@ -142,7 +143,15 @@ Fliplet.Widget.instance('chat', function (data) {
       return getConversations();
     }).then(function () {
       return chat.stream(onMessage);
-    });
+    }).then(function () {
+      var contactConversation = Fliplet.Navigate.query.contactConversation;
+
+      if (contactConversation) {
+        viewNewConversation().then(function () {
+          $('[data-create-conversation="' + contactConversation + '"]').click();
+        });
+      }
+    })
   }
 
   function setCurrentUser(user) {
@@ -224,7 +233,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function viewNewConversation() {
-    getContacts(false).then(function () {
+    return getContacts(false).then(function () {
       var html = Fliplet.Widget.Templates['templates.new-conversation']({
         contacts: getContactsWithoutCurrentUser().map(function (contact) {
           var data = contact.data;
@@ -234,6 +243,7 @@ Fliplet.Widget.instance('chat', function (data) {
       });
 
       $content.html(html);
+      return Promise.resolve();
     });
   }
 
@@ -362,19 +372,32 @@ Fliplet.Widget.instance('chat', function (data) {
     $(ONLINE_INPUTS_SELECTOR).prop('disabled', true);
   });
 
-  chatConnection.then(function (chatInstance) {
+  chatConnection.then(function onChatConnectionAvailable (chatInstance) {
     chat = chatInstance;
-    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY);
-  }).then(function (userToken) {
-    if (userToken) {
-      return chat.login({
-        flUserToken: userToken
-      }).then(function (user) {
-        setCurrentUser(user.data);
-        onLogin();
-      }, showLoginForm);
-    }
 
-    showLoginForm();
-  });
+    // Log in with the stored details
+    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function (userToken) {
+      if (userToken) {
+        return Promise.resolve({
+          flUserToken: userToken
+        });
+      }
+
+      // Log in using authentication from a different component
+      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
+        if (email) {
+          return Promise.resolve({
+            email: email
+          });
+        }
+
+        return Promise.reject('User is not logged in');
+      });
+    });
+  }).then(function onLocalLoginAvailable (loginQuery) {
+    return chat.login(loginQuery);
+  }).then(function onLoginSuccess (user) {
+    setCurrentUser(user.data);
+    onLogin();
+  }).catch(showLoginForm);
 });

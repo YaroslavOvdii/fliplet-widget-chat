@@ -1,5 +1,34 @@
 # Fliplet Chat Widget
 
+## Instance options
+
+- `dataSourceId` - the data source to use for the contacts list
+- `pushNotifications` - whether push notifications are enabled for the chat
+
+## Cross Login
+
+Cross login by email between the chat component and other components can be done by setting the following variable on the app storage:
+
+```js
+Fliplet.App.Storage.set('fl-chat-auth-email', 'john@example.org').then(function () {
+  // you can now navigate to the chat and it won't require you to log in
+});
+```
+
+## Start a contact conversation
+
+When navigating to the page that hosts the chat, you can start a conversation with a contact by providing the parameter `contactConversation` in the query string, with the `dataSourceEntryId` of the contact you want to chat to:
+
+```
+?contactConversation=123
+```
+
+Note: if the user has not logged in, the conversation will still be started with the user after logging in.
+
+---
+
+## Development
+
 This widget is meant to be used with the Fliplet platform.
 
 Run for local development with the `fliplet-cli`:
