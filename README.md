@@ -11,7 +11,7 @@ Cross login by email between the chat component and other components can be done
 
 ```js
 Fliplet.App.Storage.set('fl-chat-auth-email', 'john@example.org').then(function () {
-  // you can now navigate to the chat with to get automatically logged in
+  // you can now navigate to the chat and it won't require you to log in
 });
 ```
 
