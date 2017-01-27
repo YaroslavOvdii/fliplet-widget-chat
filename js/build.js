@@ -23,10 +23,6 @@ Fliplet.Widget.instance('chat', function (data) {
     return $wrapper.find('.chat-not-configured').removeClass('hidden');
   }
 
-  if (typeof data.pushNotifications === 'undefined') {
-    data.pushNotifications = true;
-  }
-
   // ---------------------------------------------------------------
   // variables setup
 
