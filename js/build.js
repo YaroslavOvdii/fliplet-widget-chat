@@ -15,14 +15,17 @@ Fliplet.Widget.instance('chat', function (data) {
 
   var $wrapper = $(this);
   var $loginForm = $wrapper.find('form.login');
-  var $chat = $wrapper.find('.chat');
-  var $conversationsList = $chat.find('[data-conversations-list]');
-  var $content = $chat.find('[data-conversation]');
+  var $conversationsList = $wrapper.find('[data-conversations-list]');
+  if ($('body').width() > 640) {
+    var $content = $wrapper.find('[data-conversation]');
+  } else {
+    var $content = $wrapper.find('.overlay-messages .overlayPanelContent');
+  }
   var $messages;
 
-  if (!data.dataSourceId) {
+  /*if (!data.dataSourceId) {
     return $wrapper.find('.chat-not-configured').removeClass('hidden');
-  }
+  }*/
 
   // ---------------------------------------------------------------
   // variables setup
@@ -42,19 +45,19 @@ Fliplet.Widget.instance('chat', function (data) {
   // events setup
 
   // Handler to log out
-  $chat.find('[data-logout]').click(function (event) {
-    event.preventDefault();
+  $wrapper.on('click', '[data-logout]', function (event) {
+    //event.preventDefault();
     Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
       return chat.logout();
+    }).then(function () {
+      return Fliplet.App.Storage.remove(CROSSLOGIN_EMAIL_KEY);
     }).then(function () {
       showLoginForm();
     });
   });
 
   // Handler to view a conversation
-  $chat.on('click', '[data-conversation-id]', function (event) {
-    event.preventDefault();
-
+  $wrapper.on('click', '[data-conversation-id]', function () {
     var id = $(this).data('conversation-id');
     var conversation = _.find(conversations, { id: id });
 
@@ -63,13 +66,13 @@ Fliplet.Widget.instance('chat', function (data) {
   });
 
   // Handler to view the frame to create a new conversation
-  $chat.on('click', '[data-new-conversation]', function (event) {
+  $wrapper.on('click', '[data-new-conversation]', function (event) {
     event.preventDefault();
     viewNewConversation();
   });
 
   // Handler to create a new conversation
-  $chat.on('click', '[data-create-conversation]', function (event) {
+  $wrapper.on('click', '[data-create-conversation]', function (event) {
     event.preventDefault();
     var targetUserId = $(this).data('create-conversation');
 
@@ -84,14 +87,21 @@ Fliplet.Widget.instance('chat', function (data) {
         : Promise.resolve();
 
       return fetchRequiredData.then(function () {
-        $chat.find('[data-conversation-id="' + conversation.id + '"]').click();
+        $wrapper.find('[data-conversation-id="' + conversation.id + '"]').click();
       });
     });
   });
 
   // Handler to post a message to a conversation
-  $chat.on('submit', '[data-new-message]', function (event) {
+  $wrapper.on('click', '[data-new-message] .message-input-btn', function (event) {
     event.preventDefault();
+
+    var _this = $(this);
+    var holder = $(this).parents('.input-holder');
+
+  	$(this).addClass('sending');
+    holder.addClass('sending');
+
     var $message = $('[data-message-body]');
     var text = $message.val();
 
@@ -103,6 +113,13 @@ Fliplet.Widget.instance('chat', function (data) {
 
     chat.message(currentConversation.id, {
       body: text
+    }).then(function() {
+      $(holder).addClass('sent');
+
+      setTimeout(function() {
+        $(_this).removeClass('sending');
+        $(holder).removeClass('sending sent');
+      }, 200);
     });
   });
 
@@ -130,14 +147,14 @@ Fliplet.Widget.instance('chat', function (data) {
   // private methods
 
   function showLoginForm() {
-    $chat.addClass('hidden');
+    $wrapper.addClass('loading');
     $loginForm.removeClass('hidden');
   }
 
   function onLogin() {
     Notification.requestPermission();
 
-    $chat.removeClass('hidden');
+    $wrapper.removeClass('loading');
 
     getContacts(false).then(function () {
       return getConversations();
@@ -151,7 +168,7 @@ Fliplet.Widget.instance('chat', function (data) {
           $('[data-create-conversation="' + contactConversation + '"]').click();
         });
       }
-    })
+    });
   }
 
   function setCurrentUser(user) {
@@ -222,7 +239,11 @@ Fliplet.Widget.instance('chat', function (data) {
     chat.markMessagesAsRead(messages);
 
     currentConversation.unreadMessages = 0;
-    renderConversationItem(conversation, true);
+
+    conversations.forEach(function (c) {
+      c.isCurrent = c.id === currentConversation.id;
+      renderConversationItem(c, true);
+    });
   }
 
   function getContacts(cache) {
@@ -267,7 +288,14 @@ Fliplet.Widget.instance('chat', function (data) {
     } else {
       conversation.lastMessage = {
         body: message.data.body,
-        date: message.createdAtDate.calendar()
+        date: message.createdAtDate.calendar(null, {
+            sameDay: '[Today]',
+            nextDay: '[Tomorrow]',
+            nextWeek: 'dddd',
+            lastDay: '[Yesterday]',
+            lastWeek: '[Last] dddd',
+            sameElse: 'DD/MM/YYYY'
+        })
       };
 
       if (!message.isReadByCurrentUser) {
@@ -326,7 +354,7 @@ Fliplet.Widget.instance('chat', function (data) {
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         sender: sender.data,
         message: message.data,
-        timeAgo: message.createdAtDate.fromNow()
+        timeAgo: message.createdAtDate.format('HH:mm')
       }));
 
       var scrollTop = $messages.scrollTop();
@@ -339,8 +367,8 @@ Fliplet.Widget.instance('chat', function (data) {
       // scroll to bottom
       if (shouldScrollToBottom) {
         scrollToMessageTimeout = setTimeout(function () {
-          $messages.stop( true, true ).animate({
-            scrollTop: $messages.prop('scrollHeight')
+          $messages.parents('.msg-chats').stop( true, true ).animate({
+            scrollTop: $messages.parents('.msg-chats').prop('scrollHeight')
           }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
           scrollToMessageTs = 10;
         }, scrollToMessageTs);

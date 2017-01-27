@@ -1,9 +1,21 @@
-<li data-conversation-id="{{ id }}">
-  <p>
-    <strong>{{ name }}</strong><br />
+<li class="{{#if unreadMessages}}new{{/if}} {{#if isCurrent}}active{{/if}}" data-conversation-id="{{ id }}">
+  <div class="convo-user-avatar">
+    <div class="image-holder" style="background-image: url({{ image }})"></div>
+    <i class="fa fa-user" aria-hidden="true"></i>
+  </div>
+  <div class="title-holder">
+    <div class="user-name">
+      <p>{{ name }}</p>
+    </div>
     {{#with lastMessage}}
-      {{ body }} - {{ date }}
+    <div class="convo-timestamp">
+      <span>{{ date }}</span>
+    </div>
     {{/with}}
-    {{#if unreadMessages}} ({{ unreadMessages }} unread) {{/if}}
-  </p>
+  </div>
+  {{#with lastMessage}}
+  <div class="convo-preview">
+    <p>{{ body }}</p>
+  </div>
+  {{/with}}
 </li>

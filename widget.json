@@ -23,11 +23,13 @@
       "moment",
       "bootstrap-css",
       "handlebars",
+      "font-awesome",
       "fliplet-core",
       "fliplet-chat"
     ],
     "assets": [
       "vendor/notification.js",
+      "vendor/autosize.min.js",
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"

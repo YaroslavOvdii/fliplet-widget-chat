@@ -1,29 +1,49 @@
-<div class="chat-wrapper" data-chat-id="{{ id }}">
-  <div class="alert alert-warning chat-not-configured hidden" role="alert">
-    <strong>Chat component</strong> — The data source for this component has not been configured yet.
+<div class="chat-wrapper loading" ontouchstart="" data-chat-id="{{ id }}">
+  <div class="convo-aside ">
+    <div class="convo-aside-inner">
+      <div class="offline-note">Your device is offline</div>
+      <div class="error-area">
+        <h4>Couldn't get your conversations</h4>
+        <p>Use the <strong>Refresh</strong> button below to try again.</p>
+      </div>
+      <div class="empty-area">
+        <h4>The are no new conversations</h4>
+        <p>Use the <strong>Contacts</strong> button below to find a contact and start a conversation.</p>
+      </div>
+      <form class="login hidden">
+        <h4>Login</h4>
+        <input type="email" placeholder="Email address" />
+        <input type="password" placeholder="Password" />
+        <input type="submit" class="btn btn-primary" value="Log in" />
+      </form>
+      <div class="convo-profile-container">
+        <div class="convo-profile-list">
+          <ul class="list-group" data-conversations-list></ul>
+        </div>
+      </div>
+      <!-- <div data-new-conversation class="">New conversation</div> -->
+      <div class="contact-directory" data-directory data-new-conversation><i class="fa fa-book"></i> Contacts</div>
+      <div class="refresh-chat" refresh-chat><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</div>
+    </div>
   </div>
 
-  <form class="login hidden">
-    <h4>Login</h4>
-    <input type="email" placeholder="Email address" />
-    <input type="password" placeholder="Password" />
-    <input type="submit" class="btn btn-primary" value="Log in" />
-  </form>
-
-  <div class="chat hidden">
-    <div class="chat-frame">
-      <div class="conversations">
-        <a href="#" data-new-conversation class="btn btn-primary btn-sm">New conversation</a>
-        <hr />
-        <h4>Conversations</h4>
-        <ul data-conversations-list></ul>
-      </div>
-      <hr />
-      <div data-conversation></div>
+  <div class="msg-area" data-conversation></div>
+</div>
+<div class="copy-screen">
+  <div class="copy-wrapper">
+    <div class="copy-content">
+      <p class="copy-title">Copy text</p>
+      <p>Do you want to copy the text message?</p>
     </div>
-    <hr />
-    <div class="profile">
-      <a href="#" data-logout class="btn btn-primary">Log out</a>
+    <div class="copy-bottom">
+      <button type="button" class="copy-text">Copy</button>
+      <button type="button" class="cancel-copy">Cancel</button>
     </div>
   </div>
 </div>
+
+<!--
+<div class="profile">
+  <a href="#" data-logout class="btn btn-primary">Log out</a>
+</div>
+-->
