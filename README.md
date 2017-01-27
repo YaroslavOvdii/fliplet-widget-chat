@@ -15,6 +15,8 @@ Fliplet.App.Storage.set('fl-chat-auth-email', 'john@example.org').then(function 
 });
 ```
 
+Note: If the user logs out from the chat, the variable will be removed from the storage.
+
 ## Start a contact conversation
 
 When navigating to the page that hosts the chat, you can start a conversation with a contact by providing the parameter `contactConversation` in the query string, with the `dataSourceEntryId` of the contact you want to chat to:

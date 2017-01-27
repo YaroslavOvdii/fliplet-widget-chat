@@ -47,6 +47,8 @@ Fliplet.Widget.instance('chat', function (data) {
     Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
       return chat.logout();
     }).then(function () {
+      return Fliplet.App.Storage.remove(CROSSLOGIN_EMAIL_KEY);
+    }).then(function () {
       showLoginForm();
     });
   });
