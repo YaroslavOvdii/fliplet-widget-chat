@@ -224,7 +224,11 @@ Fliplet.Widget.instance('chat', function (data) {
     chat.markMessagesAsRead(messages);
 
     currentConversation.unreadMessages = 0;
-    renderConversationItem(conversation, true);
+
+    conversations.forEach(function (c) {
+      c.isCurrent = c.id === currentConversation.id;
+      renderConversationItem(c, true);
+    });
   }
 
   function getContacts(cache) {
