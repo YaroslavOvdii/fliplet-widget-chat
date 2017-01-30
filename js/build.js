@@ -75,6 +75,15 @@ if (typeof jQuery !== 'undefined') {
   // ---------------------------------------------------------------
   // events setup
 
+  // Offline/Online Listeners
+  document.addEventListener("offline", function() {
+    $wrapper.addClass('offline');
+  }, false);
+
+  document.addEventListener("online", function() {
+    $wrapper.removeClass('offline');
+  }, false);
+
   // init bs tooltip
   $wrapper.tooltip({ selector: '[data-toggle="tooltip"]', trigger: 'manual' });
 
@@ -473,6 +482,10 @@ if (typeof jQuery !== 'undefined') {
 
   // ---------------------------------------------------------------
   // init
+
+  if (!Fliplet.Navigator.isOnline()) {
+    $wrapper.addClass('offline');
+  }
 
   $(window).blur(function() { isActiveWindow = false; });
   $(window).focus(function() { isActiveWindow = true; });
