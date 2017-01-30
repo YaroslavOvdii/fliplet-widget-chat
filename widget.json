@@ -35,7 +35,8 @@
       "css/chat.css"
     ],
     "references": [
-      "contactLinkAction.page:page"
+      "contactLinkAction.page:page",
+      "dataSourceId:dataSource"
     ]
   }
 }

@@ -28,10 +28,10 @@ Fliplet.Widget.instance('chat', function (data) {
   // Copy to clipboard text prototype
   HTMLElement.prototype.copyText = function() {
   var range = document.createRange();
-  this.style.webkitUserSelect = 'text'
+  this.style.webkitUserSelect = 'text';
   range.selectNode(this);
   window.getSelection().addRange(range);
-  this.style.webkitUserSelect = 'inherit'
+  this.style.webkitUserSelect = 'inherit';
 
   try {
     // Now that we've selected the anchor text, execute the copy command
@@ -54,7 +54,7 @@ if (typeof jQuery !== 'undefined') {
       //console.log('Copying using jQuery');
       this.copyText();
     });
-  }
+  };
 }
 
   // ---------------------------------------------------------------
@@ -190,7 +190,7 @@ if (typeof jQuery !== 'undefined') {
         $(_this).removeClass('sending');
         $(holder).removeClass('sending sent');
       }, 200);
-    }).catch(function() {
+    }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
       $(holder).removeClass('sending sent');
@@ -237,7 +237,7 @@ if (typeof jQuery !== 'undefined') {
 
     getContacts(false).then(function () {
       return getConversations();
-    }).catch(function() {
+    }).catch(function(error) {
       $wrapper.addClass('empty');
     }).then(function () {
       return chat.stream(onMessage);
@@ -249,7 +249,7 @@ if (typeof jQuery !== 'undefined') {
           $('[data-create-conversation="' + contactConversation + '"]').click();
         });
       }
-    }).catch(function() {
+    }).catch(function(error) {
       $wrapper.addClass('error');
     });
   }
