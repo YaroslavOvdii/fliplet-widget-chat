@@ -8,6 +8,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
   var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
+  var PARTICIPANT_AVATAR_COLUMN = 'Avatar';
   var SCROLL_TO_MESSAGE_SPEED = 500;
 
   // ---------------------------------------------------------------
@@ -16,16 +17,45 @@ Fliplet.Widget.instance('chat', function (data) {
   var $wrapper = $(this);
   var $loginForm = $wrapper.find('form.login');
   var $conversationsList = $wrapper.find('[data-conversations-list]');
-  if ($('body').width() > 640) {
-    var $content = $wrapper.find('[data-conversation]');
-  } else {
-    var $content = $wrapper.find('.overlay-messages .overlayPanelContent');
-  }
+  var $content = $wrapper.find('[data-conversation]');
   var $messages;
 
   /*if (!data.dataSourceId) {
     return $wrapper.find('.chat-not-configured').removeClass('hidden');
   }*/
+
+  // ---------------------------------------------------------------
+  // Copy to clipboard text prototype
+  HTMLElement.prototype.copyText = function() {
+  var range = document.createRange();
+  this.style.webkitUserSelect = 'text'
+  range.selectNode(this);
+  window.getSelection().addRange(range);
+  this.style.webkitUserSelect = 'inherit'
+
+  try {
+    // Now that we've selected the anchor text, execute the copy command
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    //console.log('Copy was ' + msg);
+  } catch(err) {
+    //console.log('Oops, unable to copy');
+  }
+
+  // Remove the selections - NOTE: Should use
+  // removeRange(range) when it is supported
+  window.getSelection().removeAllRanges();
+};
+
+if (typeof jQuery !== 'undefined') {
+	$.fn.copyText = function(){
+  	return $(this).each(function(i){
+    	if (i > 0) return;
+      //console.log('Copying using jQuery');
+      this.copyText();
+    });
+  }
+}
 
   // ---------------------------------------------------------------
   // variables setup
@@ -40,9 +70,13 @@ Fliplet.Widget.instance('chat', function (data) {
   var scrollToMessageTs = 0;
   var chatConnection = Fliplet.Chat.connect(data);
   var isActiveWindow = true;
+  var copiedElem;
 
   // ---------------------------------------------------------------
   // events setup
+
+  // init bs tooltip
+  $wrapper.tooltip({ selector: '[data-toggle="tooltip"]', trigger: 'manual' });
 
   // Handler to log out
   $wrapper.on('click', '[data-logout]', function (event) {
@@ -60,9 +94,34 @@ Fliplet.Widget.instance('chat', function (data) {
   $wrapper.on('click', '[data-conversation-id]', function () {
     var id = $(this).data('conversation-id');
     var conversation = _.find(conversations, { id: id });
+    $(this).parents('.chat-wrapper').addClass('overlay-open');
 
     scrollToMessageTs = 0;
     viewConversation(conversation);
+  });
+
+  $wrapper.on('click', '.profile-header .back-btn', function () {
+    $('.chat-wrapper').removeClass('overlay-open');
+  });
+
+  $wrapper.on('click', '[data-directory]', function() {
+    Fliplet.Navigate.to(data.contactLinkAction);
+  });
+
+  $wrapper.on('click', '[data-user-profile]', function() {
+    var userProfile = encodeURI($(this).data('user-profile'));
+    data.contactLinkAction.query = "?action=search&value="+userProfile;
+    Fliplet.Navigate.to(data.contactLinkAction);
+  });
+
+  $wrapper.on('click', '.chat-text', function() {
+    getElemHandler($(this));
+    $(this).tooltip('show');
+  });
+
+  $(document).on('click', '.tooltip', function() {
+	   copiedElem.copyText();
+    $(this).tooltip('hide');
   });
 
   // Handler to view the frame to create a new conversation
@@ -99,15 +158,17 @@ Fliplet.Widget.instance('chat', function (data) {
     var _this = $(this);
     var holder = $(this).parents('.input-holder');
 
-  	$(this).addClass('sending');
-    holder.addClass('sending');
+
 
     var $message = $('[data-message-body]');
     var text = $message.val();
 
-    if (!text) {
+    if (!text.length) {
       return;
     }
+
+    $(this).addClass('sending');
+    holder.addClass('sending');
 
     $message.val('');
 
@@ -120,6 +181,14 @@ Fliplet.Widget.instance('chat', function (data) {
         $(_this).removeClass('sending');
         $(holder).removeClass('sending sent');
       }, 200);
+    }).catch(function() {
+      $(holder).addClass('error');
+      $(_this).removeClass('sending');
+      $(holder).removeClass('sending sent');
+
+      setTimeout(function() {
+        $(holder).removeClass('error');
+      }, 1000);
     });
   });
 
@@ -145,7 +214,6 @@ Fliplet.Widget.instance('chat', function (data) {
 
   // ---------------------------------------------------------------
   // private methods
-
   function showLoginForm() {
     $wrapper.addClass('loading');
     $loginForm.removeClass('hidden');
@@ -155,9 +223,13 @@ Fliplet.Widget.instance('chat', function (data) {
     Notification.requestPermission();
 
     $wrapper.removeClass('loading');
+    $wrapper.removeClass('empty');
+    $wrapper.removeClass('error');
 
     getContacts(false).then(function () {
       return getConversations();
+    }).catch(function() {
+      $wrapper.addClass('empty');
     }).then(function () {
       return chat.stream(onMessage);
     }).then(function () {
@@ -168,6 +240,8 @@ Fliplet.Widget.instance('chat', function (data) {
           $('[data-create-conversation="' + contactConversation + '"]').click();
         });
       }
+    }).catch(function() {
+      $wrapper.addClass('error');
     });
   }
 
@@ -213,7 +287,14 @@ Fliplet.Widget.instance('chat', function (data) {
           return c.data[PARTICIPANT_FULLNAME_COLUMN];
         })).join(', ').trim();
 
+        var conversationAvatar = _.compact(_.filter(otherPeople, function (c) {
+          return participants.indexOf(c.data.flUserId) !== -1;
+        }).map(function (c) {
+          return c.data[PARTICIPANT_AVATAR_COLUMN];
+        })).join(', ').trim();
+
         conversation.name = conversationName || conversation.name;
+        conversation.avatar = conversationAvatar || '';
       });
 
       $conversationsList.html('');
@@ -384,6 +465,10 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     $conversationsList.append(html);
+  }
+
+  function getElemHandler(el){
+    copiedElem = el;
   }
 
   // ---------------------------------------------------------------
