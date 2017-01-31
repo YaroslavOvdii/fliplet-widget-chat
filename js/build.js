@@ -458,7 +458,7 @@ if (typeof jQuery !== 'undefined') {
       };
 
       if (!message.isReadByCurrentUser) {
-        if (!currentConversation) {
+        if (!currentConversation || currentConversation.id !== message.dataSourceId) {
           // Message is unread and is not in the current conversation
           conversation.unreadMessages++;
         } else {
@@ -487,6 +487,7 @@ if (typeof jQuery !== 'undefined') {
         }
       }
 
+      console.log(conversation.unreadMessages)
       // Let's update the UI to reflect the last message
       renderConversationItem(conversation, true);
     }
