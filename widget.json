@@ -5,7 +5,10 @@
   "icon": "img/icon.png",
   "tags": ["type:component", "category:general"],
   "provider_only": false,
-  "references": [],
+  "references": [
+    "dataSourceId:dataSource",
+    "contactLinkAction:page"
+  ],
   "html_tag": "span",
   "interface": {
     "dependencies": [
