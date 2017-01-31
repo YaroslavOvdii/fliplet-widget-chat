@@ -1,3 +1,8 @@
+Handlebars.registerHelper('formatMessage', function(text) {
+  text = Handlebars.Utils.escapeExpression(text).replace(/(\r\n|\n|\r)/gm, '<br>');
+  return new Handlebars.SafeString(text);
+});
+
 Fliplet.Widget.instance('chat', function (data) {
 
   // ---------------------------------------------------------------
