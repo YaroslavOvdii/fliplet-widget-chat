@@ -149,17 +149,23 @@ if (typeof jQuery !== 'undefined') {
     event.preventDefault();
     var $loadMore = $(this);
 
-    $loadMore.hide();
-
-    // TODO: take a note of current scroll position
+    // Take a note of current scroll position
+    var $container = $messages.parent();
+    var currentHeight = $container[0].scrollHeight;
+    var currentPosition = $container.scrollTop();
 
     loadMoreMessagesForCurrentConversation().then(function (messages) {
+      // Update scroll to match previous position
+      var newHeight = $container[0].scrollHeight;
+      var newPosition = currentPosition + (newHeight - currentHeight);
+
       // If we got at least how many messages we requested, means we might need the "load more"
-      if (messages.length && messages.length === LOAD_MORE_MESSAGES_PAGE_SIZE) {
-        $loadMore.show();
+      if (!messages.length || messages.length < LOAD_MORE_MESSAGES_PAGE_SIZE) {
+        newPosition -= $loadMore.outerHeight();
+        $loadMore.hide();
       }
 
-      // TODO: update scroll to match previous position
+      $container.stop(true, true).scrollTop(newPosition);
     });
   });
 
@@ -518,9 +524,9 @@ if (typeof jQuery !== 'undefined') {
       $message.animate({ opacity: 1}, 500);
 
       // scroll to bottom
-      if (shouldScrollToBottom) {
+      if (shouldScrollToBottom && !prepend) {
         scrollToMessageTimeout = setTimeout(function () {
-          $messages.parents('.msg-chats').stop( true, true ).animate({
+          $messages.parents('.msg-chats').stop(true, true).animate({
             scrollTop: $messages.parents('.msg-chats').prop('scrollHeight')
           }, scrollToMessageTs ? SCROLL_TO_MESSAGE_SPEED : 0);
           scrollToMessageTs = 10;
