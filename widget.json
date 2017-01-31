@@ -5,7 +5,10 @@
   "icon": "img/icon.png",
   "tags": ["type:component", "category:general"],
   "provider_only": false,
-  "references": [],
+  "references": [
+    "dataSourceId:dataSource",
+    "contactLinkAction.page:page"
+  ],
   "html_tag": "span",
   "interface": {
     "dependencies": [
@@ -23,11 +26,13 @@
       "moment",
       "bootstrap-css",
       "handlebars",
+      "font-awesome",
       "fliplet-core",
       "fliplet-chat"
     ],
     "assets": [
       "vendor/notification.js",
+      "vendor/autosize.min.js",
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"

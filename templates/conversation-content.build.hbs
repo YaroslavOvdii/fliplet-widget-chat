@@ -1,8 +1,33 @@
-<h4>{{ name }}</h4>
-<hr />
-<ul data-conversation-messages></ul>
-<hr />
-<form data-new-message>
-  <input type="text" placeholder="Write message" data-message-body>
-  <input type="submit" class="btn btn-primary" value="Send" />
-</form>
+<div class="offline-note">Your device is offline</div>
+<div class="empty-area"></div>
+<div class="msg-holder">
+  <div class="profile-header">
+    <div class="back-btn">
+      <i class="fa fa-chevron-left"></i>
+    </div>
+    <div data-user-profile="{{ name }}">
+      <div class="msg-user-avatar">
+        <div class="image-holder" style="background-image: url({{ avatar }})"></div>
+        <i class="fa fa-user" aria-hidden="true"></i>
+      </div>
+      <span class="user-name">{{ name }}</span>
+    </div>
+  </div>
+
+  <div class="msg-chats" ontouchstart="">
+    <button type="button" class="btn btn-default" data-load-more>Load more</button>
+    <div class="chats" data-conversation-messages></div>
+  </div>
+
+  <div class="input-holder" data-new-message ontouchstart="">
+    <div class="error-send">Couldn't send your message. Try again!</div>
+    <div class="sending-bar"></div>
+    <div class="message-input">
+      <textarea class="form-control" rows="1" data-message-body></textarea>
+    </div>
+    <button class="message-input-btn btn btn-primary" type="button">
+      <span>Send <i class="fa fa-paper-plane"></i></span>
+      <div class="loader"><i class="fa fa-spinner"></i></div>
+    </button>
+  </div>
+<div>

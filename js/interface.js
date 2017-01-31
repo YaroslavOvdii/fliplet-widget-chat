@@ -1,5 +1,7 @@
+var widgetId = Fliplet.Widget.getDefaultId();
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
+var widgetId = Fliplet.Widget.getDefaultId();
 
 $(document).on('change', '.hidden-select', function(){
   var selectedValue = $(this).val();
@@ -9,24 +11,51 @@ $(document).on('change', '.hidden-select', function(){
 
 var $dataSources = $('[name="dataSource"]');
 
+var linkDirectoryProvider = Fliplet.Widget.open('com.fliplet.link', {
+  // If provided, the iframe will be appended here,
+  // otherwise will be displayed as a full-size iframe overlay
+  selector: '#contact-directory',
+  // Also send the data I have locally, so that
+  // the interface gets repopulated with the same stuff
+  data: data.contactLinkAction,
+  // Events fired from the provider
+  onEvent: function (event, data) {
+    if (event === 'interface-validate') {
+      Fliplet.Widget.toggleSaveButton(data.isValid === true);
+    }
+  }
+});
+
 $('form').submit(function (event) {
   event.preventDefault();
-
-  // Push notifications are always enabled for the chat
-  data.pushNotifications = true;
-
-  data.dataSourceId = $dataSources.val();
-
-  Fliplet.Widget.save(data).then(function () {
-    Fliplet.Widget.complete();
-    Fliplet.Studio.emit('reload-page-preview');
-  });
+  linkDirectoryProvider.forwardSaveRequest();
 });
 
 // Fired from Fliplet Studio when the external save button is clicked
 Fliplet.Widget.onSaveRequest(function () {
   $('form').submit();
 });
+
+linkDirectoryProvider.then(function (result) {
+  data.contactLinkAction = result.data;
+  save(true);
+});
+
+function save(notifyComplete) {
+  // Push notifications are always enabled for the chat
+  data.pushNotifications = true;
+
+  data.dataSourceId = $dataSources.val();
+
+  Fliplet.Widget.save(data).then(function () {
+    if (notifyComplete) {
+      Fliplet.Widget.complete();
+      window.location.reload();
+    } else {
+      Fliplet.Studio.emit('reload-widget-instance', widgetId);
+    }
+  });
+}
 
 // Load the data source for the contacts
 Fliplet.DataSources.get({
