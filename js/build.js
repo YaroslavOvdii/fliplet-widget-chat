@@ -37,9 +37,8 @@ Fliplet.Widget.instance('chat', function (data) {
     // Now that we've selected the anchor text, execute the copy command
     var successful = document.execCommand('copy');
     var msg = successful ? 'successful' : 'unsuccessful';
-    //console.log('Copy was ' + msg);
   } catch(err) {
-    //console.log('Oops, unable to copy');
+    console.error('Oops, unable to copy', err);
   }
 
   // Remove the selections - NOTE: Should use
@@ -51,7 +50,6 @@ if (typeof jQuery !== 'undefined') {
 	$.fn.copyText = function(){
   	return $(this).each(function(i){
     	if (i > 0) return;
-      //console.log('Copying using jQuery');
       this.copyText();
     });
   };
