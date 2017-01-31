@@ -361,7 +361,7 @@ if (typeof jQuery !== 'undefined') {
       chat.poll();
     }
 
-    $('[data-message-body]').focus();
+    //$('[data-message-body]').focus();
 
     chat.markMessagesAsRead(messages);
 
