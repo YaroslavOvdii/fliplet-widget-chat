@@ -140,22 +140,7 @@ if (typeof jQuery !== 'undefined') {
   // Handler to create a new conversation
   $wrapper.on('click', '[data-create-conversation]', function (event) {
     event.preventDefault();
-    var targetUserId = $(this).data('create-conversation');
-
-    return getConversations().then(function () {
-      return chat.create({
-        name: DEFAULT_CHAT_NAME,
-        participants: [targetUserId]
-      });
-    }).then(function (conversation) {
-      var fetchRequiredData = conversation.isNew
-        ? getContacts(false).then(function () { return getConversations(); })
-        : Promise.resolve();
-
-      return fetchRequiredData.then(function () {
-        $wrapper.find('[data-conversation-id="' + conversation.id + '"]').click();
-      });
-    });
+    return createConversation($(this).data('create-conversation'));
   });
 
   // Handler to post a message to a conversation
@@ -236,12 +221,10 @@ if (typeof jQuery !== 'undefined') {
     }).then(function () {
       return chat.stream(onMessage);
     }).then(function () {
-      var contactConversation = Fliplet.Navigate.query.contactConversation;
+      var userId = Fliplet.Navigate.query.contactConversation;
 
-      if (contactConversation) {
-        viewNewConversation().then(function () {
-          $('[data-create-conversation="' + contactConversation + '"]').click();
-        });
+      if (userId) {
+        createConversation(userId);
       }
     }).catch(function(error) {
       $wrapper.addClass('error');
@@ -250,6 +233,25 @@ if (typeof jQuery !== 'undefined') {
 
   function setCurrentUser(user) {
     currentUser = user;
+  }
+
+  function createConversation(userId) {
+    userId = parseInt(userId, 10);
+
+    return getConversations().then(function () {
+      return chat.create({
+        name: DEFAULT_CHAT_NAME,
+        participants: [userId]
+      });
+    }).then(function (conversation) {
+      var fetchRequiredData = conversation.isNew
+        ? getContacts(false).then(function () { return getConversations(); })
+        : Promise.resolve();
+
+      return fetchRequiredData.then(function () {
+        $wrapper.find('[data-conversation-id="' + conversation.id + '"]').click();
+      });
+    });
   }
 
   // All contacts apart from the logged user
