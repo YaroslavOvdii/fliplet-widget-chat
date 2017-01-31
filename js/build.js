@@ -487,7 +487,6 @@ if (typeof jQuery !== 'undefined') {
         }
       }
 
-      console.log(conversation.unreadMessages)
       // Let's update the UI to reflect the last message
       renderConversationItem(conversation, true);
     }
