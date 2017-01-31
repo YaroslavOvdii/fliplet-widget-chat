@@ -10,6 +10,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
   var PARTICIPANT_AVATAR_COLUMN = 'Avatar';
   var SCROLL_TO_MESSAGE_SPEED = 500;
+  var LOAD_MORE_MESSAGES_PAGE_SIZE = 50;
 
   // ---------------------------------------------------------------
   // jquery elements setup
@@ -143,6 +144,25 @@ if (typeof jQuery !== 'undefined') {
     return createConversation($(this).data('create-conversation'));
   });
 
+  // Handler to view more messages for a conversation
+  $wrapper.on('click', '[data-load-more]', function (event) {
+    event.preventDefault();
+    var $loadMore = $(this);
+
+    $loadMore.hide();
+
+    // TODO: take a note of current scroll position
+
+    loadMoreMessagesForCurrentConversation().then(function (messages) {
+      // If we got at least how many messages we requested, means we might need the "load more"
+      if (messages.length && messages.length === LOAD_MORE_MESSAGES_PAGE_SIZE) {
+        $loadMore.show();
+      }
+
+      // TODO: update scroll to match previous position
+    });
+  });
+
   // Handler to post a message to a conversation
   $wrapper.on('click', '[data-new-message] .message-input-btn', function (event) {
     event.preventDefault();
@@ -160,6 +180,7 @@ if (typeof jQuery !== 'undefined') {
     holder.addClass('sending');
 
     $message.val('');
+    $message.focus();
     autosize.update($message);
 
     chat.message(currentConversation.id, {
@@ -320,7 +341,14 @@ if (typeof jQuery !== 'undefined') {
     $messages = $content.find('[data-conversation-messages]');
 
     var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
-    conversationMessages.forEach(renderMessage);
+
+    conversationMessages.forEach(function (message) {
+      renderMessage(message);
+    });
+
+    if (!conversationMessages.length) {
+      chat.poll();
+    }
 
     $('[data-message-body]').focus();
 
@@ -341,6 +369,34 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
+  function loadMoreMessagesForCurrentConversation() {
+    var conversationMessages = _.filter(messages, { dataSourceId: currentConversation.id });
+    var firstMessage = _.minBy(conversationMessages, 'createdAt');
+
+    if (!firstMessage) {
+      return Promise.resolve([]);
+    }
+
+    return chat.messages({
+      conversations: [currentConversation.id],
+      limit: LOAD_MORE_MESSAGES_PAGE_SIZE,
+      where: {
+        createdAt: { $lt: firstMessage.createdAt }
+      }
+    }).then(function (previousMessages) {
+      previousMessages.forEach(function (message) {
+        if (currentConversation && currentConversation.id === message.dataSourceId) {
+          addMetadataToMessage(message);
+          renderMessage(message, true);
+        }
+
+        messages.unshift(message);
+      });
+
+      return Promise.resolve(previousMessages);
+    });
+  }
+
   function viewNewConversation() {
     return getContacts(false).then(function () {
       var html = Fliplet.Widget.Templates['templates.new-conversation']({
@@ -356,8 +412,12 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
-  function onMessage(message) {
+  function addMetadataToMessage(message) {
     message.createdAtDate = moment(message.createdAt);
+  }
+
+  function onMessage(message) {
+    addMetadataToMessage(message);
 
     messages.push(message);
 
@@ -427,7 +487,7 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
-  function renderMessage(message) {
+  function renderMessage(message, prepend) {
     if (scrollToMessageTimeout) {
       clearTimeout(scrollToMessageTimeout);
       scrollToMessageTimeout = undefined;
@@ -454,7 +514,7 @@ if (typeof jQuery !== 'undefined') {
       var shouldScrollToBottom = scrollTop === 0 || $messages[0].scrollHeight - scrollTop === $messages.outerHeight();
 
       $message.css('opacity', 0);
-      $messages.append($message);
+      $messages[prepend ? 'prepend' : 'append']($message);
       $message.animate({ opacity: 1}, 500);
 
       // scroll to bottom
