@@ -76,13 +76,13 @@ if (typeof jQuery !== 'undefined') {
   // events setup
 
   // Offline/Online Listeners
-  document.addEventListener("offline", function() {
+  Fliplet.Navigator.onOffline(function () {
     $wrapper.addClass('offline');
-  }, false);
+  });
 
-  document.addEventListener("online", function() {
+  Fliplet.Navigator.onOnline(function () {
     $wrapper.removeClass('offline');
-  }, false);
+  });
 
   // init bs tooltip
   $wrapper.tooltip({ selector: '[data-toggle="tooltip"]', trigger: 'manual' });
@@ -166,9 +166,6 @@ if (typeof jQuery !== 'undefined') {
 
     var _this = $(this);
     var holder = $(this).parents('.input-holder');
-
-
-
     var $message = $('[data-message-body]');
     var text = $message.val();
 
@@ -238,8 +235,6 @@ if (typeof jQuery !== 'undefined') {
 
     getContacts(false).then(function () {
       return getConversations();
-    }).catch(function(error) {
-      $wrapper.addClass('empty');
     }).then(function () {
       return chat.stream(onMessage);
     }).then(function () {
@@ -279,6 +274,8 @@ if (typeof jQuery !== 'undefined') {
 
         return c;
       });
+
+      $wrapper.toggleClass('empty', !conversations.length);
 
       var otherPeople = getContactsWithoutCurrentUser();
 
