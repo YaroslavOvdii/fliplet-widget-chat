@@ -7,7 +7,7 @@
   "provider_only": false,
   "references": [
     "dataSourceId:dataSource",
-    "contactLinkAction:page"
+    "contactLinkAction.page:page"
   ],
   "html_tag": "span",
   "interface": {
@@ -36,10 +36,6 @@
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"
-    ],
-    "references": [
-      "contactLinkAction.page:page",
-      "dataSourceId:dataSource"
     ]
   }
 }
