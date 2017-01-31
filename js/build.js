@@ -125,7 +125,7 @@ if (typeof jQuery !== 'undefined') {
 
   $wrapper.on('click', '.chat-text', function() {
     getElemHandler($(this));
-    $(this).tooltip('show');
+    $(this).tooltip('toggle');
   });
 
   $(document).on('click', '.tooltip', function() {
@@ -486,6 +486,8 @@ if (typeof jQuery !== 'undefined') {
   if (!Fliplet.Navigator.isOnline()) {
     $wrapper.addClass('offline');
   }
+
+  autosize( $('.chat-wrapper textarea') );
 
   $(window).blur(function() { isActiveWindow = false; });
   $(window).focus(function() { isActiveWindow = true; });
