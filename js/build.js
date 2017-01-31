@@ -180,6 +180,7 @@ if (typeof jQuery !== 'undefined') {
     holder.addClass('sending');
 
     $message.val('');
+    autosize.update($message);
 
     chat.message(currentConversation.id, {
       body: text
@@ -492,7 +493,9 @@ if (typeof jQuery !== 'undefined') {
     $wrapper.addClass('offline');
   }
 
-  autosize( $('.chat-wrapper textarea') );
+  $(document).on('focus', '.chat-wrapper textarea', function() {
+    autosize($(this));
+  });
 
   $(window).blur(function() { isActiveWindow = false; });
   $(window).focus(function() { isActiveWindow = true; });
