@@ -403,11 +403,16 @@ if (typeof jQuery !== 'undefined') {
             var notification = Notification(sender.data.fullName, {
               body: message.data.body,
               icon: $('link[rel="icon"]').attr('href'),
-              timestamp: message.createdAtDate.unix()
+              timestamp: message.createdAtDate.unix(),
+              tag: 'message' + message.id
             });
 
             notification.onclick = function () {
-              viewConversation(conversation);
+              window.focus();
+              setTimeout(function () {
+                viewConversation(conversation);
+              }, 0);
+              this.cancel();
             };
           }
         }
