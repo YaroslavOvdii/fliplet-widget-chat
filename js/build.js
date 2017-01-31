@@ -481,7 +481,6 @@ if (typeof jQuery !== 'undefined') {
               setTimeout(function () {
                 viewConversation(conversation);
               }, 0);
-              this.cancel();
             };
           }
         }
