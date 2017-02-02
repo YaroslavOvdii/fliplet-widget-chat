@@ -918,7 +918,3 @@ img {
 .tooltip {
     cursor: pointer;
 }
-
-[data-load-more] {
-    margin-top: 30px;
-}
