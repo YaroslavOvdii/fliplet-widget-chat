@@ -517,7 +517,14 @@ if (typeof jQuery !== 'undefined') {
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         sender: sender.data,
         message: message.data,
-        timeAgo: message.createdAtDate.format('HH:mm')
+        timeAgo: message.createdAtDate.calendar(null, {
+            sameDay: '[Today] HH:mm',
+            nextDay: '[Tomorrow] HH:mm',
+            nextWeek: 'DD/MM/YYYY',
+            lastDay: '[Yesterday] HH:mm',
+            lastWeek: 'DD/MM - HH:mm',
+            sameElse: 'DD/MM/YYYY'
+        })
       }));
 
       var scrollTop = $messages.scrollTop();
