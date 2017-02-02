@@ -573,11 +573,17 @@ img {
     }
 }
 
-.msg-chats .load-more-msg {
+.msg-chats .load-more {
     background: transparent;
     color: #666;
     border-radius: 25px;
     margin: 30px 0 0;
+    outline: none;
+    outline-offset: 0;
+}
+
+.msg-chats .load-more:active:focus,
+.msg-chats .load-more:focus {
     outline: none;
     outline-offset: 0;
 }
@@ -911,8 +917,4 @@ img {
 
 .tooltip {
     cursor: pointer;
-}
-
-[data-load-more] {
-    margin-top: 20px;
 }
