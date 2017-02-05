@@ -360,6 +360,7 @@ img {
 
 .chat .chat-body .chat-text p {
     margin: 0;
+    word-break: break-word;
 }
 
 .chats .chat.chat-left {
