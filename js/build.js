@@ -203,6 +203,8 @@ if (typeof jQuery !== 'undefined') {
         $(_this).removeClass('sending');
         $(holder).removeClass('sending sent');
       }, 200);
+
+      moveConversationToTop(currentConversation);
     }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
@@ -396,6 +398,14 @@ if (typeof jQuery !== 'undefined') {
     }
 
     return contactsReqPromise;
+  }
+
+  function moveConversationToTop(conversation) {
+    var $el = $('[data-conversation-id="' + conversation.id + '"]');
+
+    if ($el.index()) {
+      $el.parent().prepend($el);
+    }
   }
 
   function loadMoreMessagesForCurrentConversation() {
