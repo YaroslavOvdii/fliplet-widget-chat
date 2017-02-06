@@ -129,12 +129,19 @@ if (typeof jQuery !== 'undefined') {
 
   $wrapper.on('click', '.chat-text', function() {
     getElemHandler($(this));
+    $().tooltip('destroy');
+    $(this).parents('.chats').find('.chat-text[aria-describedby]').tooltip('hide');
     $(this).tooltip('toggle');
   });
 
   $(document).on('click', '.tooltip', function() {
-	   copiedElem.copyText();
-    $(this).tooltip('hide');
+    var _this = $(this);
+	  copiedElem.copyText();
+    $(this).find('.tooltip-inner').text('Copied!');
+
+    setTimeout(function() {
+      _this.tooltip('hide');
+    }, 500);
   });
 
   // Handler to view the frame to create a new conversation
@@ -190,23 +197,21 @@ if (typeof jQuery !== 'undefined') {
     $(this).addClass('sending');
     holder.addClass('sending');
 
-    $message.val('');
-    $message.focus();
-    autosize.update($message);
-
     chat.message(currentConversation.id, {
       body: text
     }).then(function() {
-      $(holder).addClass('sent');
+      $message.val('');
+      $message.focus();
+      autosize.update($message);
 
       setTimeout(function() {
         $(_this).removeClass('sending');
-        $(holder).removeClass('sending sent');
+        $(holder).removeClass('sending');
       }, 200);
     }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
-      $(holder).removeClass('sending sent');
+      $(holder).removeClass('sending');
 
       setTimeout(function() {
         $(holder).removeClass('error');
