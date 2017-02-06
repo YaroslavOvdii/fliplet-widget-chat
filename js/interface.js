@@ -2,6 +2,7 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
+var dataSourceId;
 
 $(document).on('change', '.hidden-select', function(){
   var selectedValue = $(this).val();
@@ -10,6 +11,9 @@ $(document).on('change', '.hidden-select', function(){
 });
 
 var $dataSources = $('[name="dataSource"]');
+var $emailAddress = $('[name="emailAddress"]');
+var $fullName = $('[name="fullName"]');
+var $avatar = $('[name="avatar"]');
 
 var linkDirectoryProvider = Fliplet.Widget.open('com.fliplet.link', {
   // If provided, the iframe will be appended here,
@@ -41,11 +45,20 @@ linkDirectoryProvider.then(function (result) {
   save(true);
 });
 
+$dataSources.on( 'change', function() {
+  dataSourceId = $(this).val();
+  $('.column-selection').addClass('show');
+  getColumns(dataSourceId);
+});
+
 function save(notifyComplete) {
   // Push notifications are always enabled for the chat
   data.pushNotifications = true;
 
   data.dataSourceId = $dataSources.val();
+  data.crossLoginColumnName = $emailAddress.val();
+  data.fullNameColumnName = $fullName.val();
+  data.avatarColumnName = $avatar.val();
 
   Fliplet.Widget.save(data).then(function () {
     if (notifyComplete) {
@@ -54,6 +67,45 @@ function save(notifyComplete) {
     } else {
       Fliplet.Studio.emit('reload-widget-instance', widgetId);
     }
+  });
+}
+
+function getColumns(dataSourceId) {
+  Fliplet.DataSources.getById(dataSourceId).then(function (dataSource) {
+    var $emailInitalOption = $emailAddress.find('option');
+    $emailInitalOption.text('-- Select a field');
+    var $nameInitialOption = $fullName.find('option');
+    $nameInitialOption.text('-- Select a field');
+    var $avatarInitialOption = $avatar.find('option');
+    $avatarInitialOption.text('-- Select a field');
+
+    $emailAddress.html($emailInitalOption);
+    $fullName.html($nameInitialOption);
+    $avatar.html($avatarInitialOption);
+
+    dataSource.columns.forEach(function (c) {
+      $emailAddress.append('<option value="' + c + '">' + c + '</option>');
+      $fullName.append('<option value="' + c + '">' + c + '</option>');
+      $avatar.append('<option value="' + c + '">' + c + '</option>');
+    });
+
+    if (data.crossLoginColumnName) {
+      $emailAddress.val(data.crossLoginColumnName);
+    }
+    if (data.fullNameColumnName) {
+      $fullName.val(data.fullNameColumnName);
+    }
+    if (data.avatarColumnName) {
+      $avatar.val(data.avatarColumnName);
+    }
+
+    $emailAddress.trigger('change');
+    $fullName.trigger('change');
+    $avatar.trigger('change');
+
+    $emailAddress.prop('disabled', '');
+    $fullName.prop('disabled', '');
+    $avatar.prop('disabled', '');
   });
 }
 
