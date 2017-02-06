@@ -11,7 +11,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.conversation-content"] = Handl
     + alias4(((helper = (helper = helpers.avatar || (depth0 != null ? depth0.avatar : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"avatar","hash":{},"data":data}) : helper)))
     + ")\"></div>\n        <i class=\"fa fa-user\" aria-hidden=\"true\"></i>\n      </div>\n      <span class=\"user-name\">"
     + alias4(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data}) : helper)))
-    + "</span>\n    </div>\n  </div>\n\n  <div class=\"msg-chats\" ontouchstart=\"\">\n    <button type=\"button\" class=\"btn btn-default load-more\" data-load-more>Load more</button>\n    <div class=\"chats\" data-conversation-messages></div>\n  </div>\n\n  <div class=\"input-holder\" data-new-message ontouchstart=\"\">\n    <div class=\"error-send\">Couldn't send your message. Try again!</div>\n    <div class=\"sending-bar\"></div>\n    <div class=\"message-input\">\n      <textarea class=\"form-control\" rows=\"1\" data-message-body></textarea>\n    </div>\n    <button class=\"message-input-btn btn btn-primary\" type=\"button\">\n      <span>Send <i class=\"fa fa-paper-plane\"></i></span>\n      <div class=\"loader\"><i class=\"fa fa-spinner\"></i></div>\n    </button>\n  </div>\n<div>\n";
+    + "</span>\n    </div>\n  </div>\n\n  <div class=\"msg-chats\" ontouchstart=\"\">\n    <button type=\"button\" class=\"btn btn-default load-more\" data-load-more>Load more</button>\n    <div class=\"chats\" data-conversation-messages></div>\n  </div>\n\n  <div class=\"input-holder\" data-new-message ontouchstart=\"\">\n    <div class=\"error-send\">Couldn't send your message. Try again!</div>\n    <div class=\"message-input\">\n      <textarea class=\"form-control\" rows=\"1\" data-message-body></textarea>\n    </div>\n    <button class=\"message-input-btn btn btn-primary\" type=\"button\">\n      <span>Send <i class=\"fa fa-paper-plane\"></i></span>\n      <div class=\"loader\"><i class=\"fa fa-spinner\"></i></div>\n    </button>\n  </div>\n<div>\n";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.conversation-item"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -55,16 +55,16 @@ this["Fliplet"]["Widget"]["Templates"]["templates.message"] = Handlebars.templat
 },"3":function(container,depth0,helpers,partials,data) {
     return "chat-left";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3=container.escapeExpression;
+    var stack1, helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<div class=\"chat "
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.isFromCurrentUser : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
     + "\">\n  <div class=\"chat-body\">\n    <div class=\"msg-time\">"
-    + alias3(((helper = (helper = helpers.timeAgo || (depth0 != null ? depth0.timeAgo : depth0)) != null ? helper : alias2),(typeof helper === "function" ? helper.call(alias1,{"name":"timeAgo","hash":{},"data":data}) : helper)))
+    + alias4(((helper = (helper = helpers.timeAgo || (depth0 != null ? depth0.timeAgo : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"timeAgo","hash":{},"data":data}) : helper)))
     + "</div>\n    <div class=\"user-avatar\">\n      <div class=\"image-holder\" style=\"background-image: url("
-    + alias3(container.lambda(((stack1 = (depth0 != null ? depth0.sender : depth0)) != null ? stack1.Avatar : stack1), depth0))
+    + alias4(((helper = (helper = helpers.avatar || (depth0 != null ? depth0.avatar : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"avatar","hash":{},"data":data}) : helper)))
     + ")\"></div>\n      <i class=\"fa fa-user\" aria-hidden=\"true\"></i>\n    </div>\n    <div class=\"chat-text\" data-toggle=\"tooltip\" title=\"Copy\" data-placement=\"top\" data-trigger=\"manual\">\n      <p>"
-    + alias3((helpers.formatMessage || (depth0 && depth0.formatMessage) || alias2).call(alias1,((stack1 = (depth0 != null ? depth0.message : depth0)) != null ? stack1.body : stack1),{"name":"formatMessage","hash":{},"data":data}))
+    + alias4((helpers.formatMessage || (depth0 && depth0.formatMessage) || alias2).call(alias1,((stack1 = (depth0 != null ? depth0.message : depth0)) != null ? stack1.body : stack1),{"name":"formatMessage","hash":{},"data":data}))
     + "</p>\n    </div>\n  </div>\n</div>\n";
 },"useData":true});
 

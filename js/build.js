@@ -4,6 +4,7 @@ Handlebars.registerHelper('formatMessage', function(text) {
 });
 
 Fliplet.Widget.instance('chat', function (data) {
+  data = data || {};
 
   // ---------------------------------------------------------------
   // const setup
@@ -12,8 +13,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
-  var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
-  var PARTICIPANT_AVATAR_COLUMN = 'Avatar';
   var SCROLL_TO_MESSAGE_SPEED = 500;
   var LOAD_MORE_MESSAGES_PAGE_SIZE = 50;
 
@@ -31,37 +30,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }*/
 
   // ---------------------------------------------------------------
-  // Copy to clipboard text prototype
-  HTMLElement.prototype.copyText = function() {
-  var range = document.createRange();
-  this.style.webkitUserSelect = 'text';
-  range.selectNode(this);
-  window.getSelection().addRange(range);
-  this.style.webkitUserSelect = 'inherit';
-
-  try {
-    // Now that we've selected the anchor text, execute the copy command
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
-  } catch(err) {
-    console.error('Oops, unable to copy', err);
-  }
-
-  // Remove the selections - NOTE: Should use
-  // removeRange(range) when it is supported
-  window.getSelection().removeAllRanges();
-};
-
-if (typeof jQuery !== 'undefined') {
-	$.fn.copyText = function(){
-  	return $(this).each(function(i){
-    	if (i > 0) return;
-      this.copyText();
-    });
-  };
-}
-
-  // ---------------------------------------------------------------
   // variables setup
 
   var chat;
@@ -75,8 +43,45 @@ if (typeof jQuery !== 'undefined') {
   var scrollToMessageTs = 0;
   var chatConnection = Fliplet.Chat.connect(data);
   var isActiveWindow = true;
-  var crossLoginColumnName = data && data.crossLoginColumnName || 'email';
+  var crossLoginColumnName = data.crossLoginColumnName || 'email';
+  var fullNameColumnName = data.fullNameColumnName || 'fullName';
+  var avatarColumnName = data.avatarColumnName || 'avatar';
   var copiedElem;
+
+  // ---------------------------------------------------------------
+  // Copy to clipboard text prototype
+  HTMLElement.prototype.copyText = function() {
+    var range = document.createRange();
+    this.style.webkitUserSelect = 'text';
+    range.selectNode(this);
+    window.getSelection().addRange(range);
+    this.style.webkitUserSelect = 'inherit';
+
+    try {
+      // Now that we've selected the anchor text, execute the copy command
+      var successful = document.execCommand('copy');
+      var msg = successful ? 'successful' : 'unsuccessful';
+    } catch(err) {
+      console.error('Oops, unable to copy', err);
+    }
+
+    // Remove the selections - NOTE: Should use
+    // removeRange(range) when it is supported
+    window.getSelection().removeAllRanges();
+  };
+
+  if (typeof jQuery !== 'undefined') {
+    $.fn.copyText = function(){
+      return $(this).each(function(i){
+        if (i > 0) return;
+        this.copyText();
+      });
+    };
+  }
+
+  if (Modernizr.windows) {
+    return $wrapper.html('<p style="margin:80px 20px">The chat feature is not currently supported on Windows devices, please check back later for updates.</p>');
+  }
 
   // ---------------------------------------------------------------
   // events setup
@@ -131,12 +136,18 @@ if (typeof jQuery !== 'undefined') {
 
   $wrapper.on('click', '.chat-text', function() {
     getElemHandler($(this));
+    $(this).parents('.chats').find('.chat-text[aria-describedby]').tooltip('hide');
     $(this).tooltip('toggle');
   });
 
   $(document).on('click', '.tooltip', function() {
-	   copiedElem.copyText();
-    $(this).tooltip('hide');
+    var $el = $(this);
+    copiedElem.copyText();
+    $el.find('.tooltip-inner').text('Copied!');
+
+    setTimeout(function() {
+      $el.tooltip('hide');
+    }, 500);
   });
 
   // Handler to view the frame to create a new conversation
@@ -192,25 +203,23 @@ if (typeof jQuery !== 'undefined') {
     $(this).addClass('sending');
     holder.addClass('sending');
 
-    $message.val('');
-    $message.focus();
-    autosize.update($message);
-
     chat.message(currentConversation.id, {
       body: text
     }).then(function() {
-      $(holder).addClass('sent');
+      $message.val('');
+      $message.focus();
+      autosize.update($message);
 
       setTimeout(function() {
         $(_this).removeClass('sending');
-        $(holder).removeClass('sending sent');
+        $(holder).removeClass('sending');
       }, 200);
 
       moveConversationToTop(currentConversation);
     }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
-      $(holder).removeClass('sending sent');
+      $(holder).removeClass('sending');
 
       setTimeout(function() {
         $(holder).removeClass('error');
@@ -333,13 +342,13 @@ if (typeof jQuery !== 'undefined') {
         var conversationName = _.compact(_.filter(otherPeople, function (c) {
           return participants.indexOf(c.data.flUserId) !== -1;
         }).map(function (c) {
-          return c.data[PARTICIPANT_FULLNAME_COLUMN];
+          return c.data[fullNameColumnName];
         })).join(', ').trim();
 
         var conversationAvatar = _.compact(_.filter(otherPeople, function (c) {
           return participants.indexOf(c.data.flUserId) !== -1;
         }).map(function (c) {
-          return c.data[PARTICIPANT_AVATAR_COLUMN];
+          return c.data[avatarColumnName];
         })).join(', ').trim();
 
         conversation.name = conversationName || conversation.name;
@@ -574,7 +583,8 @@ if (typeof jQuery !== 'undefined') {
 
       var $message = $(Fliplet.Widget.Templates['templates.message']({
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        sender: sender.data,
+        name: sender[fullNameColumnName],
+        avatar: sender[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.format('HH:mm')
       }));
