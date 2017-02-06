@@ -72,16 +72,9 @@ function save(notifyComplete) {
 
 function getColumns(dataSourceId) {
   Fliplet.DataSources.getById(dataSourceId).then(function (dataSource) {
-    var $emailInitalOption = $emailAddress.find('option');
-    $emailInitalOption.text('-- Select a field');
-    var $nameInitialOption = $fullName.find('option');
-    $nameInitialOption.text('-- Select a field');
-    var $avatarInitialOption = $avatar.find('option');
-    $avatarInitialOption.text('-- Select a field');
-
-    $emailAddress.html($emailInitalOption);
-    $fullName.html($nameInitialOption);
-    $avatar.html($avatarInitialOption);
+    $emailAddress.html('<option value="">-- Select a field</option>');
+    $fullName.html('<option value="">-- Select a field</option>');
+    $avatar.html('<option value="">-- Select a field</option>');
 
     dataSource.columns.forEach(function (c) {
       $emailAddress.append('<option value="' + c + '">' + c + '</option>');
