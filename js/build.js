@@ -68,6 +68,7 @@ if (typeof jQuery !== 'undefined') {
   var conversations;
   var currentConversation;
   var messages = [];
+  var messagesIds = [];
   var contacts = [];
   var currentUser;
   var scrollToMessageTimeout;
@@ -253,7 +254,7 @@ if (typeof jQuery !== 'undefined') {
     getContacts(false).then(function () {
       return getConversations();
     }).then(function () {
-      return chat.stream(onMessage);
+      return chat.stream(onNewMessage);
     }).then(function () {
       var userId = Fliplet.Navigate.query.contactConversation;
 
@@ -424,11 +425,16 @@ if (typeof jQuery !== 'undefined') {
       where: where
     }).then(function (previousMessages) {
       previousMessages.forEach(function (message) {
+        if (messagesIds.indexOf(message.id) !== -1) {
+          return;
+        }
+
         if (currentConversation && currentConversation.id === message.dataSourceId) {
           addMetadataToMessage(message);
           renderMessage(message, true);
         }
 
+        messagesIds.push(message.id);
         messages.unshift(message);
       });
 
@@ -480,10 +486,15 @@ if (typeof jQuery !== 'undefined') {
     };
   }
 
-  function onMessage(message) {
+  function onNewMessage(message) {
+    if (messagesIds.indexOf(message.id) !== -1) {
+      return;
+    }
+
     addMetadataToMessage(message);
 
     messages.push(message);
+    messagesIds.push(message.id);
 
     var isCurrentConversation = currentConversation && message.dataSourceId === currentConversation.id;
 
@@ -531,6 +542,10 @@ if (typeof jQuery !== 'undefined') {
 
       // Let's update the UI to reflect the last message
       renderConversationItem(conversation, true);
+    }
+
+    if (messages.length >= chat.getBatchSize()) {
+      $wrapper.addClass('show-load-more');
     }
   }
 

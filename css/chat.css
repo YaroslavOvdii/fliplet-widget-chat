@@ -574,12 +574,17 @@ img {
 }
 
 .msg-chats .load-more {
+    display: none;
     background: transparent;
     color: #666;
     border-radius: 25px;
     margin: 30px 0 0;
     outline: none;
     outline-offset: 0;
+}
+
+.show-load-more .msg-chats .load-more {
+    display: inline-block;
 }
 
 .msg-chats .load-more:active:focus,
