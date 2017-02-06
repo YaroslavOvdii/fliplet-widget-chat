@@ -345,11 +345,9 @@ Fliplet.Widget.instance('chat', function (data) {
           return c.data[fullNameColumnName];
         })).join(', ').trim();
 
-        var conversationAvatar = _.compact(_.filter(otherPeople, function (c) {
-          return participants.indexOf(c.data.flUserId) !== -1;
-        }).map(function (c) {
-          return c.data[avatarColumnName];
-        })).join(', ').trim();
+        var conversationAvatar = _.find(otherPeople, function (p) {
+          return participants.indexOf(p.data.flUserId) !== -1;
+        }).data[avatarColumnName];
 
         conversation.name = conversationName || conversation.name;
         conversation.avatar = conversationAvatar || '';
