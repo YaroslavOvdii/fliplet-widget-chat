@@ -137,7 +137,7 @@ if (typeof jQuery !== 'undefined') {
   $(document).on('click', '.tooltip', function() {
     var $el = $(this);
     copiedElem.copyText();
-    $(this).find('.tooltip-inner').text('Copied!');
+    $el.find('.tooltip-inner').text('Copied!');
 
     setTimeout(function() {
       $el.tooltip('hide');
