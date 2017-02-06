@@ -310,8 +310,8 @@ img {
     float: right;
     padding: 15px 41px 15px 15px;
     margin-right: 26px;
-    background-color: #12ccb6;
-    border: 1px solid #12ccb6;
+    background-color: #337ab7;
+    border: 1px solid #337ab7;
     color: #ffffff;
 }
 
@@ -491,12 +491,12 @@ img {
 }
 
 .input-holder .message-input textarea:focus {
-    border-color: #12ccb6;
+    border-color: #337ab7;
 }
 
 .input-holder .message-input-btn {
     flex: 0;
-    background-color: #12ccb6;
+    background-color: #337ab7;
     border-color: transparent;
     border-radius: 0;
     outline: none !important;
@@ -518,7 +518,7 @@ img {
 .input-holder .message-input-btn:active:hover,
 .input-holder .message-input-btn:focus,
 .input-holder .message-input-btn:hover {
-    background-color: #12ccb6;
+    background-color: #337ab7;
     border-color: transparent;
 }
 
@@ -622,8 +622,8 @@ img {
 
     .list-group li.active {
         padding: 15px 13px 15px 82px;
-        border-right: 2px solid #12ccb6;
-        background-color: rgba(18, 204, 182, 0.06);
+        border-right: 2px solid #337ab7;
+        background-color: rgba(51, 122, 183, 0.06);
     }
 
     .list-group li .title-holder .user-name {
@@ -704,7 +704,7 @@ img {
     right: 0;
     height: 56px;
     line-height: 56px;
-    color: #12ccb6;
+    color: #337ab7;
     cursor: pointer;
     background-color: #fff;
     border-top: 1px solid #e4eaec;
@@ -810,7 +810,7 @@ img {
 
 .copy-wrapper .copy-bottom button:first-child {
     font-weight: bold;
-    color: #12ccb6;
+    color: #337ab7;
 }
 
 .copy-wrapper .copy-bottom button:last-child {
