@@ -208,6 +208,8 @@ if (typeof jQuery !== 'undefined') {
         $(_this).removeClass('sending');
         $(holder).removeClass('sending');
       }, 200);
+
+      moveConversationToTop(currentConversation);
     }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
@@ -298,8 +300,14 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
+  var getConversationsReqPromise;
+
   function getConversations() {
-    return chat.conversations().then(function (response) {
+    if (getConversationsReqPromise) {
+      return getConversationsReqPromise;
+    }
+
+    getConversationsReqPromise = chat.conversations().then(function (response) {
       conversations = response.map(function (c) {
         var existingConversation = _.find(conversations, { id: c.id });
         if (existingConversation) {
@@ -345,7 +353,12 @@ if (typeof jQuery !== 'undefined') {
       conversations.forEach(function (conversation) {
         renderConversationItem(conversation);
       });
+
+      getConversationsReqPromise = undefined;
+      return Promise.resolve(conversations);
     });
+
+    return getConversationsReqPromise;
   }
 
   function viewConversation(conversation) {
@@ -363,7 +376,7 @@ if (typeof jQuery !== 'undefined') {
     });
 
     if (!conversationMessages.length) {
-      chat.poll();
+      $wrapper.find('[data-load-more]').click();
     }
 
     //$('[data-message-body]').focus();
@@ -378,27 +391,42 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
+  var contactsReqPromise;
+
   function getContacts(cache) {
-    return chat.contacts({ cache: cache }).then(function (response) {
-      contacts = response;
-      return Promise.resolve();
-    });
+    if (!contactsReqPromise) {
+      contactsReqPromise = chat.contacts({ cache: cache }).then(function (response) {
+        contacts = response;
+        contactsReqPromise = undefined;
+        return Promise.resolve();
+      });
+    }
+
+    return contactsReqPromise;
+  }
+
+  function moveConversationToTop(conversation) {
+    var $el = $('[data-conversation-id="' + conversation.id + '"]');
+
+    if ($el.index()) {
+      $el.parent().prepend($el);
+    }
   }
 
   function loadMoreMessagesForCurrentConversation() {
     var conversationMessages = _.filter(messages, { dataSourceId: currentConversation.id });
     var firstMessage = _.minBy(conversationMessages, 'createdAt');
 
-    if (!firstMessage) {
-      return Promise.resolve([]);
+    var where = {};
+
+    if (firstMessage) {
+      where.createdAt = { $lt: firstMessage.createdAt };
     }
 
     return chat.messages({
       conversations: [currentConversation.id],
       limit: LOAD_MORE_MESSAGES_PAGE_SIZE,
-      where: {
-        createdAt: { $lt: firstMessage.createdAt }
-      }
+      where: where
     }).then(function (previousMessages) {
       previousMessages.forEach(function (message) {
         if (currentConversation && currentConversation.id === message.dataSourceId) {
@@ -408,6 +436,13 @@ if (typeof jQuery !== 'undefined') {
 
         messages.unshift(message);
       });
+
+      if (currentConversation && !firstMessage && previousMessages) {
+        setConversationLastMessage(currentConversation, previousMessages[0]);
+
+        // Let's update the UI to reflect the last message
+        renderConversationItem(currentConversation, true);
+      }
 
       return Promise.resolve(previousMessages);
     });
@@ -432,6 +467,24 @@ if (typeof jQuery !== 'undefined') {
     message.createdAtDate = moment(message.createdAt);
   }
 
+  function setConversationLastMessage(conversation, message) {
+    if (!message || !conversation) {
+      return;
+    }
+
+    conversation.lastMessage = {
+      body: message.data.body,
+      date: message.createdAtDate.calendar(null, {
+          sameDay: '[Today]',
+          nextDay: '[Tomorrow]',
+          nextWeek: 'dddd',
+          lastDay: '[Yesterday]',
+          lastWeek: '[Last] dddd',
+          sameElse: 'DD/MM/YYYY'
+      })
+    };
+  }
+
   function onMessage(message) {
     addMetadataToMessage(message);
 
@@ -450,17 +503,7 @@ if (typeof jQuery !== 'undefined') {
       // started messaging us on a new conversation so let's just refetch the list
       getConversations();
     } else {
-      conversation.lastMessage = {
-        body: message.data.body,
-        date: message.createdAtDate.calendar(null, {
-            sameDay: '[Today]',
-            nextDay: '[Tomorrow]',
-            nextWeek: 'dddd',
-            lastDay: '[Yesterday]',
-            lastWeek: '[Last] dddd',
-            sameElse: 'DD/MM/YYYY'
-        })
-      };
+      setConversationLastMessage(conversation, message);
 
       if (!message.isReadByCurrentUser) {
         if (!currentConversation || currentConversation.id !== message.dataSourceId) {
