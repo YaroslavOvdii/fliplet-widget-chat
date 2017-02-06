@@ -75,6 +75,7 @@ if (typeof jQuery !== 'undefined') {
   var scrollToMessageTs = 0;
   var chatConnection = Fliplet.Chat.connect(data);
   var isActiveWindow = true;
+  var crossLoginColumnName = data && data.crossLoginColumnName || 'email';
   var copiedElem;
 
   // ---------------------------------------------------------------
@@ -647,9 +648,9 @@ if (typeof jQuery !== 'undefined') {
       // Log in using authentication from a different component
       return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
         if (email) {
-          return Promise.resolve({
-            email: email
-          });
+          var where = {};
+          where[crossLoginColumnName] = email;
+          return Promise.resolve(where);
         }
 
         return Promise.reject('User is not logged in');
