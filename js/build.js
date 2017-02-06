@@ -136,12 +136,18 @@ Fliplet.Widget.instance('chat', function (data) {
 
   $wrapper.on('click', '.chat-text', function() {
     getElemHandler($(this));
+    $(this).parents('.chats').find('.chat-text[aria-describedby]').tooltip('hide');
     $(this).tooltip('toggle');
   });
 
   $(document).on('click', '.tooltip', function() {
+    var $el = $(this);
     copiedElem.copyText();
-    $(this).tooltip('hide');
+    $el.find('.tooltip-inner').text('Copied!');
+
+    setTimeout(function() {
+      $el.tooltip('hide');
+    }, 500);
   });
 
   // Handler to view the frame to create a new conversation
@@ -197,25 +203,23 @@ Fliplet.Widget.instance('chat', function (data) {
     $(this).addClass('sending');
     holder.addClass('sending');
 
-    $message.val('');
-    $message.focus();
-    autosize.update($message);
-
     chat.message(currentConversation.id, {
       body: text
     }).then(function() {
-      $(holder).addClass('sent');
+      $message.val('');
+      $message.focus();
+      autosize.update($message);
 
       setTimeout(function() {
         $(_this).removeClass('sending');
-        $(holder).removeClass('sending sent');
+        $(holder).removeClass('sending');
       }, 200);
 
       moveConversationToTop(currentConversation);
     }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
-      $(holder).removeClass('sending sent');
+      $(holder).removeClass('sending');
 
       setTimeout(function() {
         $(holder).removeClass('error');
