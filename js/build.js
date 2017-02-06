@@ -583,8 +583,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
       var $message = $(Fliplet.Widget.Templates['templates.message']({
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        name: sender[fullNameColumnName],
-        avatar: sender[avatarColumnName],
+        name: sender.data[fullNameColumnName],
+        avatar: sender.data[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
             sameDay: '[Today] HH:mm',
