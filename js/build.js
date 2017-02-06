@@ -30,37 +30,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }*/
 
   // ---------------------------------------------------------------
-  // Copy to clipboard text prototype
-  HTMLElement.prototype.copyText = function() {
-  var range = document.createRange();
-  this.style.webkitUserSelect = 'text';
-  range.selectNode(this);
-  window.getSelection().addRange(range);
-  this.style.webkitUserSelect = 'inherit';
-
-  try {
-    // Now that we've selected the anchor text, execute the copy command
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
-  } catch(err) {
-    console.error('Oops, unable to copy', err);
-  }
-
-  // Remove the selections - NOTE: Should use
-  // removeRange(range) when it is supported
-  window.getSelection().removeAllRanges();
-};
-
-if (typeof jQuery !== 'undefined') {
-	$.fn.copyText = function(){
-  	return $(this).each(function(i){
-    	if (i > 0) return;
-      this.copyText();
-    });
-  };
-}
-
-  // ---------------------------------------------------------------
   // variables setup
 
   var chat;
@@ -78,6 +47,37 @@ if (typeof jQuery !== 'undefined') {
   var fullNameColumnName = data.fullNameColumnName || 'fullName';
   var avatarColumnName = data.avatarColumnName || 'avatar';
   var copiedElem;
+
+  // ---------------------------------------------------------------
+  // Copy to clipboard text prototype
+  HTMLElement.prototype.copyText = function() {
+    var range = document.createRange();
+    this.style.webkitUserSelect = 'text';
+    range.selectNode(this);
+    window.getSelection().addRange(range);
+    this.style.webkitUserSelect = 'inherit';
+
+    try {
+      // Now that we've selected the anchor text, execute the copy command
+      var successful = document.execCommand('copy');
+      var msg = successful ? 'successful' : 'unsuccessful';
+    } catch(err) {
+      console.error('Oops, unable to copy', err);
+    }
+
+    // Remove the selections - NOTE: Should use
+    // removeRange(range) when it is supported
+    window.getSelection().removeAllRanges();
+  };
+
+  if (typeof jQuery !== 'undefined') {
+    $.fn.copyText = function(){
+      return $(this).each(function(i){
+        if (i > 0) return;
+        this.copyText();
+      });
+    };
+  }
 
   // ---------------------------------------------------------------
   // events setup
@@ -136,7 +136,7 @@ if (typeof jQuery !== 'undefined') {
   });
 
   $(document).on('click', '.tooltip', function() {
-	   copiedElem.copyText();
+    copiedElem.copyText();
     $(this).tooltip('hide');
   });
 
