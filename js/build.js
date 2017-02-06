@@ -4,6 +4,7 @@ Handlebars.registerHelper('formatMessage', function(text) {
 });
 
 Fliplet.Widget.instance('chat', function (data) {
+  data = data || {};
 
   // ---------------------------------------------------------------
   // const setup
@@ -12,8 +13,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
-  var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
-  var PARTICIPANT_AVATAR_COLUMN = 'Avatar';
   var SCROLL_TO_MESSAGE_SPEED = 500;
   var LOAD_MORE_MESSAGES_PAGE_SIZE = 50;
 
@@ -75,7 +74,9 @@ if (typeof jQuery !== 'undefined') {
   var scrollToMessageTs = 0;
   var chatConnection = Fliplet.Chat.connect(data);
   var isActiveWindow = true;
-  var crossLoginColumnName = data && data.crossLoginColumnName || 'email';
+  var crossLoginColumnName = data.crossLoginColumnName || 'email';
+  var fullNameColumnName = data.fullNameColumnName || 'fullName';
+  var avatarColumnName = data.avatarColumnName || 'avatar';
   var copiedElem;
 
   // ---------------------------------------------------------------
@@ -333,13 +334,13 @@ if (typeof jQuery !== 'undefined') {
         var conversationName = _.compact(_.filter(otherPeople, function (c) {
           return participants.indexOf(c.data.flUserId) !== -1;
         }).map(function (c) {
-          return c.data[PARTICIPANT_FULLNAME_COLUMN];
+          return c.data[fullNameColumnName];
         })).join(', ').trim();
 
         var conversationAvatar = _.compact(_.filter(otherPeople, function (c) {
           return participants.indexOf(c.data.flUserId) !== -1;
         }).map(function (c) {
-          return c.data[PARTICIPANT_AVATAR_COLUMN];
+          return c.data[avatarColumnName];
         })).join(', ').trim();
 
         conversation.name = conversationName || conversation.name;
@@ -574,7 +575,8 @@ if (typeof jQuery !== 'undefined') {
 
       var $message = $(Fliplet.Widget.Templates['templates.message']({
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        sender: sender.data,
+        name: sender[fullNameColumnName],
+        avatar: sender[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.format('HH:mm')
       }));
