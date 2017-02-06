@@ -4,6 +4,7 @@ Handlebars.registerHelper('formatMessage', function(text) {
 });
 
 Fliplet.Widget.instance('chat', function (data) {
+  data = data || {};
 
   // ---------------------------------------------------------------
   // const setup
@@ -12,8 +13,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
-  var PARTICIPANT_FULLNAME_COLUMN = 'fullName';
-  var PARTICIPANT_AVATAR_COLUMN = 'Avatar';
   var SCROLL_TO_MESSAGE_SPEED = 500;
   var LOAD_MORE_MESSAGES_PAGE_SIZE = 50;
 
@@ -31,50 +30,58 @@ Fliplet.Widget.instance('chat', function (data) {
   }*/
 
   // ---------------------------------------------------------------
-  // Copy to clipboard text prototype
-  HTMLElement.prototype.copyText = function() {
-  var range = document.createRange();
-  this.style.webkitUserSelect = 'text';
-  range.selectNode(this);
-  window.getSelection().addRange(range);
-  this.style.webkitUserSelect = 'inherit';
-
-  try {
-    // Now that we've selected the anchor text, execute the copy command
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
-  } catch(err) {
-    console.error('Oops, unable to copy', err);
-  }
-
-  // Remove the selections - NOTE: Should use
-  // removeRange(range) when it is supported
-  window.getSelection().removeAllRanges();
-};
-
-if (typeof jQuery !== 'undefined') {
-	$.fn.copyText = function(){
-  	return $(this).each(function(i){
-    	if (i > 0) return;
-      this.copyText();
-    });
-  };
-}
-
-  // ---------------------------------------------------------------
   // variables setup
 
   var chat;
   var conversations;
   var currentConversation;
   var messages = [];
+  var messagesIds = [];
   var contacts = [];
   var currentUser;
   var scrollToMessageTimeout;
   var scrollToMessageTs = 0;
   var chatConnection = Fliplet.Chat.connect(data);
   var isActiveWindow = true;
+  var crossLoginColumnName = data.crossLoginColumnName || 'email';
+  var fullNameColumnName = data.fullNameColumnName || 'fullName';
+  var avatarColumnName = data.avatarColumnName || 'avatar';
   var copiedElem;
+
+  // ---------------------------------------------------------------
+  // Copy to clipboard text prototype
+  HTMLElement.prototype.copyText = function() {
+    var range = document.createRange();
+    this.style.webkitUserSelect = 'text';
+    range.selectNode(this);
+    window.getSelection().addRange(range);
+    this.style.webkitUserSelect = 'inherit';
+
+    try {
+      // Now that we've selected the anchor text, execute the copy command
+      var successful = document.execCommand('copy');
+      var msg = successful ? 'successful' : 'unsuccessful';
+    } catch(err) {
+      console.error('Oops, unable to copy', err);
+    }
+
+    // Remove the selections - NOTE: Should use
+    // removeRange(range) when it is supported
+    window.getSelection().removeAllRanges();
+  };
+
+  if (typeof jQuery !== 'undefined') {
+    $.fn.copyText = function(){
+      return $(this).each(function(i){
+        if (i > 0) return;
+        this.copyText();
+      });
+    };
+  }
+
+  if (Modernizr.windows) {
+    return $wrapper.html('<p style="margin:80px 20px">The chat feature is not currently supported on Windows devices, please check back later for updates.</p>');
+  }
 
   // ---------------------------------------------------------------
   // events setup
@@ -129,12 +136,18 @@ if (typeof jQuery !== 'undefined') {
 
   $wrapper.on('click', '.chat-text', function() {
     getElemHandler($(this));
+    $(this).parents('.chats').find('.chat-text[aria-describedby]').tooltip('hide');
     $(this).tooltip('toggle');
   });
 
   $(document).on('click', '.tooltip', function() {
-	   copiedElem.copyText();
-    $(this).tooltip('hide');
+    var $el = $(this);
+    copiedElem.copyText();
+    $el.find('.tooltip-inner').text('Copied!');
+
+    setTimeout(function() {
+      $el.tooltip('hide');
+    }, 500);
   });
 
   // Handler to view the frame to create a new conversation
@@ -190,23 +203,23 @@ if (typeof jQuery !== 'undefined') {
     $(this).addClass('sending');
     holder.addClass('sending');
 
-    $message.val('');
-    $message.focus();
-    autosize.update($message);
-
     chat.message(currentConversation.id, {
       body: text
     }).then(function() {
-      $(holder).addClass('sent');
+      $message.val('');
+      $message.focus();
+      autosize.update($message);
 
       setTimeout(function() {
         $(_this).removeClass('sending');
-        $(holder).removeClass('sending sent');
+        $(holder).removeClass('sending');
       }, 200);
+
+      moveConversationToTop(currentConversation);
     }).catch(function(error) {
       $(holder).addClass('error');
       $(_this).removeClass('sending');
-      $(holder).removeClass('sending sent');
+      $(holder).removeClass('sending');
 
       setTimeout(function() {
         $(holder).removeClass('error');
@@ -251,7 +264,7 @@ if (typeof jQuery !== 'undefined') {
     getContacts(false).then(function () {
       return getConversations();
     }).then(function () {
-      return chat.stream(onMessage);
+      return chat.stream(onNewMessage);
     }).then(function () {
       var userId = Fliplet.Navigate.query.contactConversation;
 
@@ -293,8 +306,14 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
+  var getConversationsReqPromise;
+
   function getConversations() {
-    return chat.conversations().then(function (response) {
+    if (getConversationsReqPromise) {
+      return getConversationsReqPromise;
+    }
+
+    getConversationsReqPromise = chat.conversations().then(function (response) {
       conversations = response.map(function (c) {
         var existingConversation = _.find(conversations, { id: c.id });
         if (existingConversation) {
@@ -323,13 +342,13 @@ if (typeof jQuery !== 'undefined') {
         var conversationName = _.compact(_.filter(otherPeople, function (c) {
           return participants.indexOf(c.data.flUserId) !== -1;
         }).map(function (c) {
-          return c.data[PARTICIPANT_FULLNAME_COLUMN];
+          return c.data[fullNameColumnName];
         })).join(', ').trim();
 
         var conversationAvatar = _.compact(_.filter(otherPeople, function (c) {
           return participants.indexOf(c.data.flUserId) !== -1;
         }).map(function (c) {
-          return c.data[PARTICIPANT_AVATAR_COLUMN];
+          return c.data[avatarColumnName];
         })).join(', ').trim();
 
         conversation.name = conversationName || conversation.name;
@@ -340,7 +359,12 @@ if (typeof jQuery !== 'undefined') {
       conversations.forEach(function (conversation) {
         renderConversationItem(conversation);
       });
+
+      getConversationsReqPromise = undefined;
+      return Promise.resolve(conversations);
     });
+
+    return getConversationsReqPromise;
   }
 
   function viewConversation(conversation) {
@@ -358,7 +382,7 @@ if (typeof jQuery !== 'undefined') {
     });
 
     if (!conversationMessages.length) {
-      chat.poll();
+      $wrapper.find('[data-load-more]').click();
     }
 
     //$('[data-message-body]').focus();
@@ -373,36 +397,63 @@ if (typeof jQuery !== 'undefined') {
     });
   }
 
+  var contactsReqPromise;
+
   function getContacts(cache) {
-    return chat.contacts({ cache: cache }).then(function (response) {
-      contacts = response;
-      return Promise.resolve();
-    });
+    if (!contactsReqPromise) {
+      contactsReqPromise = chat.contacts({ cache: cache }).then(function (response) {
+        contacts = response;
+        contactsReqPromise = undefined;
+        return Promise.resolve();
+      });
+    }
+
+    return contactsReqPromise;
+  }
+
+  function moveConversationToTop(conversation) {
+    var $el = $('[data-conversation-id="' + conversation.id + '"]');
+
+    if ($el.index()) {
+      $el.parent().prepend($el);
+    }
   }
 
   function loadMoreMessagesForCurrentConversation() {
     var conversationMessages = _.filter(messages, { dataSourceId: currentConversation.id });
     var firstMessage = _.minBy(conversationMessages, 'createdAt');
 
-    if (!firstMessage) {
-      return Promise.resolve([]);
+    var where = {};
+
+    if (firstMessage) {
+      where.createdAt = { $lt: firstMessage.createdAt };
     }
 
     return chat.messages({
       conversations: [currentConversation.id],
       limit: LOAD_MORE_MESSAGES_PAGE_SIZE,
-      where: {
-        createdAt: { $lt: firstMessage.createdAt }
-      }
+      where: where
     }).then(function (previousMessages) {
       previousMessages.forEach(function (message) {
+        if (messagesIds.indexOf(message.id) !== -1) {
+          return;
+        }
+
         if (currentConversation && currentConversation.id === message.dataSourceId) {
           addMetadataToMessage(message);
           renderMessage(message, true);
         }
 
+        messagesIds.push(message.id);
         messages.unshift(message);
       });
+
+      if (currentConversation && !firstMessage && previousMessages) {
+        setConversationLastMessage(currentConversation, previousMessages[0]);
+
+        // Let's update the UI to reflect the last message
+        renderConversationItem(currentConversation, true);
+      }
 
       return Promise.resolve(previousMessages);
     });
@@ -427,10 +478,33 @@ if (typeof jQuery !== 'undefined') {
     message.createdAtDate = moment(message.createdAt);
   }
 
-  function onMessage(message) {
+  function setConversationLastMessage(conversation, message) {
+    if (!message || !conversation) {
+      return;
+    }
+
+    conversation.lastMessage = {
+      body: message.data.body,
+      date: message.createdAtDate.calendar(null, {
+          sameDay: '[Today]',
+          nextDay: '[Tomorrow]',
+          nextWeek: 'dddd',
+          lastDay: '[Yesterday]',
+          lastWeek: '[Last] dddd',
+          sameElse: 'DD/MM/YYYY'
+      })
+    };
+  }
+
+  function onNewMessage(message) {
+    if (messagesIds.indexOf(message.id) !== -1) {
+      return;
+    }
+
     addMetadataToMessage(message);
 
     messages.push(message);
+    messagesIds.push(message.id);
 
     var isCurrentConversation = currentConversation && message.dataSourceId === currentConversation.id;
 
@@ -445,17 +519,7 @@ if (typeof jQuery !== 'undefined') {
       // started messaging us on a new conversation so let's just refetch the list
       getConversations();
     } else {
-      conversation.lastMessage = {
-        body: message.data.body,
-        date: message.createdAtDate.calendar(null, {
-            sameDay: '[Today]',
-            nextDay: '[Tomorrow]',
-            nextWeek: 'dddd',
-            lastDay: '[Yesterday]',
-            lastWeek: '[Last] dddd',
-            sameElse: 'DD/MM/YYYY'
-        })
-      };
+      setConversationLastMessage(conversation, message);
 
       if (!message.isReadByCurrentUser) {
         if (!currentConversation || currentConversation.id !== message.dataSourceId) {
@@ -489,6 +553,10 @@ if (typeof jQuery !== 'undefined') {
       // Let's update the UI to reflect the last message
       renderConversationItem(conversation, true);
     }
+
+    if (messages.length >= chat.getBatchSize()) {
+      $wrapper.addClass('show-load-more');
+    }
   }
 
   function findContact(flUserId) {
@@ -515,7 +583,8 @@ if (typeof jQuery !== 'undefined') {
 
       var $message = $(Fliplet.Widget.Templates['templates.message']({
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        sender: sender.data,
+        name: sender[fullNameColumnName],
+        avatar: sender[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
             sameDay: '[Today] HH:mm',
@@ -596,9 +665,9 @@ if (typeof jQuery !== 'undefined') {
       // Log in using authentication from a different component
       return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
         if (email) {
-          return Promise.resolve({
-            email: email
-          });
+          var where = {};
+          where[crossLoginColumnName] = email;
+          return Promise.resolve(where);
         }
 
         return Promise.reject('User is not logged in');
