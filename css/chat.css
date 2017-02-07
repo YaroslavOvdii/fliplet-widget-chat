@@ -158,6 +158,8 @@ img {
     flex: 1;
     margin: 0 15px 5px 0;
     font-size: 1em;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .list-group li .title-holder .user-name p {
@@ -677,7 +679,7 @@ img {
     }
 
     .list-group li .title-holder .user-name {
-        font-size: 1.14em;
+        font-size: 1.1em;
         margin: 0 15px 8px 0;
     }
 
@@ -994,8 +996,20 @@ img {
         top: 55px;
     }
 
+    .msg-chats {
+        padding: 44px 15px 30px;
+    }
+
     .chat-wrapper.offline .msg-chats {
         padding: 72px 15px 30px;
+    }
+
+    .fl-with-top-menu .msg-chats {
+        padding: 99px 15px 30px;
+    }
+
+    .fl-with-top-menu .chat-wrapper.offline .msg-chats {
+        padding: 127px 15px 30px;
     }
 
     .convo-profile-list {
