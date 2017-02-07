@@ -363,12 +363,12 @@ Fliplet.Widget.instance('chat', function (data) {
           return c.data[fullNameColumnName];
         })).join(', ').trim();
 
-        var conversationAvatar = _.find(otherPeople, function (p) {
+        var friend = _.find(otherPeople, function (p) {
           return participants.indexOf(p.data.flUserId) !== -1;
-        }).data[avatarColumnName];
+        });
 
         conversation.name = conversationName || conversation.name;
-        conversation.avatar = conversationAvatar || '';
+        conversation.avatar = friend ? friend.data[avatarColumnName] : '';
       });
 
       $conversationsList.html('');
