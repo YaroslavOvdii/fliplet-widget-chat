@@ -29,6 +29,41 @@ Note: if the user has not logged in, the conversation will still be started with
 
 ---
 
+## Get unread messages
+
+Getting unread messages can be done on any screen of the app, as long as the user is logged in.
+Here's how to achieve it using basic Fliplet JS APIs:
+
+```js
+Fliplet.Navigator.onReady().then(function () {
+  return Promise.all(['fl-chat-user-token', 'fl-chat-user-id'].map(Fliplet.App.Storage.get));
+}).then(function (results) {
+  userToken = results[0];
+  userId = results[1];
+
+  if (!userId || !userToken) {
+    return Promise.reject('User is not logged into the chat');
+  }
+
+  return Fliplet.API.request({
+    method: 'POST',
+    url: 'v1/data-sources/data',
+    data: {
+      flUserToken: userToken,
+      count: true,
+      where: { $not: { data: { $contains: { readBy: [userId] } } } }
+    }
+  });
+}).then(function (response) {
+  console.log('Unread messages', response.entries)
+  // update UI
+}).catch(function (err) {
+  // user not logged in
+  console.warn(err);
+})
+```
+
+
 ## Development
 
 This widget is meant to be used with the Fliplet platform.
