@@ -7,7 +7,7 @@ html {
     overflow: hidden;
 }
 
-body.fl-with-top-menu {
+body {
     padding-top: 0 !important;
 }
 
@@ -87,9 +87,13 @@ img {
 }
 
 .convo-profile-list {
-    padding-top: 44px;
+    padding-top: 0;
     -webkit-transition: all 0.25s ease;
     transition: all 0.25s ease;
+}
+
+.fl-with-top-menu .convo-profile-list {
+    padding-top: 44px;
 }
 
 .convo-aside .list-group {
@@ -219,6 +223,7 @@ img {
     position: absolute;
     height: 44px;
     line-height: 44px;
+    top: 0;
     left: 0;
     right: 0;
     font-size: 1.14em;
@@ -228,6 +233,10 @@ img {
     z-index: 5;
     display: flex;
     justify-content: center;
+}
+
+.fl-with-top-menu .msg-area .profile-header {
+    top: 0;
 }
 
 .msg-area .profile-header .back-btn {
@@ -282,7 +291,7 @@ img {
 }
 
 .msg-chats {
-    padding: 44px 15px 30px;
+    padding: 0 15px 30px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     text-align: center;
@@ -290,8 +299,16 @@ img {
     height: calc(100% - 56px);
 }
 
+.fl-with-top-menu .msg-chats {
+    padding: 44px 15px 30px;
+}
+
 .chat-wrapper.offline .msg-chats {
-    padding: 88px 15px 30px;
+    padding: 72px 15px 30px;
+}
+
+.fl-with-top-menu .chat-wrapper.offline .msg-chats {
+    padding: 116px 15px 30px;
 }
 
 .chats {
@@ -637,6 +654,7 @@ img {
         width: 66.667%;
         flex: 1;
         left: 0;
+        z-index: 9;
     }
 
     .overlay-open .convo-aside {
@@ -665,6 +683,10 @@ img {
 
     .list-group li .convo-preview p {
         font-size: 1em;
+    }
+
+    .fl-with-top-menu .msg-area .profile-header {
+        top: 55px;
     }
 
     .msg-area .profile-header .back-btn {
@@ -888,6 +910,30 @@ img {
 .chat-wrapper.offline .offline-note {
     opacity: 1;
     visibility: visible;
+    top: 0;
+    -webkit-transition: all 0.25s ease;
+    transition: all 0.25s ease;
+}
+
+.fl-with-top-menu .chat-wrapper.offline .offline-note {
+    opacity: 1;
+    visibility: visible;
+    top: 44px;
+    -webkit-transition: all 0.25s ease;
+    transition: all 0.25s ease;
+}
+
+.chat-wrapper.offline .msg-area .offline-note {
+    opacity: 1;
+    visibility: visible;
+    top: 44px;
+    -webkit-transition: all 0.25s ease;
+    transition: all 0.25s ease;
+}
+
+.fl-with-top-menu .chat-wrapper.offline .msg-area .offline-note {
+    opacity: 1;
+    visibility: visible;
     top: 44px;
     -webkit-transition: all 0.25s ease;
     transition: all 0.25s ease;
@@ -899,9 +945,13 @@ img {
 }
 
 .chat-wrapper.offline .convo-profile-list {
-    padding-top: 72px;
+    padding-top: 28px;
     -webkit-transition: all 0.25s ease;
     transition: all 0.25s ease;
+}
+
+.fl-with-top-menu .chat-wrapper.offline .convo-profile-list {
+    padding-top: 72px;
 }
 @media screen and (min-width: 640px) {
     .convo-aside-inner .offline-note {
@@ -909,22 +959,39 @@ img {
     }
 
     .chat-wrapper .offline-note {
-        top: 71px;
+        top: 0;
         z-index: 5;
     }
 
-    .chat-wrapper.empty .offline-note,
-    .chat-wrapper.loading .offline-note {
-        top: 16px;
+    .fl-with-top-menu .chat-wrapper .msg-area .offline-note,
+    .fl-with-top-menu .chat-wrapper .offline-note {
+        top: 55px;
     }
 
-    .chat-wrapper.offline .offline-note {
-        top: 44px;
+    .chat-wrapper.empty .offline-note,
+    .chat-wrapper.error .offline-note,
+    .chat-wrapper.loading .offline-note {
+        top: 0;
+    }
+
+    .fl-with-top-menu .chat-wrapper.offline .msg-area .offline-note {
+        opacity: 1;
+        visibility: visible;
+        top: 99px;
+        -webkit-transition: all 0.25s ease;
+        transition: all 0.25s ease;
     }
 
     .chat-wrapper.offline.empty .offline-note,
+    .chat-wrapper.offline.error .offline-note,
     .chat-wrapper.offline.loading .offline-note {
         top: 0;
+    }
+
+    .fl-with-top-menu .chat-wrapper.offline.empty .offline-note,
+    .fl-with-top-menu .chat-wrapper.offline.error .offline-note,
+    .fl-with-top-menu .chat-wrapper.offline.loading .offline-note {
+        top: 55px;
     }
 
     .chat-wrapper.offline .msg-chats {
@@ -932,11 +999,19 @@ img {
     }
 
     .convo-profile-list {
+        padding-top: 0;
+    }
+
+    .fl-with-top-menu .convo-profile-list {
         padding-top: 55px;
     }
 
     .chat-wrapper.offline .convo-profile-list {
-        padding-top: 83px;
+        padding-top: 0;
+    }
+
+    .fl-with-top-menu .chat-wrapper.offline .convo-profile-list {
+        padding-top: 55px;
     }
 }
 
