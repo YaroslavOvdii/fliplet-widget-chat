@@ -280,8 +280,6 @@ Fliplet.Widget.instance('chat', function (data) {
 
     getContacts(false).then(function () {
       return getConversations();
-    }).catch(function(error) {
-      $wrapper.addClass('error');
     }).then(function () {
       return chat.stream(onNewMessage);
     }).then(function () {
@@ -290,6 +288,9 @@ Fliplet.Widget.instance('chat', function (data) {
       if (userId) {
         createConversation(userId);
       }
+    }).catch(function(error) {
+      console.warn(error);
+      //$wrapper.addClass('error');
     });
   }
 
