@@ -128,6 +128,10 @@ Fliplet.Widget.instance('chat', function (data) {
     Fliplet.Navigate.to(data.contactLinkAction);
   });
 
+  $wrapper.on('click', '[refresh-chat]', function() {
+    location.reload();
+  });
+
   $wrapper.on('click', '[data-user-profile]', function() {
     var userProfile = encodeURI($(this).data('user-profile'));
     data.contactLinkAction.query = "?action=search&value="+userProfile;
@@ -136,12 +140,15 @@ Fliplet.Widget.instance('chat', function (data) {
 
   $wrapper.on('click', '.chat-text', function() {
     getElemHandler($(this));
-    $(this).parents('.chats').find('.chat-text[aria-describedby]').tooltip('hide');
     $(this).tooltip('toggle');
+    $(this).parents('.chat-body').toggleClass('selected');
+    $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).parents('.chat-body').removeClass('selected');
+    $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).tooltip('hide');
   });
 
   $(document).on('click', '.tooltip', function() {
     var $el = $(this);
+    $(this).parents('.chat-body').removeClass('selected');
     copiedElem.copyText();
     $el.find('.tooltip-inner').text('Copied!');
 
@@ -160,6 +167,16 @@ Fliplet.Widget.instance('chat', function (data) {
   $wrapper.on('click', '[data-create-conversation]', function (event) {
     event.preventDefault();
     return createConversation($(this).data('create-conversation'));
+  });
+
+  // Handler to show who you are sending a message to on focus
+  $wrapper.on('focus', '[data-message-body]', function (event) {
+    $(this).parents('.input-holder').toggleClass('focus');
+  });
+
+  // Handler to show who you are sending a message to on blur
+  $wrapper.on('blur', '[data-message-body]', function (event) {
+    $(this).parents('.input-holder').toggleClass('focus');
   });
 
   // Handler to view more messages for a conversation
@@ -263,6 +280,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
     getContacts(false).then(function () {
       return getConversations();
+    }).catch(function(error) {
+      $wrapper.addClass('error');
     }).then(function () {
       return chat.stream(onNewMessage);
     }).then(function () {
@@ -271,8 +290,6 @@ Fliplet.Widget.instance('chat', function (data) {
       if (userId) {
         createConversation(userId);
       }
-    }).catch(function(error) {
-      $wrapper.addClass('error');
     });
   }
 

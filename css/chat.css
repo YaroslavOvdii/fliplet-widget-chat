@@ -316,6 +316,10 @@ img {
     color: #ffffff;
 }
 
+.chat .chat-body.selected {
+    background-color: #285f8f;
+}
+
 .chat .chat-body .user-avatar {
     position: absolute;
     right: -26px;
@@ -442,6 +446,28 @@ img {
     visibility: visible;
     -webkit-transition: opacity 0.5s ease;
     transition: opacity 0.5s ease;
+}
+
+.input-holder .sending-to {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    right: 0;
+    background-color: rgba(216, 216, 216, 0.6);
+    padding: 5px 15px;
+    font-size: 0.8em;
+    color: #888;
+    opacity: 0;
+    visibility: hidden;
+    -webkit-transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease;
+}
+
+.input-holder.focus .sending-to {
+    opacity: 1;
+    visibility: visible;
+    -webkit-transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease;
 }
 @-moz-keyframes fillIn {
     0% {
@@ -647,7 +673,8 @@ img {
 }
 
 .empty-area,
-.error-area {
+.error-area,
+.loading-area {
     display: flex;
     position: absolute;
     top: 0;
@@ -677,8 +704,16 @@ img {
     transition: opacity 0.5s ease;
 }
 
+.loading .loading-area {
+    opacity: 1;
+    visibility: visible;
+    -webkit-transition: opacity 0.5s ease 2.5s;
+    transition: opacity 0.5s ease 2.5s;
+}
+
 .error.empty .empty-area,
-.error.loading .empty-area {
+.error.loading .empty-area,
+.error.loading .loading-area {
     opacity: 0;
     visibility: hidden;
     -webkit-transition: opacity 0.5s ease;
@@ -686,7 +721,8 @@ img {
 }
 
 .empty-area h4,
-.error-area h4 {
+.error-area h4,
+.loading-area h4 {
     margin-bottom: 30px;
     line-height: 28px;
 }
