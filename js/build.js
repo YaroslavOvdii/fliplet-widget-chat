@@ -367,8 +367,6 @@ Fliplet.Widget.instance('chat', function (data) {
           return participants.indexOf(p.data.flUserId) !== -1;
         });
 
-        console.log(friend, '<', otherPeople, 'p', participants)
-
         conversation.name = conversationName || conversation.name;
         conversation.avatar = friend ? friend.data[avatarColumnName] : '';
       });
