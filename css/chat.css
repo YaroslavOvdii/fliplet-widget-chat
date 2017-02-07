@@ -994,8 +994,20 @@ img {
         top: 55px;
     }
 
+    .msg-chats {
+        padding: 44px 15px 30px;
+    }
+
     .chat-wrapper.offline .msg-chats {
         padding: 72px 15px 30px;
+    }
+
+    .fl-with-top-menu .msg-chats {
+        padding: 99px 15px 30px;
+    }
+
+    .fl-with-top-menu .chat-wrapper.offline .msg-chats {
+        padding: 127px 15px 30px;
     }
 
     .convo-profile-list {
