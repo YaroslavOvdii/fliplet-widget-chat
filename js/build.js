@@ -606,7 +606,7 @@ Fliplet.Widget.instance('chat', function (data) {
             sameDay: '[Today] HH:mm',
             nextDay: '[Tomorrow] HH:mm',
             nextWeek: 'DD/MM/YYYY',
-            lastDay: '[Yesterday] HH:mm',
+            lastDay: 'DD/MM - HH:mm',
             lastWeek: 'DD/MM - HH:mm',
             sameElse: 'DD/MM/YYYY'
         })

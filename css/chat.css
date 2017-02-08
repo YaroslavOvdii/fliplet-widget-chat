@@ -404,7 +404,7 @@ img {
 .chat .chat-body .msg-time {
     position: absolute;
     bottom: -18px;
-    left: 0;
+    left: -1px;
     color: #333;
     opacity: 0.35;
     font-size: 0.8em;
@@ -414,7 +414,7 @@ img {
     position: absolute;
     bottom: -18px;
     left: auto;
-    right: 0;
+    right: -1px;
     color: #333;
     opacity: 0.35;
     font-size: 0.8em;
