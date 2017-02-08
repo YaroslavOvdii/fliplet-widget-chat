@@ -80,10 +80,6 @@ Fliplet.Widget.instance('chat', function (data) {
     };
   }
 
-  if (Modernizr.windows) {
-    return $wrapper.html('<p style="margin:80px 20px">The chat feature is not currently supported on Windows devices, please check back later for updates.</p>');
-  }
-
   // ---------------------------------------------------------------
   // events setup
 
