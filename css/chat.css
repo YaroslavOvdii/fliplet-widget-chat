@@ -720,24 +720,13 @@ img {
     transition: opacity 0.5s ease;
 }
 
-.loading-area {
-    -webkit-transition: all 0.5s ease 2.5s;
-    transition: all 0.5s ease 2.5s;
-}
-
 .empty .empty-area,
-.error .error-area {
+.error .error-area,
+.loading .loading-area {
     opacity: 1;
     visibility: visible;
     -webkit-transition: opacity 0.5s ease;
     transition: opacity 0.5s ease;
-}
-
-.loading .loading-area {
-    opacity: 1;
-    visibility: visible;
-    -webkit-transition: all 0.5s ease 2.5s;
-    transition: all 0.5s ease 2.5s;
 }
 
 .error.empty .empty-area,
