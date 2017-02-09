@@ -258,15 +258,17 @@ Fliplet.Widget.instance('chat', function (data) {
     })
     .catch(function (error) {
       // TODO: replace with better error UI
-      alert(error.message || error);
+      $wrapper.removeClass('loading empty');
+      $wrapper.addClass('error');
     });
   });
 
   // ---------------------------------------------------------------
   // private methods
   function showLoginForm() {
-    $wrapper.addClass('loading');
-    $loginForm.removeClass('hidden');
+    // Disable login form for now
+    //$wrapper.addClass('loading');
+    //$loginForm.removeClass('hidden');
   }
 
   function onLogin() {
