@@ -310,7 +310,7 @@ img {
 }
 
 .fl-with-top-menu .chat-wrapper.offline .msg-chats {
-    padding: 116px 15px 30px;
+    padding: 72px 15px 30px;
 }
 
 .chats {
@@ -721,18 +721,12 @@ img {
 }
 
 .empty .empty-area,
-.error .error-area {
+.error .error-area,
+.loading .loading-area {
     opacity: 1;
     visibility: visible;
     -webkit-transition: opacity 0.5s ease;
     transition: opacity 0.5s ease;
-}
-
-.loading .loading-area {
-    opacity: 1;
-    visibility: visible;
-    -webkit-transition: opacity 0.5s ease 2.5s;
-    transition: opacity 0.5s ease 2.5s;
 }
 
 .error.empty .empty-area,
