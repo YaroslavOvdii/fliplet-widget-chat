@@ -552,6 +552,8 @@ img {
     flex-grow: 0.2;
     -webkit-transition: -webkit-flex-grow 100ms ease;
     transition: flex-grow 100ms ease;
+    font-size: 14px;
+    line-height: 14px;
 }
 
 .input-holder .message-input-btn.sending {
