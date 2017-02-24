@@ -10,6 +10,7 @@ Fliplet.Widget.instance('chat', function (data) {
   // const setup
 
   var DEFAULT_CHAT_NAME = 'Conversation';
+  var USERID_STORAGE_KEY = 'fl-chat-user-id';
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var ONLINE_INPUTS_SELECTOR = '[data-new-message] input';
@@ -77,10 +78,6 @@ Fliplet.Widget.instance('chat', function (data) {
         this.copyText();
       });
     };
-  }
-
-  if (Modernizr.windows) {
-    return $wrapper.html('<p style="margin:80px 20px">The chat feature is not currently supported on Windows devices, please check back later for updates.</p>');
   }
 
   // ---------------------------------------------------------------
@@ -254,10 +251,11 @@ Fliplet.Widget.instance('chat', function (data) {
         password: $loginForm.find('[type="password"]').val()
       });
     }).then(function onLogin(user) {
-      setCurrentUser(user.data);
+      return setCurrentUser(user.data);
+    }).then(function () {
       $loginForm.addClass('hidden');
-      return Fliplet.App.Storage.set(USERTOKEN_STORAGE_KEY, user.data.flUserToken);
-    }).then(onLogin)
+      return onLogin();
+    })
     .catch(function (error) {
       // TODO: replace with better error UI
       $wrapper.removeClass('loading empty');
@@ -298,6 +296,10 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function setCurrentUser(user) {
     currentUser = user;
+
+    return Fliplet.App.Storage.set(USERID_STORAGE_KEY, user.flUserId).then(function () {
+      return Fliplet.App.Storage.set(USERTOKEN_STORAGE_KEY, user.flUserToken);
+    });
   }
 
   function createConversation(userId) {
@@ -694,7 +696,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }).then(function onLocalLoginAvailable (loginQuery) {
     return chat.login(loginQuery);
   }).then(function onLoginSuccess (user) {
-    setCurrentUser(user.data);
-    onLogin();
+    return setCurrentUser(user.data).then(onLogin);
   }).catch(showLoginForm);
 });
