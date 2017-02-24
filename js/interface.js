@@ -3,7 +3,6 @@ var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
 var dataSourceId;
-var linkPromises = [];
 
 $(document).on('change', '.hidden-select', function(){
   var selectedValue = $(this).val();
