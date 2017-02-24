@@ -34,7 +34,6 @@ img {
 .convo-aside {
     position: relative;
     width: 100%;
-    border-right: 1px solid #e4eaec;
     background: #fff;
     overflow-y: hidden;
     margin-left: 0;
@@ -661,6 +660,7 @@ img {
 
     .convo-aside {
         width: 33.333%;
+        border-right: 1px solid #e4eaec;
     }
 
     .msg-area {
@@ -722,7 +722,6 @@ img {
     justify-content: center;
     align-content: center;
     flex-direction: column;
-    color: #9E9E9E;
     font-size: 0.9em;
     opacity: 0;
     visibility: hidden;
@@ -735,7 +734,7 @@ img {
 .empty .empty-area,
 .error .error-area,
 .loading .loading-area {
-    opacity: 1;
+    opacity: 0.5;
     visibility: visible;
     -webkit-transition: opacity 0.5s ease;
     transition: opacity 0.5s ease;
