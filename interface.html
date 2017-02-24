@@ -1,12 +1,13 @@
 <form class="form-horizontal">
   <header>
-    <p>Configure your form</p>
+    <p>Configure your Chat</p>
     <a id="help_tip" href="#">Need help?</a>
   </header>
-
+  <h2><small>Contacts Data</small></h2>
+  <p class="text-helper">Chat requires you to provide a contact list data source. This will be a list of the users with access to chat.</p>
   <div class="form-group clearfix">
     <div class="col-sm-4 control-label">
-      <label for="select-menu">Select a data source for the contacts list</label>
+      <label for="select-menu">Select a data source of the contacts list</label>
     </div>
     <div class="col-sm-8">
       <label for="select_datasource" class="select-proxy-display">
@@ -60,10 +61,19 @@
       </div>
     </div>
   </div>
+  <h2><small>Security screen</small></h2>
+  <div class="row">
+      <div class="col-xs-12">
+          <p>In what screen is your security component located?</p>
+          <p class="text-helper">Chat requires some form of validation to be able to use it. Use one of Fliplet's security components (e.g.: Email Validation, Login).<br>If a user accesses the Chat screen without being validated, the user will be redirected to the Security screen.</p>
+      </div>
+  </div>
+  <div id="security-screen"></div>
   <h2><small>Contacts Directory</small></h2>
   <div class="row">
       <div class="col-xs-12">
           <p>In what screen is your contact directory located?</p>
+          <p class="text-helper">This is required to link the Chat screen to directory and when a user taps on someone's profile the user will be redirected to the directory screen and the person's profile will open.</p>
       </div>
   </div>
   <div id="contact-directory"></div>

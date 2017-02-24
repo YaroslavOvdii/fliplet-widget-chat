@@ -3,6 +3,7 @@ var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
 var dataSourceId;
+var linkPromises = [];
 
 $(document).on('change', '.hidden-select', function(){
   var selectedValue = $(this).val();
@@ -30,19 +31,38 @@ var linkDirectoryProvider = Fliplet.Widget.open('com.fliplet.link', {
   }
 });
 
+var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
+  // If provided, the iframe will be appended here,
+  // otherwise will be displayed as a full-size iframe overlay
+  selector: '#security-screen',
+  // Also send the data I have locally, so that
+  // the interface gets repopulated with the same stuff
+  data: data.securityLinkAction,
+  // Events fired from the provider
+  onEvent: function (event, data) {
+    if (event === 'interface-validate') {
+      Fliplet.Widget.toggleSaveButton(data.isValid === true);
+    }
+  }
+});
+
+linkDirectoryProvider.then(function (result) {
+  data.contactLinkAction = result.data;
+});
+linkSecurityProvider.then(function (result) {
+  data.securityLinkAction = result.data;
+  save(true);
+});
+
 $('form').submit(function (event) {
   event.preventDefault();
   linkDirectoryProvider.forwardSaveRequest();
+  linkSecurityProvider.forwardSaveRequest();
 });
 
 // Fired from Fliplet Studio when the external save button is clicked
 Fliplet.Widget.onSaveRequest(function () {
   $('form').submit();
-});
-
-linkDirectoryProvider.then(function (result) {
-  data.contactLinkAction = result.data;
-  save(true);
 });
 
 $dataSources.on( 'change', function() {

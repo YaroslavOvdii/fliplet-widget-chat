@@ -335,6 +335,11 @@ img {
     color: #ffffff;
 }
 
+.chat .chat-body a {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
 .chat .chat-body.selected {
     background-color: #285f8f;
 }
@@ -399,6 +404,11 @@ img {
     background-color: #FFFFFF;
     border: 1px solid #ebebeb;
     color: #333;
+}
+
+.chats .chat.chat-left .chat-body a {
+    color: #333;
+    text-decoration: underline;
 }
 
 .chat .chat-body .msg-time {
