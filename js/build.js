@@ -4,17 +4,19 @@ Handlebars.registerHelper('formatMessage', function(text) {
       numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
       urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig;
 
-  /* capture line break and turn into <br> */
-  text = Handlebars.Utils.escapeExpression(text).replace(breakRegExp, '<br>');
   /* capture email addresses and turn into mailto links */
   text = text.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
+
   /* capture phone numbers and turn into tel links */
   text = text.replace(numberRegExp, '<a href="tel:$&">$&</a>');
+
   /* capture URLs and turn into links */
-  /* @TODO: The RegExp used isn't removing <br> that might exist in the middle of two URLs
-     @TODO: add http:// to URLs without it
+  /* @TODO: Remove line breaks, spaces from results
   */
-  text =  text.replace(urlRegExp, '<a href="$&">$&</a>');
+  text =  text.replace(urlRegExp, '<a href="http://$3$5">$&</a>');
+
+  /* capture line break and turn into <br> */
+  text = text.replace(breakRegExp, '<br>');
 
   return new Handlebars.SafeString(text);
 });
