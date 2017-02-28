@@ -13,7 +13,10 @@ Handlebars.registerHelper('formatMessage', function(text) {
   /* capture URLs and turn into links */
   /* @TODO: Remove line breaks, spaces from results
   */
-  text =  text.replace(urlRegExp, '<a href="http://$3$5">$&</a>');
+  text =  text.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
+    return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>'
+    : ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
+  });
 
   /* capture line break and turn into <br> */
   text = text.replace(breakRegExp, '<br>');
