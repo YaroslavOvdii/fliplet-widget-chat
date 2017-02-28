@@ -157,11 +157,13 @@ Fliplet.Widget.instance('chat', function (data) {
   });
 
   $wrapper.on('click', '.chat-text', function() {
-    getElemHandler($(this));
-    $(this).tooltip('toggle');
-    $(this).parents('.chat-body').toggleClass('selected');
-    $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).parents('.chat-body').removeClass('selected');
-    $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).tooltip('hide');
+    if (Fliplet.Env.get('platform') === 'native') {
+      getElemHandler($(this));
+      $(this).tooltip('toggle');
+      $(this).parents('.chat-body').toggleClass('selected');
+      $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).parents('.chat-body').removeClass('selected');
+      $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).tooltip('hide');
+    }
   });
 
   $(document).on('click', '.tooltip', function() {
