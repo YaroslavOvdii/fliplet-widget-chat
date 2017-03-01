@@ -30,7 +30,6 @@ header a {
     text-decoration: none;
 }
 
-
 .text-helper {
     margin-top: 0.5em;
     margin-bottom: 10px;
@@ -130,4 +129,30 @@ label {
 
 .column-selection {
     display: none;
+}
+/* TABS */
+.nav-tabs > li.disabled {
+    pointer-events: none;
+}
+
+.nav-tabs > li.disabled > a {
+    color: #999 !important;
+}
+
+.nav > li > a,
+.nav > li > a:focus,
+.nav > li > a:hover {
+    color: #333 !important;
+    border: 0;
+    border-bottom: 4px solid transparent;
+    background: none;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+    color: #333;
+    border: 0;
+    border-bottom: 4px solid #00abd2;
+    background: none;
 }
