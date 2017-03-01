@@ -29,12 +29,13 @@ img {
     min-height: 100%;
     color: #333;
     overflow: hidden;
+    font-size: 14px !important;
+    line-height: 1.42857143 !important;
 }
 
 .convo-aside {
     position: relative;
     width: 100%;
-    border-right: 1px solid #e4eaec;
     background: #fff;
     overflow-y: hidden;
     margin-left: 0;
@@ -335,6 +336,11 @@ img {
     color: #ffffff;
 }
 
+.chat .chat-body a {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
 .chat .chat-body.selected {
     background-color: #285f8f;
 }
@@ -399,6 +405,11 @@ img {
     background-color: #FFFFFF;
     border: 1px solid #ebebeb;
     color: #333;
+}
+
+.chats .chat.chat-left .chat-body a {
+    color: #333;
+    text-decoration: underline;
 }
 
 .chat .chat-body .msg-time {
@@ -544,7 +555,7 @@ img {
     flex: 0;
     background-color: #337ab7;
     border-color: transparent;
-    border-radius: 0;
+    border-radius: 0 !important;
     outline: none !important;
     height: 34px;
     margin-left: 15px;
@@ -651,6 +662,7 @@ img {
 
     .convo-aside {
         width: 33.333%;
+        border-right: 1px solid #e4eaec;
     }
 
     .msg-area {
@@ -712,7 +724,6 @@ img {
     justify-content: center;
     align-content: center;
     flex-direction: column;
-    color: #9E9E9E;
     font-size: 0.9em;
     opacity: 0;
     visibility: hidden;
@@ -725,7 +736,7 @@ img {
 .empty .empty-area,
 .error .error-area,
 .loading .loading-area {
-    opacity: 1;
+    opacity: 0.5;
     visibility: visible;
     -webkit-transition: opacity 0.5s ease;
     transition: opacity 0.5s ease;

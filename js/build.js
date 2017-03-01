@@ -1,5 +1,24 @@
 Handlebars.registerHelper('formatMessage', function(text) {
-  text = Handlebars.Utils.escapeExpression(text).replace(/(\r\n|\n|\r)/gm, '<br>');
+  var breakRegExp = /(\r\n|\n|\r)/gm,
+      emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
+      numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
+      urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig;
+
+  /* capture email addresses and turn into mailto links */
+  text = text.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
+
+  /* capture phone numbers and turn into tel links */
+  text = text.replace(numberRegExp, '<a href="tel:$&">$&</a>');
+
+  /* capture URLs and turn into links */
+  text =  text.replace(urlRegExp, function(match, p1, p2, p3, p4, p5, offset, string) {
+    return breakRegExp.test(string) ? ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a><br>'
+    : ' <a href="' + (typeof p1 !== "undefined" ? p1 : "http://") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '">' + (typeof p1 !== "undefined" ? p1 : "") + p3 + (typeof p5 !== "undefined" ? p5 : "") + '</a>';
+  });
+
+  /* capture line break and turn into <br> */
+  text = text.replace(breakRegExp, '<br>');
+
   return new Handlebars.SafeString(text);
 });
 
@@ -136,11 +155,14 @@ Fliplet.Widget.instance('chat', function (data) {
   });
 
   $wrapper.on('click', '.chat-text', function() {
-    getElemHandler($(this));
-    $(this).tooltip('toggle');
-    $(this).parents('.chat-body').toggleClass('selected');
-    $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).parents('.chat-body').removeClass('selected');
-    $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).tooltip('hide');
+    if (Fliplet.Env.get('platform') === 'native') {
+      getElemHandler($(this));
+      $(this).tooltip('toggle');
+      $(this).parents('.chat-body').toggleClass('selected');
+      $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this)
+        .parents('.chat-body').removeClass('selected').end()
+        .tooltip('hide');
+    }
   });
 
   $(document).on('click', '.tooltip', function() {
@@ -690,6 +712,7 @@ Fliplet.Widget.instance('chat', function (data) {
           return Promise.resolve(where);
         }
 
+        Fliplet.Navigate.to(data.securityLinkAction);
         return Promise.reject('User is not logged in');
       });
     });
