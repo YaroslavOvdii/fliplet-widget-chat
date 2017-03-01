@@ -159,8 +159,9 @@ Fliplet.Widget.instance('chat', function (data) {
       getElemHandler($(this));
       $(this).tooltip('toggle');
       $(this).parents('.chat-body').toggleClass('selected');
-      $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).parents('.chat-body').removeClass('selected');
-      $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this).tooltip('hide');
+      $(this).parents('.chats').find('.chat-text[aria-describedby]').not(this)
+        .parents('.chat-body').removeClass('selected').end()
+        .tooltip('hide');
     }
   });
 
