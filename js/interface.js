@@ -15,6 +15,12 @@ var $emailAddress = $('[name="emailAddress"]');
 var $fullName = $('[name="fullName"]');
 var $avatar = $('[name="avatar"]');
 
+// Set link action to screen by default
+data.contactLinkAction.action = 'screen';
+data.contactLinkAction.options = { hideAction: true };
+data.securityLinkAction.action = 'screen';
+data.securityLinkAction.options = { hideAction: true };
+
 var linkDirectoryProvider = Fliplet.Widget.open('com.fliplet.link', {
   // If provided, the iframe will be appended here,
   // otherwise will be displayed as a full-size iframe overlay
