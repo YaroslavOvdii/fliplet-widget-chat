@@ -16,10 +16,22 @@ var $fullName = $('[name="fullName"]');
 var $avatar = $('[name="avatar"]');
 
 // Set link action to screen by default
-data.contactLinkAction.action = 'screen';
-data.contactLinkAction.options = { hideAction: true };
-data.securityLinkAction.action = 'screen';
-data.securityLinkAction.options = { hideAction: true };
+if (!data.contactLinkAction) {
+  data.contactLinkAction = {
+    action: 'screen',
+    options: {
+      hideAction: true
+    }
+  };
+}
+if (!data.securityLinkAction) {
+  data.securityLinkAction = {
+    action: 'screen',
+    options: {
+      hideAction: true
+    }
+  };
+}
 
 var linkDirectoryProvider = Fliplet.Widget.open('com.fliplet.link', {
   // If provided, the iframe will be appended here,
