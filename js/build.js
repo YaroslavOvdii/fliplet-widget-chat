@@ -287,10 +287,15 @@ Fliplet.Widget.instance('chat', function (data) {
 
   // ---------------------------------------------------------------
   // private methods
-  function showLoginForm() {
+  function showLoginForm(err) {
     // Disable login form for now
     //$wrapper.addClass('loading');
     //$loginForm.removeClass('hidden');
+
+    if (err) {
+      $wrapper.find('h4').text('Oops! There was an error.');
+      $wrapper.find('p').html(err.description || err.message || err);
+    }
   }
 
   function onLogin() {
