@@ -345,6 +345,11 @@ Fliplet.Widget.instance('chat', function (data) {
       return fetchRequiredData.then(function () {
         $wrapper.find('[data-conversation-id="' + conversation.id + '"]').click();
       });
+    }).catch(function (err) {
+      $wrapper.find('h4').text(err.message || err.description || err);
+      if (err.indexOf('Participant not found') !== -1) {
+        $wrapper.find('p').html('This most likely means you are trying to chat with a user belonging to a different data source from the chat users list.');
+      }
     });
   }
 
