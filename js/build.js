@@ -718,7 +718,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
         if (email) {
           var where = {};
-          where[crossLoginColumnName] = email;
+          where[crossLoginColumnName] = { $iLike: email };
           return Promise.resolve(where);
         }
 
