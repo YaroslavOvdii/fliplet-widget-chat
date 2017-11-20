@@ -67,6 +67,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var fullNameColumnName = data.fullNameColumnName || 'fullName';
   var avatarColumnName = data.avatarColumnName || 'avatar';
   var copiedElem;
+  var autosizeInit = false;
 
   // ---------------------------------------------------------------
   // Copy to clipboard text prototype
@@ -438,6 +439,10 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     //$('[data-message-body]').focus();
+    if (!autosizeInit) {
+      autosize($('.message-input textarea'));
+      autosizeInit = true;
+    }
 
     chat.markMessagesAsRead(messages);
 
@@ -687,10 +692,6 @@ Fliplet.Widget.instance('chat', function (data) {
   if (!Fliplet.Navigator.isOnline()) {
     $wrapper.addClass('offline');
   }
-
-  $(document).on('focus', '.chat-wrapper textarea', function() {
-    autosize($(this));
-  });
 
   $(window).blur(function() { isActiveWindow = false; });
   $(window).focus(function() { isActiveWindow = true; });
