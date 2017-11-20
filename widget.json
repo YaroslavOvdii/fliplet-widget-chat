@@ -33,7 +33,7 @@
     ],
     "assets": [
       "vendor/notification.js",
-      "vendor/autosize.min.js",
+      "vendor/autosize.js",
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"
