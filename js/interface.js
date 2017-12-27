@@ -2,7 +2,6 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
-var dataSourceId;
 var allDataSources = [];
 
 $(document).on('change', '.hidden-select', function(){
@@ -86,9 +85,9 @@ Fliplet.Widget.onSaveRequest(function () {
 });
 
 $dataSources.on( 'change', function() {
-  dataSourceId = $(this).val();
+  var selectedDataSourceId = $(this).val();
   $('.column-selection').addClass('show');
-  getColumns(dataSourceId);
+  getColumns(selectedDataSourceId);
 });
 
 function save(notifyComplete) {
