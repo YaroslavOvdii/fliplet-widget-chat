@@ -90,6 +90,12 @@ $dataSources.on( 'change', function() {
   getColumns(selectedDataSourceId);
 });
 
+Fliplet.Studio.onMessage(function(event) {
+  if (event.data && event.data.event === 'overlay-close') {
+    reloadDataSources(event.data.data.dataSourceId);
+  }
+});
+
 function save(notifyComplete) {
   // Push notifications are always enabled for the chat
   data.pushNotifications = true;
@@ -113,7 +119,9 @@ function getColumns(dataSourceId) {
   if (dataSourceId && dataSourceId !== '') {
     $('#manage-data').removeClass('hidden');
 
-    Fliplet.DataSources.getById(dataSourceId).then(function (dataSource) {
+    Fliplet.DataSources.getById(dataSourceId, {
+      cache: false
+    }).then(function (dataSource) {
       $emailAddress.html('<option value="">-- Select a field</option>');
       $fullName.html('<option value="">-- Select a field</option>');
       $avatar.html('<option value="">-- Select a field</option>');
@@ -166,10 +174,35 @@ function createDataSource() {
 }
 
 function manageAppData() {
-  console.log('TODO');
   var dataSourceId = $dataSources.val();
-  // @TODO:
-  // Open overlay to data sources provider with ID
+  Fliplet.Studio.emit('overlay', {
+    name: 'widget',
+    options: {
+      size: 'large',
+      package: 'com.fliplet.data-sources',
+      title: 'Edit Data Sources',
+      data: { dataSourceId: dataSourceId }
+    }
+  });
+}
+
+function reloadDataSources(dataSourceId) {
+  return Fliplet.DataSources.get({
+    type: null
+  }, {
+    cache: false
+  }).then(function(results) {
+    allDataSources = results;
+    $dataSources.html('<option value="">-- Select a data source</option>');
+    allDataSources.forEach(function (d) {
+      $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
+    });
+
+    if (dataSourceId) {
+      $dataSources.val(dataSourceId);
+    }
+    $dataSources.trigger('change');
+  });
 }
 
 // Load the data source for the contacts
