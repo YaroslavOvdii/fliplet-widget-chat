@@ -2,7 +2,7 @@ var widgetId = Fliplet.Widget.getDefaultId();
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
-var dataSourceId;
+var allDataSources = [];
 
 $(document).on('change', '.hidden-select', function(){
   var selectedValue = $(this).val();
@@ -76,6 +76,8 @@ $('form').submit(function (event) {
   linkDirectoryProvider.forwardSaveRequest();
   linkSecurityProvider.forwardSaveRequest();
 });
+$('.create-data-source').on('click', createDataSource);
+$('#manage-data').on('click', manageAppData);
 
 // Fired from Fliplet Studio when the external save button is clicked
 Fliplet.Widget.onSaveRequest(function () {
@@ -83,9 +85,15 @@ Fliplet.Widget.onSaveRequest(function () {
 });
 
 $dataSources.on( 'change', function() {
-  dataSourceId = $(this).val();
+  var selectedDataSourceId = $(this).val();
   $('.column-selection').addClass('show');
-  getColumns(dataSourceId);
+  getColumns(selectedDataSourceId);
+});
+
+Fliplet.Studio.onMessage(function(event) {
+  if (event.data && event.data.event === 'overlay-close') {
+    reloadDataSources(event.data.data.dataSourceId);
+  }
 });
 
 function save(notifyComplete) {
@@ -108,34 +116,92 @@ function save(notifyComplete) {
 }
 
 function getColumns(dataSourceId) {
-  Fliplet.DataSources.getById(dataSourceId).then(function (dataSource) {
-    $emailAddress.html('<option value="">-- Select a field</option>');
-    $fullName.html('<option value="">-- Select a field</option>');
-    $avatar.html('<option value="">-- Select a field</option>');
+  if (dataSourceId && dataSourceId !== '') {
+    $('#manage-data').removeClass('hidden');
 
-    dataSource.columns.forEach(function (c) {
-      $emailAddress.append('<option value="' + c + '">' + c + '</option>');
-      $fullName.append('<option value="' + c + '">' + c + '</option>');
-      $avatar.append('<option value="' + c + '">' + c + '</option>');
+    Fliplet.DataSources.getById(dataSourceId, {
+      cache: false
+    }).then(function (dataSource) {
+      $emailAddress.html('<option value="">-- Select a field</option>');
+      $fullName.html('<option value="">-- Select a field</option>');
+      $avatar.html('<option value="">-- Select a field</option>');
+
+      dataSource.columns.forEach(function (c) {
+        $emailAddress.append('<option value="' + c + '">' + c + '</option>');
+        $fullName.append('<option value="' + c + '">' + c + '</option>');
+        $avatar.append('<option value="' + c + '">' + c + '</option>');
+      });
+
+      if (data.crossLoginColumnName) {
+        $emailAddress.val(data.crossLoginColumnName);
+      }
+      if (data.fullNameColumnName) {
+        $fullName.val(data.fullNameColumnName);
+      }
+      if (data.avatarColumnName) {
+        $avatar.val(data.avatarColumnName);
+      }
+
+      $emailAddress.trigger('change');
+      $fullName.trigger('change');
+      $avatar.trigger('change');
+
+      $emailAddress.prop('disabled', '');
+      $fullName.prop('disabled', '');
+      $avatar.prop('disabled', '');
+    });
+  } else {
+    $('#manage-data').addClass('hidden');
+  }
+}
+
+function createDataSource() {
+  event.preventDefault();
+  var name = prompt('Please type a name for your data source:');
+
+  if (!name) {
+    return;
+  }
+
+  Fliplet.DataSources.create({
+    name: name,
+    organizationId: Fliplet.Env.get('organizationId')
+  }).then(function(ds) {
+    allDataSources.push(ds);
+    $dataSources.append('<option value="' + ds.id + '">' + ds.name + '</option>');
+    $dataSources.val(ds.id).trigger('change');
+  });
+}
+
+function manageAppData() {
+  var dataSourceId = $dataSources.val();
+  Fliplet.Studio.emit('overlay', {
+    name: 'widget',
+    options: {
+      size: 'large',
+      package: 'com.fliplet.data-sources',
+      title: 'Edit Data Sources',
+      data: { dataSourceId: dataSourceId }
+    }
+  });
+}
+
+function reloadDataSources(dataSourceId) {
+  return Fliplet.DataSources.get({
+    type: null
+  }, {
+    cache: false
+  }).then(function(results) {
+    allDataSources = results;
+    $dataSources.html('<option value="">-- Select a data source</option>');
+    allDataSources.forEach(function (d) {
+      $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
     });
 
-    if (data.crossLoginColumnName) {
-      $emailAddress.val(data.crossLoginColumnName);
+    if (dataSourceId) {
+      $dataSources.val(dataSourceId);
     }
-    if (data.fullNameColumnName) {
-      $fullName.val(data.fullNameColumnName);
-    }
-    if (data.avatarColumnName) {
-      $avatar.val(data.avatarColumnName);
-    }
-
-    $emailAddress.trigger('change');
-    $fullName.trigger('change');
-    $avatar.trigger('change');
-
-    $emailAddress.prop('disabled', '');
-    $fullName.prop('disabled', '');
-    $avatar.prop('disabled', '');
+    $dataSources.trigger('change');
   });
 }
 
@@ -143,6 +209,7 @@ function getColumns(dataSourceId) {
 Fliplet.DataSources.get({
   organizationId: organizationId
 }).then(function (dataSources) {
+  allDataSources = dataSources;
   $dataSources.find('option').text('-- Select a data source');
   dataSources.forEach(function (d) {
     $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
