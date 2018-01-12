@@ -19,12 +19,16 @@
         </div>
         <div class="col-sm-8">
           <label for="select_datasource" class="select-proxy-display">
-            <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>-- Please wait...</select>
+            <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>
+              <option value="none">-- Select a data source</option>
+              <option disabled>------</option>
+              <option value="new">Create a new data source</option>
+              <option disabled>------</option>
+            </select>
             <span class="icon fa fa-chevron-down"></span>
-            <span class="select-value-proxy">-- Please wait...</span>
+            <span class="select-value-proxy">-- Please wait</span>
           </label>
-          <small>or just <a href="#" class="create-data-source">create a new data source</a></small>
-          <div class="btn btn-default hidden" id="manage-data">Edit data</div>
+          <small id="manage-data" class="hidden"><a href="#">Edit data source</a></small>
         </div>
       </div>
       <div class="column-selection">
