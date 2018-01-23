@@ -673,7 +673,7 @@ body.fl-minimal-padding .convo-aside .list-group {
 
 @media screen and (min-width: 640px) {
   body {
-    padding-top: 55px;
+    padding-top: 44px;
   }
 
   .convo-aside {
@@ -718,7 +718,7 @@ body.fl-minimal-padding .convo-aside .list-group {
   }
 
   .fl-with-top-menu .msg-area .profile-header {
-    top: 55px;
+    top: 44px;
   }
 
   .msg-area .profile-header .back-btn {
@@ -1002,7 +1002,7 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
 
   .fl-with-top-menu .chat-wrapper .msg-area .offline-note,
   .fl-with-top-menu .chat-wrapper .offline-note {
-    top: 55px;
+    top: 44px;
   }
 
   .chat-wrapper.empty .offline-note,
@@ -1014,7 +1014,7 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
   .fl-with-top-menu .chat-wrapper.offline .msg-area .offline-note {
     opacity: 1;
     visibility: visible;
-    top: 99px;
+    top: 88px;
     -webkit-transition: all 0.25s ease;
     transition: all 0.25s ease;
   }
@@ -1028,7 +1028,7 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
   .fl-with-top-menu .chat-wrapper.offline.empty .offline-note,
   .fl-with-top-menu .chat-wrapper.offline.error .offline-note,
   .fl-with-top-menu .chat-wrapper.offline.loading .offline-note {
-    top: 55px;
+    top: 44px;
   }
 
   .msg-chats {
@@ -1044,15 +1044,11 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
   }
 
   .fl-with-top-menu .chat-wrapper.offline .msg-chats {
-    padding: 127px 15px 30px;
+    padding: 116px 15px 30px;
   }
 
   .convo-profile-list {
     padding-top: 0;
-  }
-
-  .fl-with-top-menu .convo-profile-list {
-    padding-top: 55px;
   }
 
   .chat-wrapper.offline .convo-profile-list {
@@ -1060,7 +1056,7 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
   }
 
   .fl-with-top-menu .chat-wrapper.offline .convo-profile-list {
-    padding-top: 55px;
+    padding-top: 44px;
   }
 }
 
