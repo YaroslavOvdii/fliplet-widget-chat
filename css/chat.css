@@ -21,7 +21,6 @@ img {
 }
 
 .chat-wrapper {
-  /*padding-top: 44px;*/
   background: #f8f8f8;
   position: relative;
   display: flex;
@@ -31,6 +30,11 @@ img {
   overflow: hidden;
   font-size: 14px !important;
   line-height: 1.42857143 !important;
+}
+
+.fl-bar-padding .chat-wrapper {
+  height: calc(100% - 44px);
+  min-height: calc(100% - 44px);
 }
 
 .convo-aside {
