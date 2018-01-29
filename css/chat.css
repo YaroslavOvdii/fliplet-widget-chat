@@ -108,7 +108,6 @@ img {
 
 body.fl-minimal-padding .convo-aside .list-group {
   margin-top: 56px;
-  margin-bottom: 44px;
 }
 
 .list-group li {
@@ -211,7 +210,7 @@ body.fl-minimal-padding .convo-aside .list-group {
   bottom: 0;
   left: 100%;
   position: absolute;
-  z-index: 11;
+  z-index: 21;
   background: #f8f8f8;
   -webkit-transition: all 0.25s ease;
   transition: all 0.25s ease;
@@ -1051,6 +1050,14 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
     padding: 116px 15px 30px;
   }
 
+  .fl-minimal-padding.fl-menu-circle-right .msg-chats {
+    padding-bottom: 77px;
+  }
+
+  .fl-minimal-padding.fl-menu-circle-left .msg-chats {
+    padding-bottom: 30px;
+  }
+
   .convo-profile-list {
     padding-top: 0;
   }
@@ -1066,4 +1073,21 @@ body.fl-minimal-padding .chat-wrapper .refresh-chat {
 
 .tooltip {
   cursor: pointer;
+}
+
+@media screen and (min-width: 640px) {
+  .fl-menu-circle-header {
+    bottom: 69px !important;
+  }
+
+  .fl-menu-circle-nav-holder {
+    bottom: 69px !important;
+  }
+  .fl-menu-circle-header.fl-menu-circle-left {
+    bottom: 15px !important;
+  }
+
+  .fl-menu-circle-nav-holder.fl-menu-circle-left {
+    bottom: 15px !important;
+  }
 }
