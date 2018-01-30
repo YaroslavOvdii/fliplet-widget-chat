@@ -675,10 +675,6 @@ body.fl-minimal-padding .convo-aside .list-group {
 }
 
 @media screen and (min-width: 640px) {
-  body {
-    padding-top: 44px;
-  }
-
   .convo-aside {
     width: 33.333%;
     border-right: 1px solid #e4eaec;
