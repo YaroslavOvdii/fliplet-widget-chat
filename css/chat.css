@@ -25,6 +25,8 @@ img {
   position: relative;
   display: flex;
   height: 100%;
+  height: calc(100% + constant(safe-area-inset-bottom));
+  height: calc(100% + env(safe-area-inset-bottom));
   min-height: 100%;
   color: #333;
   overflow: hidden;
