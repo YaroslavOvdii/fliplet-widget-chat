@@ -5,12 +5,12 @@
     <div class="back-btn">
       <i class="fa fa-chevron-left"></i>
     </div>
-    <div data-user-profile="{{ name }}">
+    <div data-user-profile="\{{ name }}">
       <div class="msg-user-avatar">
-        <div class="image-holder" style="background-image: url({{ avatar }})"></div>
+        <div class="image-holder" style="background-image: url(\{{ avatar }})"></div>
         <i class="fa fa-user" aria-hidden="true"></i>
       </div>
-      <span class="user-name">{{ name }}</span>
+      <span class="user-name">\{{ name }}</span>
     </div>
   </div>
 
@@ -21,7 +21,7 @@
 
   <div class="input-holder" data-new-message ontouchstart="">
     <div class="error-send">Couldn't send your message. Try again!</div>
-    <div class="sending-to">Send to: <strong>{{ name }}</strong></div>
+    <div class="sending-to">Send to: <strong>\{{ name }}</strong></div>
     <div class="message-input">
       <textarea class="form-control" rows="1" data-message-body></textarea>
     </div>

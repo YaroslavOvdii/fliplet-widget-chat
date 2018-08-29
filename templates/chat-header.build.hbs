@@ -1,0 +1,13 @@
+<div class="profile-image-holder \{{#if isGroup}}group\{{/if}}">
+  <div class="profile-image" style="background-image: url('\{{auth avatar}}')"></div>
+  <i class="fa fa-user"></i>
+  <i class="fa fa-users"></i>
+</div>
+<div>
+  <div class="chat-user-name">\{{ name }}</div>
+  \{{#unless definition.group.readOnly}}
+    \{{#if isGroup}}
+    <div class="chat-participants-name">\{{ usersInConversation }}</div>
+    \{{/if}}
+  \{{/unless}}
+</div>

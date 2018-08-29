@@ -1,0 +1,19 @@
+<div class="chat chat-right" data-message-id="\{{ id }}">
+  <div class="msg-time-holder">
+    <div class="msg-time">\{{ timeAgo }}</div>
+  </div>
+  <div class="sending-message-holder">
+    <i class="fa fa-circle-o-notch fa-spin"></i>
+  </div>
+  <div class="chat-body">
+    \{{#if message.fileType}}
+    <div class="chat-image" style="width: \{{ containerWidth }}; height: \{{ containerHeight }}">
+      <div class="offline-image-holder hidden"><span class="fa fa-picture-o"></span> No internet</div>
+      <img src="\{{ message.file.[0] }}" width="\{{ message.imageWidth }}" height="\{{ message.imageHeight }}" />
+    </div>
+    \{{/if}}
+    <div class="chat-text">
+      \{{ formatMessage message.body }}
+    </div>
+  </div>
+</div>

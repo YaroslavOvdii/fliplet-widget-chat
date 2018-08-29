@@ -1,42 +1,160 @@
-<div class="chat-wrapper loading" ontouchstart="" data-chat-id="{{ id }}">
-  <div class="convo-aside ">
-    <div class="screen"></div>
-    <div class="convo-aside-inner">
-      <div class="offline-note">Your device is offline</div>
-      <div class="loading-area">
-        <h4>We are loading your conversations</h4>
-        <p>Please make sure you are connected to the internet.</p>
+<div class="chat-holder loading" data-chat-id="{{ id }}">
+  <div class="top-header">
+    <div class="header-title">Messages</div>
+    <div class="chat-controls">
+      <div class="start-new">
+        <i class="fa fa-plus"></i>
       </div>
-      <div class="error-area">
-        <h4>Couldn't get your conversations</h4>
-        <p>Use the <strong>Refresh</strong> button below to try again.</p>
-      </div>
-      <div class="empty-area">
-        <h4>There are no conversations</h4>
-        <p>Use the <strong>Contacts</strong> button below to find a contact and start a conversation.</p>
-      </div>
-      <form class="login hidden">
-        <h4>Login</h4>
-        <input type="email" placeholder="Email address" />
-        <input type="password" placeholder="Password" />
-        <input type="submit" class="btn btn-primary" value="Log in" />
-      </form>
-      <div class="convo-profile-container">
-        <div class="convo-profile-list">
-          <ul class="list-group" data-conversations-list></ul>
-        </div>
-      </div>
-      <!-- <div data-new-conversation class="">New conversation</div> -->
-      <div class="contact-directory" data-directory><i class="fa fa-book"></i> Contacts</div>
-      <div class="refresh-chat" refresh-chat><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</div>
     </div>
   </div>
+  <div class="offline-note"><i class="fa fa-spinner fa-pulse"></i> Searching for network...</div>
+  <div class="loading-area">Loading...</div>
+  <div class="error-area">
+    <p>Oops... Something went wrong. Use the <strong>Refresh</strong> button below to try again.</p>
+    <div class="btn refresh-chat" refresh-chat>Refresh</div>
+  </div>
+  <div class="empty-area">To start messaging contacts tap the <i class="fa fa-plus"></i> at the top of your screen.</div>
+  <div class="chat-list">
+    <!-- Conversation groups will be here -->
+  </div>
+  <div class="chat-area" id="chat-handle">
+    <div class="chat-top-header">
+      <div class="chat-back">
+        <i class="fa fa-chevron-left"></i>
+      </div>
+      <div class="chat-user-info">
+        <!-- Conversation User Info goes here -->
+      </div>
+    </div>
 
-  <div class="msg-area" data-conversation></div>
-</div>
+    <div class="message-copied-holder">Message copied</div>
 
-<!--
-<div class="profile">
-  <a href="#" data-logout class="btn btn-primary">Log out</a>
+    <div class="chat-messages-holder" data-conversation-messages>
+      <!-- Messages will appear here -->
+    </div>
+
+    <div class="chat-input-controls">
+      <div class="image-preview-holder">
+        <canvas id="image-canvas"></canvas>
+        <div class="clear-image"><i class="fa fa-times"></i></div>
+      </div>
+      <div class="input-first-row">
+        <textarea class="form-control" rows="1" placeholder="Type message" data-message-body></textarea>
+      </div>
+      <div class="input-second-row clearfix">
+        <div class="files-controls">
+          <label for="image-input" class="image-button">
+            <i class="fa fa-picture-o"></i>
+            <input type="file" data-file-image data-type="image" id="image-input" name="image-input" accept="image/gif, image/jpg, image/jpeg, image/tiff, image/png" class="image-input">
+          </label>
+        </div>
+        <!-- FILE AND IMAGE ICONS
+        **** ON HOLD ****
+        <div class="files-controls">
+          <label for="file-input" class="file-button">
+            <i class="fa fa-file-text-o"></i>
+            <input type="file" data-file-document  data-type="document" id="file-input" name="file-input" class="file-input">
+          </label>
+        </div>
+        -->
+        <div class="btn send-button">Send</div>
+        <div class="btn send-save-button">Save</div>
+        <div class="btn cancel-editing-button">Cancel</div>
+      </div>
+    </div>
+  </div>
+  <div class="group-name-holder">
+    <div class="group-top-header">
+      <div class="contacts-create-back">
+        <i class="fa fa-chevron-left"></i>
+      </div>
+      <div class="group-info">
+        New Group
+      </div>
+      <div class="contacts-done-holder">
+        <div class="btn contacts-create">
+          <span>Create</span>
+          <i class="fa fa-circle-o-notch fa-spin"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-name-wrapper">
+      <div class="group-name-field-holder">
+        <input type="text" class="form-control group-name-field" placeholder="Group name">
+      </div>
+      <div class="participants-bar">
+        PARTICIPANTS: <span class="participant-count"></span> selected
+      </div>
+      <div class="show-selected-users">
+        <!-- If selected users will show here -->
+      </div>
+    </div>
+  </div>
+  <div class="group-participants-holder">
+    <div class="group-participants-top-header">
+      <div class="group-participants-back">
+        <i class="fa fa-chevron-left"></i>
+      </div>
+      <div class="participants-holder">
+        <div class="participants-info">Group</div>
+        <div class="participants-helper">Participants</div>
+      </div>
+    </div>
+
+    <div class="group-participants-list-wrapper">
+      <div class="group-participants-list">
+        <!-- List of participants will be here -->
+      </div>
+    </div>
+  </div>
+  <div class="contacts-holder-overlay">
+    <div class="contacts-top-header">
+      <div class="contacts-back">
+        Cancel
+      </div>
+      <div class="contacts-info">
+        Select recipients
+      </div>
+      <div class="contacts-done-holder">
+        <div class="btn contacts-done">
+          <span>Next</span>
+          <i class="fa fa-circle-o-notch fa-spin"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label-wrapper">
+      <div class="search-holder">
+        <i class="fa fa-search"></i>
+        <i class="fa fa-times"></i>
+        <input type="search" name="search-field" class="form-control search-field" placeholder="Search...">
+      </div>
+    </div>
+
+    <div class="show-selected-users">
+      <!-- If selected users will show here -->
+    </div>
+
+    <div class="selection-holder">
+      <div class="selection-count"><span class="count"></span> recipient<span class="plural"></span> selected</div>
+      <div class="clear-selection">Clear selection</div>
+    </div>
+
+    <div class="all-users-holder">
+      <div class="predefined-groups-holder">
+        <!-- If admin, buttons will be here -->
+      </div>
+
+      <div class="no-results-holder">
+        <i class="fa fa-meh-o"></i> No results found
+      </div>
+
+      <div class="loading-area">Loading...</div>
+
+      <div class="contacts-user-list">
+      <!-- Recipients list goes here -->
+      </div>
+    </div>
+  </div>
 </div>
--->
