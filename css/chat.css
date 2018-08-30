@@ -210,7 +210,7 @@ html {
   z-index: 2;
   padding: 8px 15px 8px 85px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   background-color: #ffffff;
   border-radius: 20px;
   box-shadow: 0px 6px 20px 0px rgba(0,0,0,0.1);
@@ -338,7 +338,6 @@ html {
 
 .chat-card-holder .chat-user-preview-holder {
   display: flex;
-  min-height: 30px;
   justify-content: center;
   flex-direction: column;
 }
@@ -365,7 +364,7 @@ html {
 }
 
 .chat-card-holder .chat-participants-preview {
-  margin-top: -2px;
+  margin-top: 2px;
   margin-bottom: 4px;
   font-weight: bold;
 }
@@ -482,7 +481,7 @@ html {
   height: 34px;
   min-width: 34px;
   text-align: left;
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
 }
 
@@ -621,7 +620,7 @@ html {
   border-radius: 20px;
   -webkit-box-shadow: none;
   box-shadow: none;
-  padding: 8px 15px;
+  padding: 8px 0;
   height: auto;
 }
 
@@ -822,7 +821,7 @@ html {
   background-color: rgba(51, 51, 51, 0.04);
 }
 
-.contact-image-wrapper .fa {
+.contact-image-wrapper .fa-times {
   position: absolute;
   top: -7px;
   right: -7px;
@@ -878,6 +877,7 @@ html {
 
 .chat-messages-holder .chat {
   position: relative;
+  width: calc(100% - 8px);
   margin-top: 7px;
   display: flex;
   justify-content: flex-start;
@@ -887,6 +887,7 @@ html {
 
 .chat-messages-holder .chat.chat-right {
   margin-top: 5px;
+  margin-left: 8px;
 }
 
 .chat-messages-holder .chat.chat-right {
@@ -1028,6 +1029,7 @@ html {
 
 .chat .chat-body .chat-edited {
   line-height: 1.2em;
+  margin-top: 2px;
 }
 
 .chat.chat-right .chat-body .chat-edited {
