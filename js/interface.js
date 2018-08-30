@@ -12,45 +12,23 @@ $(document).on('change', '.hidden-select', function(){
 
 var $dataSources = $('[name="dataSource"]');
 var $emailAddress = $('[name="emailAddress"]');
+var $firstName = $('[name="firstName"]');
+var $lastName = $('[name="lastName"]');
 var $fullName = $('[name="fullName"]');
 var $avatar = $('[name="avatar"]');
+var $titleName = $('[name="titleName"]');
 
 // Set link action to screen by default
-if (!data.contactLinkAction) {
-  data.contactLinkAction = {
-    action: 'screen',
-    page: '',
-    transition: 'slide.left',
-    options: {
-      hideAction: true
-    }
-  };
-}
 if (!data.securityLinkAction) {
   data.securityLinkAction = {
     action: 'screen',
     page: '',
-    transition: 'slide.left',
+    transition: 'fade',
     options: {
       hideAction: true
     }
   };
 }
-
-var linkDirectoryProvider = Fliplet.Widget.open('com.fliplet.link', {
-  // If provided, the iframe will be appended here,
-  // otherwise will be displayed as a full-size iframe overlay
-  selector: '#contact-directory',
-  // Also send the data I have locally, so that
-  // the interface gets repopulated with the same stuff
-  data: data.contactLinkAction,
-  // Events fired from the provider
-  onEvent: function (event, data) {
-    if (event === 'interface-validate') {
-      Fliplet.Widget.toggleSaveButton(data.isValid === true);
-    }
-  }
-});
 
 var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
   // If provided, the iframe will be appended here,
@@ -67,9 +45,6 @@ var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
   }
 });
 
-linkDirectoryProvider.then(function (result) {
-  data.contactLinkAction = result.data;
-});
 linkSecurityProvider.then(function (result) {
   data.securityLinkAction = result.data;
   save(true);
@@ -77,11 +52,20 @@ linkSecurityProvider.then(function (result) {
 
 $('form').submit(function (event) {
   event.preventDefault();
-  linkDirectoryProvider.forwardSaveRequest();
   linkSecurityProvider.forwardSaveRequest();
 });
 
 $('#manage-data').on('click', manageAppData);
+
+$('#show-seperate-name-fields').on('click', function() {
+  $('.full-name-field').addClass('hidden');
+  $('.first-last-names-holder').removeClass('hidden');
+});
+
+$('#show-full-name-field').on('click', function() {
+  $('.full-name-field').removeClass('hidden');
+  $('.first-last-names-holder').addClass('hidden');
+});
 
 // Fired from Fliplet Studio when the external save button is clicked
 Fliplet.Widget.onSaveRequest(function () {
@@ -117,6 +101,9 @@ function save(notifyComplete) {
   data.dataSourceId = $dataSources.val();
   data.crossLoginColumnName = $emailAddress.val();
   data.fullNameColumnName = $fullName.val();
+  data.firstNameColumnName = $firstName.val();
+  data.lastNameColumnName = $lastName.val();
+  data.titleNameColumnName = $titleName.val();
   data.avatarColumnName = $avatar.val();
 
   Fliplet.Widget.save(data).then(function () {
@@ -138,12 +125,18 @@ function getColumns(dataSourceId) {
     }).then(function (dataSource) {
       $emailAddress.html('<option value="">-- Select a field</option>');
       $fullName.html('<option value="">-- Select a field</option>');
+      $firstName.html('<option value="">-- Select a field</option>');
+      $lastName.html('<option value="">-- Select a field</option>');
       $avatar.html('<option value="">-- Select a field</option>');
+      $titleName.html('<option value="">-- Select a field</option>');
 
       dataSource.columns.forEach(function (c) {
         $emailAddress.append('<option value="' + c + '">' + c + '</option>');
         $fullName.append('<option value="' + c + '">' + c + '</option>');
+        $firstName.append('<option value="' + c + '">' + c + '</option>');
+        $lastName.append('<option value="' + c + '">' + c + '</option>');
         $avatar.append('<option value="' + c + '">' + c + '</option>');
+        $titleName.append('<option value="' + c + '">' + c + '</option>');
       });
 
       if (data.crossLoginColumnName) {
@@ -152,17 +145,33 @@ function getColumns(dataSourceId) {
       if (data.fullNameColumnName) {
         $fullName.val(data.fullNameColumnName);
       }
+      if (data.firstNameColumnName) {
+        $firstName.val(data.firstNameColumnName);
+      }
+      if (data.lastNameColumnName) {
+        $lastName.val(data.lastNameColumnName);
+      }
       if (data.avatarColumnName) {
         $avatar.val(data.avatarColumnName);
       }
+      if (data.titleNameColumnName) {
+        $titleName.val(data.titleNameColumnName);
+      }
+      titleNameColumnName
 
       $emailAddress.trigger('change');
       $fullName.trigger('change');
+      $firstName.trigger('change');
+      $lastName.trigger('change');
       $avatar.trigger('change');
+      $titleName.trigger('change');
 
       $emailAddress.prop('disabled', '');
       $fullName.prop('disabled', '');
+      $firstName.prop('disabled', '');
+      $lastName.prop('disabled', '');
       $avatar.prop('disabled', '');
+      $titleName.prop('disabled', '');
     });
   } else {
     $('#manage-data').addClass('hidden');
