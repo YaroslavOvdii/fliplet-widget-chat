@@ -100,12 +100,13 @@ Fliplet.Widget.instance('chat', function (data) {
   var SCROLL_TO_MESSAGE_SPEED = 200;
   var LOAD_MORE_MESSAGES_PAGE_SIZE = 50;
   var isActiveWindow = true;
-  var crossLoginColumnName = data.crossLoginColumnName || 'email';
-  var fullNameColumnName = data.fullNameColumnName || 'fullName';
-  firstNameColumnName = data.fullNameColumnName || 'First Name';
-  var lastNameColumnName = 'Last Name';
-  var avatarColumnName = data.avatarColumnName || 'avatar';
-  var multipleNameColumns = true;
+  var crossLoginColumnName = data.crossLoginColumnName;
+  var fullNameColumnName = data.fullNameColumnName;
+  var firstNameColumnName = data.firstNameColumnName;
+  var lastNameColumnName = data.lastNameColumnName;
+  var avatarColumnName = data.avatarColumnName;
+  var titleColumnName = data.titleColumnName;
+  var multipleNameColumns = firstNameColumnName && lastNameColumnName ? true : false;
 
   var securityScreenAction = data.securityLinkAction;
   var chatConnection = Fliplet.Chat.connect({
@@ -114,7 +115,7 @@ Fliplet.Widget.instance('chat', function (data) {
     pushNotifications: true,
     dataSourceId: data.dataSourceId,
     crossLoginColumnName: crossLoginColumnName,
-    fullNameColumnName: firstNameColumnName,
+    fullNameColumnName: fullNameColumnName ? fullNameColumnName : firstNameColumnName + ' ' + lastNameColumnName,
     avatarColumnName: avatarColumnName
   });
 
@@ -413,7 +414,7 @@ Fliplet.Widget.instance('chat', function (data) {
         connection.update(messageToEdit, {
           body: text,
           isEdited: true
-        }).then(function() {
+        }).then(function(newMessageFromDS) {
           // Update message locally
           messages.forEach(function(obj, index) {
             if (obj.id === messageToEdit) {
@@ -620,7 +621,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
         openGroupCreationSettings();
       })
-      .on('click', '.contact-image-holder .fl-icon-cancel-III-fill', function() {
+      .on('click', '.contact-image-holder .fa-times', function() {
         var userId = $(this).parents('.contact-image-holder').data('selected-contact-id');
         removeContactSelectedByIcon($(this), userId);
       })
@@ -909,7 +910,7 @@ Fliplet.Widget.instance('chat', function (data) {
           }, 1000);
         });
       })
-      .on('keyup change', '.search-holder input', function(e) {
+      .on('keyup paste', '.search-holder input', function(e) {
         var searchQuery = $(this).val().toLowerCase();
         $('.section-label-wrapper').addClass('is-searching');
 
@@ -922,7 +923,7 @@ Fliplet.Widget.instance('chat', function (data) {
           searchData(searchQuery);
         }, 350);
       })
-      .on('click', '.search-holder .fl-icon-cancel-III-fill', function() {
+      .on('click', '.search-holder .fa-times', function() {
         clearSearch();
       })
       .on('click', '.image-button input', function(event) {
@@ -1224,7 +1225,27 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Searches
     var searchedData = _.filter(otherPeople, function(obj) {
-      return obj.data['Last Name'].toLowerCase().indexOf(value) > -1 || obj.data['First Name'].toLowerCase().indexOf(value) > -1 || obj.data.Title.toLowerCase().indexOf(value) > -1;
+      var userName = '';
+
+      if (fullNameColumnName) {
+        userName = obj.data[fullNameColumnName];
+      }
+      if (firstNameColumnName && userName === '') {
+        userName = obj.data[firstNameColumnName]
+      }
+      if (lastNameColumnName && userName !== '') {
+        userName = userName + ' ' + obj.data[lastNameColumnName]
+      }
+
+      if (userName === '') {
+        return false;
+      }
+
+      if (titleColumnName) {
+        return userName.toLowerCase().indexOf(value) > -1 || obj.data[titleColumnName].toLowerCase().indexOf(value) > -1;
+      } else {
+        return userName.toLowerCase().indexOf(value) > -1
+      }
     });
 
     sortContacts(searchedData);
@@ -1262,8 +1283,8 @@ Fliplet.Widget.instance('chat', function (data) {
   function sortContacts(peopleList) {
     // Custom sort of names
     var customSorted = _.sortBy(peopleList, function (obj) {
-      obj.data[lastNameColumnName] = obj.data[lastNameColumnName] || '';
-      var value = obj.data[lastNameColumnName].toString().toUpperCase();
+      obj.data['customSortName'] = obj.data[fullNameColumnName] || obj.data[firstNameColumnName] || '';
+      var value = obj.data['customSortName'].toString().toUpperCase();
       // Push all non-alphabetical values to after the 'z' character
       // based on Unicode values
       return value.match(/[A-Za-z]/)
@@ -1272,7 +1293,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
 
     var otherPeopleSorted = _.orderBy(customSorted, function(obj) {
-      var value = obj.data[lastNameColumnName].toString();
+      var value = obj.data['customSortName'].toString();
       var nameArray = value.split(' ');
       var foundCapital = 0;
       var firstCapital;
@@ -1298,7 +1319,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Adds first letter for each person to be grouped by
     otherPeopleSorted.forEach(function(person) {
-      var value = person.data[lastNameColumnName].toString();
+      var value = person.data[fullNameColumnName || firstNameColumnName].toString();
       var nameArray = value.split(' ');
       var foundCapital = 0;
       var firstCapital;
@@ -1397,11 +1418,6 @@ Fliplet.Widget.instance('chat', function (data) {
   function getContacts(fromOffline) {
     if (!contactsReqPromise) {
       contactsReqPromise = chat.contacts({ offline: fromOffline }).then(function(response) {
-        // Remove people if they don't have a Last Name
-        _.remove(response, function(obj) {
-          return !obj.data['Last Name'] || obj.data['Last Name'] === null || obj.data['Last Name'] === '';
-        });
-
         contacts = response;
 
         // Sort by name and place list in HTML
@@ -1418,9 +1434,19 @@ Fliplet.Widget.instance('chat', function (data) {
 
   // All contacts apart from the logged user
   function getContactsWithoutCurrentUser() {
-    return _.reject(contacts, function(c) {
-      return c.data.flUserId === currentUser.flUserId;
+    var customUsers = contacts.some(function(contact) {
+      return contact.data.hasOwnProperty('flDefaultChatUser')
     });
+
+    if (customUsers) {
+      return _.filter(contacts, function(c) {
+        return c.data['flDefaultChatUser'] != null && c.data['flDefaultChatUser'] !== '' && typeof c.data['flDefaultChatUser'] !== 'undefined' && c.data.flUserId !== currentUser.flUserId;
+      });
+    } else {
+      return _.reject(contacts, function(c) {
+        return c.data.flUserId === currentUser.flUserId;
+      });
+    }
   }
 
   function getAllUSers() {
@@ -1634,7 +1660,7 @@ Fliplet.Widget.instance('chat', function (data) {
         var conversationName = _.compact(_.filter(otherPeople, function(c) {
           return allParticipants.indexOf(c.data.flUserId) !== -1;
         }).map(function(c) {
-          return multipleNameColumns ? c.data[firstNameColumnName] + ' ' + c.data[lastNameColumnName] : c.data[firstNameColumnName];
+          return multipleNameColumns ? c.data[firstNameColumnName] + ' ' + c.data[lastNameColumnName] : c.data[fullNameColumnName];
         })).join(', ').trim();
 
         var friend = _.find(otherPeople, function(p) {
@@ -1859,7 +1885,7 @@ Fliplet.Widget.instance('chat', function (data) {
         id: message.id,
         isFromGroup: message.fromGroup,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        name: multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[firstNameColumnName],
+        name: multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[fullNameColumnName],
         avatar: sender.data[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
@@ -1922,7 +1948,7 @@ Fliplet.Widget.instance('chat', function (data) {
       var messageHTML = chatMessageTemplate({
         id: message.id,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        name: multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[firstNameColumnName],
+        name: multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[fullNameColumnName],
         avatar: sender.data[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
@@ -2008,8 +2034,6 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function onNewMessage(message) {
     if (messagesIds.indexOf(message.id) === -1) {
-      
-
       messages.push(message);
       messagesIds.push(message.id);
     }
@@ -2035,50 +2059,50 @@ Fliplet.Widget.instance('chat', function (data) {
         } else if (isCurrentConversation) {
           renderMessage(message);
         }
-      });
-    
-    var conversation = _.find(conversations, { id: message.dataSourceId });
 
-    if (!conversation) {
-      // If we don't find the conversation of this message, most likely means a user just
-      // started messaging us on a new conversation so let's just refetch the list
-      getConversations(false);
-    } else {
-      checkConversationStatus(conversation);
-      setConversationLastMessage(conversation, message);
+        var conversation = _.find(conversations, { id: message.dataSourceId });
 
-      if (!message.isReadByCurrentUser) {
-        if (!currentConversation || currentConversation.id !== message.dataSourceId) {
-          // Message is unread and is not in the current conversation
-          conversation.unreadMessages++;
+        if (!conversation) {
+          // If we don't find the conversation of this message, most likely means a user just
+          // started messaging us on a new conversation so let's just refetch the list
+          getConversations(false);
         } else {
-          // Mark the message as read by the current user, since he's looking at this conversation
-          chat.markMessagesAsRead([message]);
-        }
+          checkConversationStatus(conversation);
+          setConversationLastMessage(conversation, message);
 
-        if ((!currentConversation || !isActiveWindow) && messagesIds.indexOf(message.id) === -1) {
-          var sender = findContact(message.data.fromUserId);
-          if (sender) {
-            var notification = Notification(multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[firstNameColumnName], {
-              body: message.data.body,
-              icon: $('link[rel="icon"]').attr('href'),
-              timestamp: message.createdAtDate.unix(),
-              tag: 'message' + message.id
-            });
+          if (!message.isReadByCurrentUser) {
+            if (!currentConversation || currentConversation.id !== message.dataSourceId) {
+              // Message is unread and is not in the current conversation
+              conversation.unreadMessages++;
+            } else {
+              // Mark the message as read by the current user, since he's looking at this conversation
+              chat.markMessagesAsRead([message]);
+            }
 
-            notification.onclick = function() {
-              window.focus();
-              setTimeout(function() {
-                viewConversation(conversation);
-              }, 0);
-            };
+            if ((!currentConversation || !isActiveWindow) && messagesIds.indexOf(message.id) === -1) {
+              var sender = findContact(message.data.fromUserId);
+              if (sender) {
+                var notification = Notification(multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[fullNameColumnName], {
+                  body: message.data.body,
+                  icon: $('link[rel="icon"]').attr('href'),
+                  timestamp: message.createdAtDate.unix(),
+                  tag: 'message' + message.id
+                });
+
+                notification.onclick = function() {
+                  window.focus();
+                  setTimeout(function() {
+                    viewConversation(conversation);
+                  }, 0);
+                };
+              }
+            }
           }
-        }
-      }
 
-      // Let's update the UI to reflect the last message
-      renderConversations(conversation, true);
-    }
+          // Let's update the UI to reflect the last message
+          renderConversations(conversation, true);
+        }
+      });
   }
 
   /* Login function */
