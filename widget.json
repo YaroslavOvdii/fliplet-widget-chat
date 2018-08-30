@@ -28,12 +28,14 @@
       "bootstrap",
       "handlebars",
       "font-awesome",
+      "photoswipe",
       "fliplet-core",
       "fliplet-chat"
     ],
     "assets": [
       "vendor/notification.js",
       "vendor/autosize.js",
+      "vendor/load-image.all.min.js",
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"
