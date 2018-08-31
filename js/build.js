@@ -409,34 +409,32 @@ Fliplet.Widget.instance('chat', function (data) {
 
     $holder.addClass('sending');
 
-    Fliplet.DataSources.connect(currentConversation.id)
-      .then(function (connection) {
-        connection.update(messageToEdit, {
-          body: text,
-          isEdited: true
-        }).then(function(newMessageFromDS) {
-          // Update message locally
-          messages.forEach(function(obj, index) {
-            if (obj.id === messageToEdit) {
-              messages[index].data.body = text;
-              messages[index].data.isEdited = true;
-              messageToReplace = messages[index];
-            }
-          });
+    chat.updateMessage(currentConversation.id, messageToEdit, {
+      body: text,
+      isEdited: true
+    })
+    .then(function(newMessageFromDS) {
+      // Update message locally
+      messages.forEach(function(obj, index) {
+        if (obj.id === messageToEdit) {
+          messages[index].data.body = text;
+          messages[index].data.isEdited = true;
+          messageToReplace = messages[index];
+        }
+      });
 
-          renderMessageInPlace(messageToReplace, true);
+      renderMessageInPlace(messageToReplace, true);
 
-          $messageArea.val('').trigger('change');
-          autosize.update($messageArea);
-          $parentHolder.removeClass('editing-message');
-          $holder.removeClass('sending');
-          messageToEdit = undefined;
+      $messageArea.val('').trigger('change');
+      autosize.update($messageArea);
+      $parentHolder.removeClass('editing-message');
+      $holder.removeClass('sending');
+      messageToEdit = undefined;
 
-          // Update conversation UI
-          var conversationMessages = _.filter(messages, { dataSourceId: currentConversation.id });
-          setConversationLastMessage(currentConversation, conversationMessages[conversationMessages.length - 1]);
-          renderConversations(currentConversation, true);
-        });
+      // Update conversation UI
+      var conversationMessages = _.filter(messages, { dataSourceId: currentConversation.id });
+      setConversationLastMessage(currentConversation, conversationMessages[conversationMessages.length - 1]);
+      renderConversations(currentConversation, true);
     });
   }
 
@@ -1552,7 +1550,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     return getConversations(false).then(function() {
       return chat.create({
-        name: isBroadcast ? 'Broadcast to ' + groupName.toLowerCase() : groupName || DEFAULT_CHAT_NAME,
+        name: isBroadcast ? 'Broadcast to ' + groupName.toLowerCase() : (groupName || DEFAULT_CHAT_NAME),
         group: {
           type: groupName,
           readOnly: isBroadcast
@@ -1642,12 +1640,12 @@ Fliplet.Widget.instance('chat', function (data) {
       $wrapper.toggleClass('empty', !conversations.length);
 
       // Add admin buttons
-      if (currentUser && currentUser.isAdmin && currentUser.isAdmin !== null) {
-        $('.predefined-groups-holder').html(adminButtonsTemplate());
-      } else {
-        // Remove just to be sure no one else accesses them
-        $('.predefined-groups-holder').html('');
-      }
+      // if (currentUser && currentUser.isAdmin && currentUser.isAdmin !== null) {
+      //   $('.predefined-groups-holder').html(adminButtonsTemplate());
+      // } else {
+      //   // Remove just to be sure no one else accesses them
+      //   $('.predefined-groups-holder').html('');
+      // }
 
       // Add a readable name to the conversation, based on the other people in the group
       conversations.forEach(function(conversation) {
