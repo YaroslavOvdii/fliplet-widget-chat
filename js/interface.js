@@ -157,7 +157,6 @@ function getColumns(dataSourceId) {
       if (data.titleNameColumnName) {
         $titleName.val(data.titleNameColumnName);
       }
-      titleNameColumnName
 
       $emailAddress.trigger('change');
       $fullName.trigger('change');
