@@ -4,6 +4,7 @@ var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
 var allDataSources = [];
 
+// This is no longer necessary
 $(document).on('change', '.hidden-select', function(){
   var selectedValue = $(this).val();
   var selectedText = $(this).find("option:selected").text();
@@ -40,6 +41,7 @@ var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
   // Events fired from the provider
   onEvent: function (event, data) {
     if (event === 'interface-validate') {
+      // Why use data.isValid === true instead of just data.isValid or !!data.isValid?
       Fliplet.Widget.toggleSaveButton(data.isValid === true);
     }
   }
@@ -72,18 +74,20 @@ Fliplet.Widget.onSaveRequest(function () {
   $('form').submit();
 });
 
-$dataSources.on( 'change', function() {
+$dataSources.on('change', function() {
   var selectedDataSourceId = $(this).val();
   if (selectedDataSourceId === 'none') {
     $('#manage-data').addClass('hidden');
     $('.column-selection').removeClass('show');
     return;
   }
+
   if (selectedDataSourceId === 'new') {
     $('#manage-data').addClass('hidden');
     createDataSource();
     return;
   }
+
   $('.column-selection').addClass('show');
   getColumns(selectedDataSourceId);
 });
@@ -117,12 +121,14 @@ function save(notifyComplete) {
 }
 
 function getColumns(dataSourceId) {
+  // Change this if-else the other way round and avoid using else so that there's less indentation
   if (dataSourceId && dataSourceId !== '') {
     $('#manage-data').removeClass('hidden');
 
     Fliplet.DataSources.getById(dataSourceId, {
       cache: false
     }).then(function (dataSource) {
+      // Prepare all the HTML so that the DOM is changed as little as possible. You should only need to call .html() once for each field
       $emailAddress.html('<option value="">-- Select a field</option>');
       $fullName.html('<option value="">-- Select a field</option>');
       $firstName.html('<option value="">-- Select a field</option>');
@@ -158,6 +164,7 @@ function getColumns(dataSourceId) {
         $titleName.val(data.titleNameColumnName);
       }
 
+      // These aren't necessary if they're only there to make sure the .select-value-proxy values are updated
       $emailAddress.trigger('change');
       $fullName.trigger('change');
       $firstName.trigger('change');
@@ -165,6 +172,8 @@ function getColumns(dataSourceId) {
       $avatar.trigger('change');
       $titleName.trigger('change');
 
+      // $.fn.prop() should be used with true and false when setting values, e.g. $fields.prop('disabled', false). See http://api.jquery.com/prop/#prop2
+      // If you create a collection like $fields = $('[name="dataSource"], [name="emailAddress"]') etc. then you can do this all in one go like $fields.prop('disabled', '');
       $emailAddress.prop('disabled', '');
       $fullName.prop('disabled', '');
       $firstName.prop('disabled', '');

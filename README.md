@@ -1,3 +1,5 @@
+(This needs to be updated)
+
 # Fliplet Chat Widget
 
 ## Instance options
