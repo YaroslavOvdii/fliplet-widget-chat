@@ -7,7 +7,7 @@
   "provider_only": false,
   "references": [
     "dataSourceId:dataSource",
-    "contactLinkAction.page:page"
+    "securityLinkAction.page:page"
   ],
   "html_tag": "div",
   "interface": {
