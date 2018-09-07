@@ -36,7 +36,7 @@ Fliplet.Widget.instance('chat', function (data) {
   data = data || {};
 
   var screenWidth = $(window).width();
-  var PAN_VELOCITY_BOUNDARY = 2;
+  var PAN_VELOCITY_BOUNDARY = 0.5;
   var PAN_WINDOW_FRACTION = 3;
   var ANIMATION_SPEED_SLOW = 200;
   var ANIMATION_SPEED_FAST = 100;
@@ -208,8 +208,9 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     // Reverse the if-else here and avoid indentation
-    if (e.deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX < distanceY) {
+    if (e.deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
       closeConversation();
+      return;
     }
 
     $chatOverlay.css({
