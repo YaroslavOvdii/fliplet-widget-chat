@@ -1,10 +1,10 @@
 /* Handlebars Helpers */
 Handlebars.registerHelper('formatMessage', function(text) {
   // User separate var lines ending in ; so that each line can be stepped over individually when necessary
-  var breakRegExp = /(\r\n|\n|\r)/gm,
-    emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
-    numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
-    urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig;
+  var breakRegExp = /(\r\n|\n|\r)/gm;
+  var emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm;
+  var numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm;
+  var urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig;
 
   if (text) {
     /* capture email addresses and turn into mailto links */
@@ -107,8 +107,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var lastNameColumnName = data.lastNameColumnName;
   var avatarColumnName = data.avatarColumnName;
   var titleColumnName = data.titleColumnName;
-  // Use !!(firstNameColumnName && lastNameColumnName), which will return true and false values. There's then no need to use "? true : false".
-  var multipleNameColumns = firstNameColumnName && lastNameColumnName ? true : false;
+  var multipleNameColumns = !!(firstNameColumnName && lastNameColumnName);
 
   var securityScreenAction = data.securityLinkAction;
   var chatConnection = Fliplet.Chat.connect({
@@ -164,18 +163,13 @@ Fliplet.Widget.instance('chat', function (data) {
     var position = listOffset + (e.deltaX / 4);
 
     // Prevent scrolling right when scrolling up and bit to the right
-    var deltaY = e.deltaY;
-    // var deltaY = Math.abs(e.deltaY) will give you the absolute (always positive) value
-    var positiveDeltaY = deltaY < 0 ? deltaY *= -1 : deltaY;
-    var deltaX = e.deltaX;
-    // Use Math.abs()
-    var positiveDeltaX = deltaX < 0 ? deltaX *= -1 : deltaX;
-    var distanceY = e.distance - positiveDeltaY;
-    var distanceX = e.distance - positiveDeltaX;
+    var deltaY = Math.abs(e.deltaY);
+    var deltaX = Math.abs(e.deltaX);
+    var distanceY = e.distance - deltaY;
+    var distanceX = e.distance - deltaX;
 
     if (distanceX < distanceY) {
-      // Instead of triggering an event, make sure the event is handled through a named function and call it
-      $('[data-message-body]').trigger('blur');
+      messageAreaOnBlur();
 
       $chatOverlay.css({
         'transition': 'none',
@@ -192,24 +186,14 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function panChatEnd(e) {
-    // Finish the transition after swipe.
-    // completeTransion() function is declared but only used once. Why not just put allt he completeTransition() function code in here?
-    completeTransition(e);
-  }
-
-  function completeTransition(e) {
     var animationSpeed = (e.velocityX < PAN_VELOCITY_BOUNDARY)
       ? ANIMATION_SPEED_SLOW
       : ANIMATION_SPEED_FAST;
     // Prevent closing animation
-    var deltaY = e.deltaY;
-    // Use Math.abs()
-    var positiveDeltaY = deltaY < 0 ? deltaY *= -1 : deltaY;
-    var deltaX = e.deltaX;
-    // Use Math.abs()
-    var positiveDeltaX = deltaX < 0 ? deltaX *= -1 : deltaX;
-    var distanceY = e.distance - positiveDeltaY;
-    var distanceX = e.distance - positiveDeltaX;
+    var deltaY = Math.abs(e.deltaY);
+    var deltaX = Math.abs(e.deltaX);
+    var distanceY = e.distance - deltaY;
+    var distanceX = e.distance - deltaX;
 
     $chatOverlay.css({
       'transition': 'all ' + animationSpeed + 'ms ease-out'
@@ -224,18 +208,18 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     // Reverse the if-else here and avoid indentation
-    if (e.deltaX < screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
-      $chatOverlay.css({
-        '-webkit-transform': 'translate3d(0, 0, 0)',
-        'transform': 'translate3d(0, 0, 0)'
-      });
-      $list.css({
-        '-webkit-transform': 'translate3d(-25%, 0, 0)',
-        'transform': 'translate3d(-25%, 0, 0)'
-      });
-    } else {
+    if (e.deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX < distanceY) {
       closeConversation();
     }
+
+    $chatOverlay.css({
+      '-webkit-transform': 'translate3d(0, 0, 0)',
+      'transform': 'translate3d(0, 0, 0)'
+    });
+    $list.css({
+      '-webkit-transform': 'translate3d(-25%, 0, 0)',
+      'transform': 'translate3d(-25%, 0, 0)'
+    });
   }
 
   function openConversation(conversationId) {
@@ -268,18 +252,15 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openGroupParticipants() {
-    // Set all the variables before running more scripts
-    $('.participants-info').html(currentConversation.name);
     var participantsIds = currentConversation.definition.participants;
     var participants = [];
-
     var participants = _.filter(contacts, function(contact) {
       return participantsIds.indexOf(contact.data.flUserId) > -1;
     });
-    
     var participantsHTML = groupContactTemplate(participants);
-    $participantsList.html(participantsHTML);
 
+     $('.participants-info').html(currentConversation.name);
+    $participantsList.html(participantsHTML);
     $wrapper.addClass('in-group-info');
   }
 
@@ -294,10 +275,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function removeSelected() {
     contactsSelected = [];
-    // You should be able to use .removeClass() without the .each()
-    $('.contact-card.contact-selected').each(function(idx, element) {
-      $(element).removeClass('contact-selected');
-    });
+    $('.contact-card.contact-selected').removeClass('contact-selected');
     $('.contact-image-holder').remove();
     $('.show-selected-users').removeClass('showing');
 
@@ -382,24 +360,21 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function handleContactSelection(element, selectedUserInfo, userId) {
-    // $('.show-selected-users') is used a lot in this function. Create a cached variable for it
+    var $selectedUsers = $('.show-selected-users');
+    var selectedContactHTML = selectedContactTemplate(selectedUserInfo[0]);
+    var totalWidth = 0;
+
     if (element.hasClass('contact-selected')) {
       contactsSelected.push(selectedUserInfo[0]);
+      $selectedUsers.addClass('showing');
+      $selectedUsers.append(selectedContactHTML);
 
-      if (!$('.show-selected-users').hasClass('showing')) {
-        // Looks like you can .addClass() anyway withcut checking for .hasClass()
-        $('.show-selected-users').addClass('showing');
-      }
-      var selectedContactHTML = selectedContactTemplate(selectedUserInfo[0]);
-      $('.show-selected-users').append(selectedContactHTML);
-
-      // Aniamtes after adding the element
-      var totalWidth = 0;
-      $('.show-selected-users').find('.contact-image-holder').each(function(idx, element) {
+      // Animates after adding the element
+      $selectedUsers.find('.contact-image-holder').each(function(idx, element) {
         var elementWidth = $(element).outerWidth(true);
         totalWidth += elementWidth;
       });
-      $('.show-selected-users').animate({
+      $selectedUsers.animate({
         scrollLeft: totalWidth
       }, 200, 'swing');
     } else {
@@ -407,11 +382,10 @@ Fliplet.Widget.instance('chat', function (data) {
         return obj.id === userId;
       });
 
-      $('.show-selected-users').find('[data-selected-contact-id="' + selectedUserInfo[0].id + '"]').remove();
+      $selectedUsers.find('[data-selected-contact-id="' + selectedUserInfo[0].id + '"]').remove();
 
-      // No need to check for .hasClass()
-      if (!contactsSelected.length && $('.show-selected-users').hasClass('showing')) {
-        $('.show-selected-users').removeClass('showing');
+      if (!contactsSelected.length) {
+        $selectedUsers.removeClass('showing');
       }
     }
 
@@ -523,6 +497,48 @@ Fliplet.Widget.instance('chat', function (data) {
           $('.chat-holder').addClass('empty');
         }
       });
+  }
+
+  function messageAreaOnBlur() {
+    if (Modernizr.ios) {
+      setTimeout(function() {
+        $('[data-message-body]').parents('.chat-input-controls').removeClass('open');
+        $('[data-message-body]').parents('.chat-area').removeClass('open');
+
+        // Removes binding
+        $(document).off('touchstart', '[data-message-body]');
+      }, 0);
+    }
+  }
+
+  function messageAreaOnFocus() {
+    if (Modernizr.ios) {
+      // Fixes chat area height on iOS
+      // @TODO: Test other keyboards
+      // Still buggy
+      // $('.chat-area').animate({
+      //   'bottom': 0
+      // }, {
+      //   progress: function() {
+      //     $(this).css({
+      //       'bottom': document.body.scrollTop
+      //     });
+      //   },
+      //   complete: function() {
+      //     document.body.scrollTop = 0;
+      //   }
+      // });
+
+      setTimeout(function() {
+        $('[data-message-body]').parents('.chat-input-controls').addClass('open');
+        $('[data-message-body]').parents('.chat-area').addClass('open');
+
+        // Adds binding
+        $(document).on('touchstart', '[data-message-body]', function() {
+          $(this).focus();
+        });
+      }, 0);
+    }
   }
 
   function attacheEventListeners() {
@@ -724,79 +740,34 @@ Fliplet.Widget.instance('chat', function (data) {
         var touchX = e.originalEvent.touches[0].clientX,
             totalMove = touchX - _thisStartX;
 
-        // Use if (totalMove >= 0) { return; } to avoid indentation
-        if (totalMove < 0) {
-          $(this).css({
-            'transition': 'none',
-            '-webkit-transform': 'translate3d(' + totalMove + 'px, 0px, 0px)',
-            'transform': 'translate3d(' + totalMove + 'px, 0px, 0px)'
-          }).on('touchend', function() {
-            // A touchend event handler is added for evert touchmove event triggered. This doesn't look very good.
-            if (totalMove > -66) {
-              $(this).removeClass('draggable').css({
-                'transition': 'all 150ms ease-out',
-                '-webkit-transform': 'translate3d(0px, 0px, 0px)',
-                'transform': 'translate3d(0px, 0px, 0px)'
-              });
-              $(this).removeClass('toLeftProxy');
-            } else {
-              $(this).removeClass('draggable').css({
-                'transition': 'all 150ms ease-out',
-                '-webkit-transform': 'translate3d(-67px, 0px, 0px)',
-                'transform': 'translate3d(-67px, 0px, 0px)'
-              });
-              $(this).addClass('toLeftProxy');
-              totalMove = 0;
-            }
-          });
-        }
-      })
-      .on('focus', '[data-message-body]', function() {
-        // If the handler for .on('blur', '[data-message-body] is going to be wrapped into a named function (see below), the handler for the 'focus' event shoudl probably be wrapped into a named function as well
-        _this = $(this);
+        if (totalMove >= 0) { return; }
 
-        if (Modernizr.ios) {
-          // Fixes chat area height on iOS
-          // @TODO: Test other keyboards
-          // Still buggy
-          // $('.chat-area').animate({
-          //   'bottom': 0
-          // }, {
-          //   progress: function() {
-          //     $(this).css({
-          //       'bottom': document.body.scrollTop
-          //     });
-          //   },
-          //   complete: function() {
-          //     document.body.scrollTop = 0;
-          //   }
-          // });
-
-          setTimeout(function() {
-            _this.parents('.chat-input-controls').addClass('open');
-            _this.parents('.chat-area').addClass('open');
-
-            // Adds binding
-            $(document).on('touchstart', '[data-message-body]', function() {
-              $(this).focus();
+        $(this).css({
+          'transition': 'none',
+          '-webkit-transform': 'translate3d(' + totalMove + 'px, 0px, 0px)',
+          'transform': 'translate3d(' + totalMove + 'px, 0px, 0px)'
+        }).on('touchend', function() {
+          // A touchend event handler is added for evert touchmove event triggered. This doesn't look very good.
+          if (totalMove > -66) {
+            $(this).removeClass('draggable').css({
+              'transition': 'all 150ms ease-out',
+              '-webkit-transform': 'translate3d(0px, 0px, 0px)',
+              'transform': 'translate3d(0px, 0px, 0px)'
             });
-          }, 0);
-        }
+            $(this).removeClass('toLeftProxy');
+          } else {
+            $(this).removeClass('draggable').css({
+              'transition': 'all 150ms ease-out',
+              '-webkit-transform': 'translate3d(-67px, 0px, 0px)',
+              'transform': 'translate3d(-67px, 0px, 0px)'
+            });
+            $(this).addClass('toLeftProxy');
+            totalMove = 0;
+          }
+        });
       })
-      .on('blur', '[data-message-body]', function() {
-        // Wrapp this into a named function so that you don't need to run $('[data-message-body]').trigger('blur') elsewhere, which is not a good practice
-        _this = $(this);
-
-        if (Modernizr.ios) {
-          setTimeout(function() {
-            _this.parents('.chat-input-controls').removeClass('open');
-            _this.parents('.chat-area').removeClass('open');
-
-            // Removes binding
-            $(document).off('touchstart', '[data-message-body]');
-          }, 0);
-        }
-      })
+      .on('focus', '[data-message-body]', messageAreaOnFocus)
+      .on('blur', '[data-message-body]', messageAreaOnBlur)
       .on('keyup change', '[data-message-body]', function() {
         // change only triggers when there's a blur event, I think
         // keyup triggers only on desktops

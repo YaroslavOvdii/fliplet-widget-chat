@@ -4,13 +4,6 @@ var organizationId = Fliplet.Env.get('organizationId');
 var widgetId = Fliplet.Widget.getDefaultId();
 var allDataSources = [];
 
-// This is no longer necessary
-$(document).on('change', '.hidden-select', function(){
-  var selectedValue = $(this).val();
-  var selectedText = $(this).find("option:selected").text();
-  $(this).parents('.select-proxy-display').find('.select-value-proxy').text(selectedText);
-});
-
 var $dataSources = $('[name="dataSource"]');
 var $emailAddress = $('[name="emailAddress"]');
 var $firstName = $('[name="firstName"]');
@@ -18,6 +11,7 @@ var $lastName = $('[name="lastName"]');
 var $fullName = $('[name="fullName"]');
 var $avatar = $('[name="avatar"]');
 var $titleName = $('[name="titleName"]');
+var $userInformationFields = $('[name="emailAddress"], [name="firstName"], [name="lastName"], [name="fullName"], [name="avatar"], [name="titleName"]');
 
 // Set link action to screen by default
 if (!data.securityLinkAction) {
@@ -41,8 +35,7 @@ var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
   // Events fired from the provider
   onEvent: function (event, data) {
     if (event === 'interface-validate') {
-      // Why use data.isValid === true instead of just data.isValid or !!data.isValid?
-      Fliplet.Widget.toggleSaveButton(data.isValid === true);
+      Fliplet.Widget.toggleSaveButton(data.isValid);
     }
   }
 });
@@ -121,69 +114,47 @@ function save(notifyComplete) {
 }
 
 function getColumns(dataSourceId) {
-  // Change this if-else the other way round and avoid using else so that there's less indentation
-  if (dataSourceId && dataSourceId !== '') {
-    $('#manage-data').removeClass('hidden');
-
-    Fliplet.DataSources.getById(dataSourceId, {
-      cache: false
-    }).then(function (dataSource) {
-      // Prepare all the HTML so that the DOM is changed as little as possible. You should only need to call .html() once for each field
-      $emailAddress.html('<option value="">-- Select a field</option>');
-      $fullName.html('<option value="">-- Select a field</option>');
-      $firstName.html('<option value="">-- Select a field</option>');
-      $lastName.html('<option value="">-- Select a field</option>');
-      $avatar.html('<option value="">-- Select a field</option>');
-      $titleName.html('<option value="">-- Select a field</option>');
-
-      dataSource.columns.forEach(function (c) {
-        $emailAddress.append('<option value="' + c + '">' + c + '</option>');
-        $fullName.append('<option value="' + c + '">' + c + '</option>');
-        $firstName.append('<option value="' + c + '">' + c + '</option>');
-        $lastName.append('<option value="' + c + '">' + c + '</option>');
-        $avatar.append('<option value="' + c + '">' + c + '</option>');
-        $titleName.append('<option value="' + c + '">' + c + '</option>');
-      });
-
-      if (data.crossLoginColumnName) {
-        $emailAddress.val(data.crossLoginColumnName);
-      }
-      if (data.fullNameColumnName) {
-        $fullName.val(data.fullNameColumnName);
-      }
-      if (data.firstNameColumnName) {
-        $firstName.val(data.firstNameColumnName);
-      }
-      if (data.lastNameColumnName) {
-        $lastName.val(data.lastNameColumnName);
-      }
-      if (data.avatarColumnName) {
-        $avatar.val(data.avatarColumnName);
-      }
-      if (data.titleNameColumnName) {
-        $titleName.val(data.titleNameColumnName);
-      }
-
-      // These aren't necessary if they're only there to make sure the .select-value-proxy values are updated
-      $emailAddress.trigger('change');
-      $fullName.trigger('change');
-      $firstName.trigger('change');
-      $lastName.trigger('change');
-      $avatar.trigger('change');
-      $titleName.trigger('change');
-
-      // $.fn.prop() should be used with true and false when setting values, e.g. $fields.prop('disabled', false). See http://api.jquery.com/prop/#prop2
-      // If you create a collection like $fields = $('[name="dataSource"], [name="emailAddress"]') etc. then you can do this all in one go like $fields.prop('disabled', '');
-      $emailAddress.prop('disabled', '');
-      $fullName.prop('disabled', '');
-      $firstName.prop('disabled', '');
-      $lastName.prop('disabled', '');
-      $avatar.prop('disabled', '');
-      $titleName.prop('disabled', '');
-    });
-  } else {
+  if (!dataSourceId || dataSourceId === '') {
     $('#manage-data').addClass('hidden');
+    return;
   }
+
+  $('#manage-data').removeClass('hidden');
+
+  Fliplet.DataSources.getById(dataSourceId, {
+    cache: false
+  }).then(function (dataSource) {
+     var options = [
+      '<option value="">-- Select a field</option>'
+    ];
+
+    dataSource.columns.forEach(function (c) {
+      options.push('<option value="' + c + '">' + c + '</option>');
+    });
+
+    $userInformationFields.html(options.join(''));
+
+    if (data.crossLoginColumnName) {
+      $emailAddress.val(data.crossLoginColumnName);
+    }
+    if (data.fullNameColumnName) {
+      $fullName.val(data.fullNameColumnName);
+    }
+    if (data.firstNameColumnName) {
+      $firstName.val(data.firstNameColumnName);
+    }
+    if (data.lastNameColumnName) {
+      $lastName.val(data.lastNameColumnName);
+    }
+    if (data.avatarColumnName) {
+      $avatar.val(data.avatarColumnName);
+    }
+    if (data.titleNameColumnName) {
+      $titleName.val(data.titleNameColumnName);
+    }
+
+    $userInformationFields.prop('disabled', false);
+  });
 }
 
 function createDataSource() {

@@ -1,22 +1,10 @@
 body,
-html {
-  /* I wonder if this is necessary since we recently deployed some changes to how html, body height works */
-  height: 100%;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* This should be tested to make sure it doesn't introduce bugs to the scroll interaction */
-  overflow: hidden;
-}
-
 .fl-widget-instance[data-name="Chat"] {
-  height: 100%;
+  height: 100% !important;
 }
 
 /* Locks scroll when panel is expanded */
-
-/* What's the * for? Surely .lock would do? */
-*.lock {
+.lock {
   overflow: hidden !important;
 }
 
@@ -40,8 +28,7 @@ html {
   font-weight: 600;
   line-height: 1;
   flex: 1;
-  /* Has this been tested if body font size is changed via Appearance? */
-  margin: 0 1.4rem 0 0;
+  margin: 0 15px 0 0;
 }
 
 .chat-controls {
@@ -333,7 +320,6 @@ html {
   line-height: 1.1;
   margin-top: 4px;
   color: rgba(51, 51, 51, 0.5);
-  /* Does it look food where -webkit-line-clamp is not supported */
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
