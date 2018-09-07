@@ -1,5 +1,6 @@
 /* Handlebars Helpers */
 Handlebars.registerHelper('formatMessage', function(text) {
+  // User separate var lines ending in ; so that each line can be stepped over individually when necessary
   var breakRegExp = /(\r\n|\n|\r)/gm,
     emailRegExp = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gm,
     numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm,
@@ -106,6 +107,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var lastNameColumnName = data.lastNameColumnName;
   var avatarColumnName = data.avatarColumnName;
   var titleColumnName = data.titleColumnName;
+  // Use !!(firstNameColumnName && lastNameColumnName), which will return true and false values. There's then no need to use "? true : false".
   var multipleNameColumns = firstNameColumnName && lastNameColumnName ? true : false;
 
   var securityScreenAction = data.securityLinkAction;
@@ -115,7 +117,9 @@ Fliplet.Widget.instance('chat', function (data) {
     pushNotifications: true,
     dataSourceId: data.dataSourceId,
     crossLoginColumnName: crossLoginColumnName,
-    fullNameColumnName: fullNameColumnName ? fullNameColumnName : firstNameColumnName + ' ' + lastNameColumnName,
+    fullNameColumnName: fullNameColumnName
+      ? fullNameColumnName
+      : firstNameColumnName + ' ' + lastNameColumnName,
     avatarColumnName: avatarColumnName
   });
 
@@ -161,13 +165,16 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Prevent scrolling right when scrolling up and bit to the right
     var deltaY = e.deltaY;
+    // var deltaY = Math.abs(e.deltaY) will give you the absolute (always positive) value
     var positiveDeltaY = deltaY < 0 ? deltaY *= -1 : deltaY;
     var deltaX = e.deltaX;
+    // Use Math.abs()
     var positiveDeltaX = deltaX < 0 ? deltaX *= -1 : deltaX;
     var distanceY = e.distance - positiveDeltaY;
     var distanceX = e.distance - positiveDeltaX;
 
     if (distanceX < distanceY) {
+      // Instead of triggering an event, make sure the event is handled through a named function and call it
       $('[data-message-body]').trigger('blur');
 
       $chatOverlay.css({
@@ -186,15 +193,20 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function panChatEnd(e) {
     // Finish the transition after swipe.
+    // completeTransion() function is declared but only used once. Why not just put allt he completeTransition() function code in here?
     completeTransition(e);
   }
 
   function completeTransition(e) {
-    var animationSpeed = (e.velocityX < PAN_VELOCITY_BOUNDARY) ? ANIMATION_SPEED_SLOW : ANIMATION_SPEED_FAST;
+    var animationSpeed = (e.velocityX < PAN_VELOCITY_BOUNDARY)
+      ? ANIMATION_SPEED_SLOW
+      : ANIMATION_SPEED_FAST;
     // Prevent closing animation
     var deltaY = e.deltaY;
+    // Use Math.abs()
     var positiveDeltaY = deltaY < 0 ? deltaY *= -1 : deltaY;
     var deltaX = e.deltaX;
+    // Use Math.abs()
     var positiveDeltaX = deltaX < 0 ? deltaX *= -1 : deltaX;
     var distanceY = e.distance - positiveDeltaY;
     var distanceX = e.distance - positiveDeltaX;
@@ -211,6 +223,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return;
     }
 
+    // Reverse the if-else here and avoid indentation
     if (e.deltaX < screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
       $chatOverlay.css({
         '-webkit-transform': 'translate3d(0, 0, 0)',
@@ -255,6 +268,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openGroupParticipants() {
+    // Set all the variables before running more scripts
     $('.participants-info').html(currentConversation.name);
     var participantsIds = currentConversation.definition.participants;
     var participants = [];
@@ -280,6 +294,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function removeSelected() {
     contactsSelected = [];
+    // You should be able to use .removeClass() without the .each()
     $('.contact-card.contact-selected').each(function(idx, element) {
       $(element).removeClass('contact-selected');
     });
@@ -367,10 +382,12 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function handleContactSelection(element, selectedUserInfo, userId) {
+    // $('.show-selected-users') is used a lot in this function. Create a cached variable for it
     if (element.hasClass('contact-selected')) {
       contactsSelected.push(selectedUserInfo[0]);
 
       if (!$('.show-selected-users').hasClass('showing')) {
+        // Looks like you can .addClass() anyway withcut checking for .hasClass()
         $('.show-selected-users').addClass('showing');
       }
       var selectedContactHTML = selectedContactTemplate(selectedUserInfo[0]);
@@ -392,6 +409,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
       $('.show-selected-users').find('[data-selected-contact-id="' + selectedUserInfo[0].id + '"]').remove();
 
+      // No need to check for .hasClass()
       if (!contactsSelected.length && $('.show-selected-users').hasClass('showing')) {
         $('.show-selected-users').removeClass('showing');
       }
@@ -425,6 +443,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
       renderMessageInPlace(messageToReplace, true);
 
+      // Instead of triggering an event, make sure the event is handled through a named function and call it
       $messageArea.val('').trigger('change');
       autosize.update($messageArea);
       $parentHolder.removeClass('editing-message');
@@ -436,6 +455,7 @@ Fliplet.Widget.instance('chat', function (data) {
       setConversationLastMessage(currentConversation, conversationMessages[conversationMessages.length - 1]);
       renderConversations(currentConversation, true);
     });
+    // What happens when this fails? Make sure there's a catch to capture the error, log it and handle it via the UI
   }
 
   function deleteMessage(messageHolder) {
@@ -458,6 +478,7 @@ Fliplet.Widget.instance('chat', function (data) {
         renderConversations(currentConversation, true);
       });
     });
+    // What happens when this fails? Make sure there's a catch to capture the error, log it and handle it via the UI
   }
 
   function deleteConversation(conversationId, userToRemove, isGroup) {
@@ -487,6 +508,7 @@ Fliplet.Widget.instance('chat', function (data) {
         });
 
         // Remove conversation UI from screen
+        // I think, based on the code I can see in this file, .char-card should have data-conversation-id so that there's less traversing of the DOM to find a specific .chat-card, whcih seems to be happening a lot in this file.
         $('[data-conversation-id="' + conversationId + '"]').parents('.chat-card').remove();
 
         // Check if time group is empty, if it is, remove it
@@ -518,6 +540,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
 
     var deviceEvents;
+    // Use Modernizr.touch to decide whether to use touch or mouse events, not Fliplet.Env.is('web') because mobile browser will give you the wrong event
     var startTouchEvent = Fliplet.Env.is('web') ? 'mousedown' : 'touchstart';
     var endTouchEvent = Fliplet.Env.is('web') ? 'mouseup' : 'touchend';
 
@@ -535,12 +558,15 @@ Fliplet.Widget.instance('chat', function (data) {
         expandImage(imgElement);
       })
       .on('click', '.chat-user-info.group', function() {
+        // Since there's no direct relation to the click event, i.e. you're not using the click event object, just use a named function $.on('click', selector, funcName) and make sure the function name is appropriately named
         openGroupParticipants();
       })
       .on('click', '.group-participants-back', function() {
+        // Use a named function
         closeGroupParticipants();
       })
       .on('click', '.btn-create-group', function() {
+        // Use a named function
         var groupData = $(this).data('group');
         $('.contacts-done-holder').addClass('creating');
 
@@ -558,21 +584,27 @@ Fliplet.Widget.instance('chat', function (data) {
         createGroupConversation(groupData);
       })
       .on('click', '.start-new', function() {
+        // Use a named function
         openContacts();
       })
       .on('click', '.contacts-back', function() {
+        // Use a named function
         closeContacts();
       })
       .on('click', '.clear-selection', function() {
+        // Use a named function
         removeSelected();
       })
       .on('keyup change', '.group-name-field', function() {
+        // Use a named function
         checkGroupCanBeCreated();
       })
       .on('click', '.contacts-create-back', function() {
+        // Use a named function
         closeGroupCreationSettings();
       })
       .on('click', '.contacts-create', function() {
+        // Use a named function
         var userIds = [];
         var groupName = $('.group-name-field').val();
         $('.contacts-done-holder').addClass('creating');
@@ -595,6 +627,7 @@ Fliplet.Widget.instance('chat', function (data) {
         createConversation(userIds, false, groupName);
       })
       .on('click', '.contacts-done', function() {
+        // Use a named function
         if (!Fliplet.Navigator.isOnline()){
           options = {
             title: 'You are offline',
@@ -609,6 +642,9 @@ Fliplet.Widget.instance('chat', function (data) {
           var userIds = [];
           $('.contacts-done-holder').addClass('creating');
 
+          // You can use _.map here to create userIds in one go
+          // e.g.
+          // var userIds = _.map(contactsSelected, function (el) { return el.id; });
           contactsSelected.forEach(function(element) {
             userIds.push(element.id);
           });
@@ -624,6 +660,7 @@ Fliplet.Widget.instance('chat', function (data) {
         removeContactSelectedByIcon($(this), userId);
       })
       .on('click', '[data-conversation-id]', function(e) {
+        // e variable is not used
         if (allowClick) {
           var id = $(this).data('conversation-id');
           var conversation = _.find(conversations, { id: id });
@@ -634,6 +671,7 @@ Fliplet.Widget.instance('chat', function (data) {
         }
       })
       .on('click', '.contacts-user-list .contact-card', function(e) {
+        // e variable is not used
         var userId = $(this).data('contact-id');
         var selectedUserInfo = _.filter(otherPeople, function(o) { return o.id === userId; });
 
@@ -675,6 +713,7 @@ Fliplet.Widget.instance('chat', function (data) {
         }, 100);
       })
       .on('touchmove', '.contact-card', function(e) {
+        // e variable is not used
         allowClick = false;
         $(this).removeClass('hover');
       })
@@ -685,12 +724,14 @@ Fliplet.Widget.instance('chat', function (data) {
         var touchX = e.originalEvent.touches[0].clientX,
             totalMove = touchX - _thisStartX;
 
+        // Use if (totalMove >= 0) { return; } to avoid indentation
         if (totalMove < 0) {
           $(this).css({
             'transition': 'none',
             '-webkit-transform': 'translate3d(' + totalMove + 'px, 0px, 0px)',
             'transform': 'translate3d(' + totalMove + 'px, 0px, 0px)'
           }).on('touchend', function() {
+            // A touchend event handler is added for evert touchmove event triggered. This doesn't look very good.
             if (totalMove > -66) {
               $(this).removeClass('draggable').css({
                 'transition': 'all 150ms ease-out',
@@ -711,6 +752,7 @@ Fliplet.Widget.instance('chat', function (data) {
         }
       })
       .on('focus', '[data-message-body]', function() {
+        // If the handler for .on('blur', '[data-message-body] is going to be wrapped into a named function (see below), the handler for the 'focus' event shoudl probably be wrapped into a named function as well
         _this = $(this);
 
         if (Modernizr.ios) {
@@ -742,6 +784,7 @@ Fliplet.Widget.instance('chat', function (data) {
         }
       })
       .on('blur', '[data-message-body]', function() {
+        // Wrapp this into a named function so that you don't need to run $('[data-message-body]').trigger('blur') elsewhere, which is not a good practice
         _this = $(this);
 
         if (Modernizr.ios) {
@@ -755,6 +798,9 @@ Fliplet.Widget.instance('chat', function (data) {
         }
       })
       .on('keyup change', '[data-message-body]', function() {
+        // change only triggers when there's a blur event, I think
+        // keyup triggers only on desktops
+        // ^^^ the two trigger timings are inconsistent, and how about for touch devices? I think "input" is a good event to listen to as well. Maybe this captures it for all device types?
         var value = $(this).val();
 
         if (value.length) {
@@ -790,7 +836,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
         $(this).parents('.chat').addClass('editing');
         $('.chat.tapped').removeClass('tapped');
-        $messageArea.val(textToEdit).trigger('change');
+        $messageArea.val(textToEdit).trigger('change'); // Instead of triggering a 'change' handler, make sure the event is handled through a named function and call it directly
         autosize.update($messageArea);
         $('.chat-input-controls').addClass('editing-message');
         $messageArea.focus();
@@ -851,6 +897,7 @@ Fliplet.Widget.instance('chat', function (data) {
         $holder.addClass('sending');
 
         if (Modernizr.ios) {
+          // Instead of triggering an event, make sure the event is handled through a named function and call it
           $messageArea.trigger('touchstart');
         } else {
           $messageArea.focus();
@@ -983,6 +1030,7 @@ Fliplet.Widget.instance('chat', function (data) {
           loadMoreReqPromise = undefined;
           return Promise.resolve();
         });
+        // What happens if the promise fails?
       }
       iScrollPos = iCurScrollPos;
     });
@@ -1270,7 +1318,9 @@ Fliplet.Widget.instance('chat', function (data) {
     sortContacts(otherPeople);
 
     // Check if there are selected contacts
+    // if no-length, return
     if (contactsSelected.length) {
+      // Create an array of selectors, join it using ',' and then use a single $() selection to .addClass()
       contactsSelected.forEach(function(contact) {
         $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
       });
@@ -1544,6 +1594,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function createConversation(userIds, isBroadcast, groupName) {
     isBroadcast = isBroadcast || false;
 
+    // You can use _.map for this
     userIds.forEach(function(userId, idx) {
       userIds[idx] = parseInt(userId, 10);
     });
@@ -1571,6 +1622,7 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     }).catch(function(err) {
       $('.contacts-done-holder').removeClass('creating');
+      // Try using Fliplet.parseError() to parse errors that are to be shown to users
       $wrapper.find('h4').text(err.message || err.description || err);
       if (err.indexOf('Participant not found') !== -1) {
         $wrapper.find('p').html('This most likely means you are trying to chat with a user belonging to a different data source from the chat users list.');
@@ -1750,6 +1802,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
       return Promise.resolve(previousMessages);
     });
+    // What happens if the promise fails?
   }
 
   function checkConversationStatus(conversation) {
