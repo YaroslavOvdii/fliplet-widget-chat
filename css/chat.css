@@ -28,7 +28,7 @@ html.native body,
   z-index: 8;
 }
 
-.fl-with-bottom-menu .top-header {
+.fl-with-top-menu .top-header {
   top: 44px;
 }
 
