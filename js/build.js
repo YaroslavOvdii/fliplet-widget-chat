@@ -224,6 +224,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openConversation(conversationId) {
+    // Does it matter whether .open is added first or the CSS gets applied first? If .open need to ideally be applied first, then this executes it in the wrong order. If not, then it's best to place the setTimeout at the end of function.
     setTimeout(function() {
       $('[data-conversation-id="'+ conversationId +'"]').addClass('open');
     }, 1);
@@ -1150,7 +1151,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function previewFile(file) {
-    var reader  = new FileReader();
+    var reader = new FileReader();
 
     reader.addEventListener("load", function () {
       var base64gif = reader.result;
@@ -1682,7 +1683,10 @@ Fliplet.Widget.instance('chat', function (data) {
         var conversationName = _.compact(_.filter(otherPeople, function(c) {
           return allParticipants.indexOf(c.data.flUserId) !== -1;
         }).map(function(c) {
-          return multipleNameColumns ? c.data[firstNameColumnName] + ' ' + c.data[lastNameColumnName] : c.data[fullNameColumnName];
+          // Separate ? and : lines (and indent them) so they are easier to read and form shorter lines
+          return multipleNameColumns
+            ? c.data[firstNameColumnName] + ' ' + c.data[lastNameColumnName]
+            : c.data[fullNameColumnName];
         })).join(', ').trim();
 
         var friend = _.find(otherPeople, function(p) {
@@ -1786,12 +1790,11 @@ Fliplet.Widget.instance('chat', function (data) {
   function viewConversation(conversation) {
     openConversation(conversation.id);
 
-    if (
-      conversation &&
-      conversation.definition &&
-      conversation.definition.group &&
-      conversation.definition.group.readOnly
-    ) {
+    // This is the preferred format for multiline logic expressions
+    if (conversation
+      && conversation.definition
+      && conversation.definition.group
+      && conversation.definition.group.readOnly) {
       if (currentUser && currentUser.isAdmin && currentUser.isAdmin !== null) {
         $('.chat-area').removeClass('broadcasting');
       } else {
@@ -1886,7 +1889,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var sender = findContact(message.data.fromUserId);
     var fetchContactsIfRequired = sender ? Promise.resolve() : getContacts(false);
     var imgContainerWidth = 'auto';
-    var imgContainerHeight  = 'auto';
+    var imgContainerHeight = 'auto';
 
     fetchContactsIfRequired.then(function() {
       sender = findContact(message.data.fromUserId);
@@ -1908,7 +1911,9 @@ Fliplet.Widget.instance('chat', function (data) {
         id: message.id,
         isFromGroup: message.fromGroup,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        name: multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[fullNameColumnName],
+        name: multipleNameColumns
+          ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName]
+          : sender.data[fullNameColumnName],
         avatar: sender.data[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
@@ -1950,7 +1955,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var sender = findContact(message.data.fromUserId);
     var fetchContactsIfRequired = sender ? Promise.resolve() : getContacts(false);
     var imgContainerWidth = 'auto';
-    var imgContainerHeight  = 'auto';
+    var imgContainerHeight = 'auto';
 
     fetchContactsIfRequired.then(function() {
       sender = findContact(message.data.fromUserId);
@@ -2013,7 +2018,7 @@ Fliplet.Widget.instance('chat', function (data) {
     // Make the image container the same size of the thumb image
     // Prevents the chat bubbles from expanding while loading the image
     var imgContainerWidth = 'auto';
-    var imgContainerHeight  = 'auto';
+    var imgContainerHeight = 'auto';
     if (message.file && message.file.length) {
       var maxWidth = 200;
       var reducedHeight = Math.ceil((message.imageHeight / message.imageWidth) * maxWidth);
@@ -2173,6 +2178,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
       // Log in using authentication from a different component
       return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function(email) {
+        // You can stop at return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY); with a semi-colo so that this .then() function doesn't need to be indented. It can just get chained up.
         if (email) {
           var where = {};
           where[crossLoginColumnName] = { $iLike: email };
