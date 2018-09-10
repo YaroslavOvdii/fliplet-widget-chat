@@ -2172,15 +2172,20 @@ Fliplet.Widget.instance('chat', function (data) {
       // Log in using authentication from a different component
       return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY);
     })
-    .then(function(email) {
+    .then(function(authId) {
       var where = {};
 
-      if (!email) {
+      if (!authId) {
         Fliplet.Navigate.to(securityScreenAction);
         return Promise.reject('User is not logged in');
       }
 
-      where[crossLoginColumnName] = { $iLike: email };
+      if (authId.hasOwnProperty('flUserToken')) {
+        where = authId // Use 'User Token'
+      } else {
+        where[crossLoginColumnName] = { $iLike: authId }; // Use 'Email'
+      }
+      
       return Promise.resolve(where);
     });
   }).then(function onLocalLoginAvailable(loginQuery) {
