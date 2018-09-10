@@ -533,15 +533,28 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function onMessageAreaBlur() {
-    if (Modernizr.ios) {
-      setTimeout(function() {
-        $messageArea.parents('.chat-input-controls').removeClass('open');
-        $messageArea.parents('.chat-area').removeClass('open');
-
-        // Removes binding
-        $(document).off('touchstart', '[data-message-body]');
-      }, 0);
+    if (!Modernizr.ios) {
+      return;
     }
+  
+    setTimeout(function() {
+      $messageArea.parents('.chat-input-controls').removeClass('open');
+      $messageArea.parents('.chat-area').removeClass('open');
+
+      // Removes binding
+      $(document).off('touchstart', '[data-message-body]');
+    }, 0);
+  }
+
+  function messageAreaFocus() {
+    if (!Modernizr.ios) {
+      $messageArea.focus();
+      return;
+    }    
+  
+    // For iOS we need to trigger the touchstart event for the .focus() to register
+    // It's not ideal but required
+    $messageArea.trigger('touchstart');
   }
 
   function onMessageAreaTouchStart() {
@@ -549,31 +562,33 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function onMessageAreaFocus() {
-    if (Modernizr.ios) {
-      // Fixes chat area height on iOS
-      // @TODO: Test other keyboards
-      // Still buggy
-      // $('.chat-area').animate({
-      //   'bottom': 0
-      // }, {
-      //   progress: function() {
-      //     $(this).css({
-      //       'bottom': document.body.scrollTop
-      //     });
-      //   },
-      //   complete: function() {
-      //     document.body.scrollTop = 0;
-      //   }
-      // });
-
-      setTimeout(function() {
-        $messageArea.parents('.chat-input-controls').addClass('open');
-        $messageArea.parents('.chat-area').addClass('open');
-
-        // Adds binding
-        $(document).on('touchstart', '[data-message-body]', onMessageAreaTouchStart);
-      }, 0);
+    if (!Modernizr.ios) {
+      return;
     }
+
+    // Fixes chat area height on iOS
+    // @TODO: Test other keyboards
+    // Still buggy
+    // $('.chat-area').animate({
+    //   'bottom': 0
+    // }, {
+    //   progress: function() {
+    //     $(this).css({
+    //       'bottom': document.body.scrollTop
+    //     });
+    //   },
+    //   complete: function() {
+    //     document.body.scrollTop = 0;
+    //   }
+    // });
+
+    setTimeout(function() {
+      $messageArea.parents('.chat-input-controls').addClass('open');
+      $messageArea.parents('.chat-area').addClass('open');
+
+      // Adds binding
+      $(document).on('touchstart', '[data-message-body]', onMessageAreaTouchStart);
+    }, 0);
   }
 
   function onMessageAreaInput() {
@@ -809,7 +824,7 @@ Fliplet.Widget.instance('chat', function (data) {
         onMessageAreaInput();
         autosize.update($messageArea);
         $('.chat-input-controls').addClass('editing-message');
-        $messageArea.focus();
+        messageAreaFocus();
       })
       .on('click', '.cancel-editing-button', function() {
         $messageArea.val('');
@@ -864,13 +879,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
         $holder.addClass('sending');
 
-        if (Modernizr.ios) {
-          // For iOS we need to trigger the touchstart event for the .focus() to register
-          // It's not ideal but required
-          $messageArea.trigger('touchstart');
-        } else {
-          $messageArea.focus();
-        }
+        messageAreaFocus();
 
         getFileData().then(function(files) {
           if (!$.trim(text).length && (typeof files === 'undefined' || files === '')) {
