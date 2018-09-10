@@ -277,6 +277,7 @@ html.native body,
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
   overflow: hidden;
+  background-color: transparent;
 }
 
 .contact-card .profile-image-holder {
