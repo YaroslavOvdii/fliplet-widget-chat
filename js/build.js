@@ -47,6 +47,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $groupCreationOverlay = $('.group-name-holder');
   var $list = $('.chat-list');
   var $messagesHolder = $('.chat-messages-holder');
+  var $messageArea = $('[data-message-body]');
   var $participantsList = $('.group-participants-list');
   var $messages;
   var $conversationsList = $wrapper.find('.chat-list');
@@ -225,7 +226,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function openConversation(conversationId) {
     setTimeout(function() {
-      $('[data-conversation-id="'+ conversationId +'"]').addClass('open');
+      $('.chat-card-holder[data-conversation-id="'+ conversationId +'"]').addClass('open');
     }, 1);
 
     $chatOverlay.css({
@@ -252,7 +253,7 @@ Fliplet.Widget.instance('chat', function (data) {
     $wrapper.addClass('in-create-group');
   }
 
-  function openGroupParticipants() {
+  function openGroupParticipantsPanel() {
     var participantsIds = currentConversation.definition.participants;
     var participants = [];
     var participants = _.filter(contacts, function(contact) {
@@ -265,7 +266,7 @@ Fliplet.Widget.instance('chat', function (data) {
     $wrapper.addClass('in-group-info');
   }
 
-  function closeGroupParticipants() {
+  function closeGroupParticipantsPanel() {
     $wrapper.removeClass('in-group-info');
   }
 
@@ -396,7 +397,6 @@ Fliplet.Widget.instance('chat', function (data) {
   function updateMessage(button) {
     var $parentHolder = button.parents('.chat-input-controls');
     var $holder = button.parents('.input-second-row');
-    var $messageArea = $('[data-message-body]');
     var text = $messageArea.val();
     var messageToReplace;
 
@@ -418,8 +418,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
       renderMessageInPlace(messageToReplace, true);
 
-      // Instead of triggering an event, make sure the event is handled through a named function and call it
-      $messageArea.val('').trigger('change');
+      $messageArea.val('');
+      messageAreaOnInput();
       autosize.update($messageArea);
       $parentHolder.removeClass('editing-message');
       $holder.removeClass('sending');
@@ -429,8 +429,13 @@ Fliplet.Widget.instance('chat', function (data) {
       var conversationMessages = _.filter(messages, { dataSourceId: currentConversation.id });
       setConversationLastMessage(currentConversation, conversationMessages[conversationMessages.length - 1]);
       renderConversations(currentConversation, true);
+    })
+    .catch(function(error) {
+      $parentHolder.removeClass('editing-message');
+      $holder.removeClass('sending');
+
+      Fliplet.UI.Toast(Fliplet.parseError(error) || 'Error updating the message. Please try again.');
     });
-    // What happens when this fails? Make sure there's a catch to capture the error, log it and handle it via the UI
   }
 
   function deleteMessage(messageHolder) {
@@ -452,8 +457,10 @@ Fliplet.Widget.instance('chat', function (data) {
         setConversationLastMessage(currentConversation, conversationMessages[conversationMessages.length - 1]);
         renderConversations(currentConversation, true);
       });
+    })
+    .catch(function(error) {
+      Fliplet.UI.Toast(Fliplet.parseError(error) || 'Error deleting the message. Please try again.');
     });
-    // What happens when this fails? Make sure there's a catch to capture the error, log it and handle it via the UI
   }
 
   function deleteConversation(conversationId, userToRemove, isGroup) {
@@ -483,8 +490,7 @@ Fliplet.Widget.instance('chat', function (data) {
         });
 
         // Remove conversation UI from screen
-        // I think, based on the code I can see in this file, .char-card should have data-conversation-id so that there's less traversing of the DOM to find a specific .chat-card, whcih seems to be happening a lot in this file.
-        $('[data-conversation-id="' + conversationId + '"]').parents('.chat-card').remove();
+        $('.chat-card[data-conversation-id="' + conversationId + '"]').remove();
 
         // Check if time group is empty, if it is, remove it
         $('.chat-group-holder').each(function() {
@@ -503,8 +509,8 @@ Fliplet.Widget.instance('chat', function (data) {
   function messageAreaOnBlur() {
     if (Modernizr.ios) {
       setTimeout(function() {
-        $('[data-message-body]').parents('.chat-input-controls').removeClass('open');
-        $('[data-message-body]').parents('.chat-area').removeClass('open');
+        $messageArea.parents('.chat-input-controls').removeClass('open');
+        $messageArea.parents('.chat-area').removeClass('open');
 
         // Removes binding
         $(document).off('touchstart', '[data-message-body]');
@@ -531,8 +537,8 @@ Fliplet.Widget.instance('chat', function (data) {
       // });
 
       setTimeout(function() {
-        $('[data-message-body]').parents('.chat-input-controls').addClass('open');
-        $('[data-message-body]').parents('.chat-area').addClass('open');
+        $messageArea.parents('.chat-input-controls').addClass('open');
+        $messageArea.parents('.chat-area').addClass('open');
 
         // Adds binding
         $(document).on('touchstart', '[data-message-body]', function() {
@@ -542,8 +548,78 @@ Fliplet.Widget.instance('chat', function (data) {
     }
   }
 
+  function messageAreaOnInput() {
+    var value = $messageArea.val();
+
+    if (value.length) {
+      $messageArea.parents('.chat-input-controls').addClass('ready');
+    } else {
+      $messageArea.parents('.chat-input-controls').removeClass('ready');
+    }
+  }
+
+  function createChatPresetGroup() {
+    var groupData = $(this).data('group');
+    $('.contacts-done-holder').addClass('creating');
+
+    if (!Fliplet.Navigator.isOnline()){
+      options = {
+        title: 'You are offline',
+        message: 'An internet connection is necessary to create a conversation or group.'
+      };
+
+      Fliplet.Navigate.popup(options);
+      $('.contacts-done-holder').removeClass('creating');
+      return;
+    }
+
+    createGroupConversation(groupData);
+  }
+
+  function createNewChatGroup() {
+    var groupName = $('.group-name-field').val();
+    var userIds = _.map(contactsSelected, function (el) { return el.id; });
+    $('.contacts-done-holder').addClass('creating');
+
+    if (!Fliplet.Navigator.isOnline()){
+      options = {
+        title: 'You are offline',
+        message: 'An internet connection is necessary to create a conversation or group.'
+      };
+
+      Fliplet.Navigate.popup(options);
+      $('.contacts-done-holder').removeClass('creating');
+      return;
+    }
+
+    createConversation(userIds, false, groupName);
+  }
+
+  function createNewChatGroupSettings() {
+    if (!Fliplet.Navigator.isOnline()){
+      options = {
+        title: 'You are offline',
+        message: 'An internet connection is necessary to create a conversation or group.'
+      };
+
+      Fliplet.Navigate.popup(options);
+      return;
+    }
+
+    // If only one user is selected, create direct conversation
+    if (contactsSelected.length === 1) {
+      $('.contacts-done-holder').addClass('creating');
+      var userIds = _.map(contactsSelected, function (el) { return el.id; });
+      createConversation(userIds);
+      return;
+    }
+
+    openGroupCreationSettings();
+  }
+
   function attacheEventListeners() {
     var _thisStartX;
+    var totalMove;
 
     $(window).blur(function() { isActiveWindow = false; });
     $(window).focus(function() { isActiveWindow = true; });
@@ -557,9 +633,8 @@ Fliplet.Widget.instance('chat', function (data) {
     });
 
     var deviceEvents;
-    // Use Modernizr.touch to decide whether to use touch or mouse events, not Fliplet.Env.is('web') because mobile browser will give you the wrong event
-    var startTouchEvent = Fliplet.Env.is('web') ? 'mousedown' : 'touchstart';
-    var endTouchEvent = Fliplet.Env.is('web') ? 'mouseup' : 'touchend';
+    var startTouchEvent = Modernizr.touchevents ? 'touchstart' : 'mousedown';
+    var endTouchEvent = Modernizr.touchevents ? 'touchend' : 'mouseup';
 
     $(document)
       .on('click', '.chat-image', function(e) {
@@ -574,110 +649,21 @@ Fliplet.Widget.instance('chat', function (data) {
         var imgElement = $(this).find('img');
         expandImage(imgElement);
       })
-      .on('click', '.chat-user-info.group', function() {
-        // Since there's no direct relation to the click event, i.e. you're not using the click event object, just use a named function $.on('click', selector, funcName) and make sure the function name is appropriately named
-        openGroupParticipants();
-      })
-      .on('click', '.group-participants-back', function() {
-        // Use a named function
-        closeGroupParticipants();
-      })
-      .on('click', '.btn-create-group', function() {
-        // Use a named function
-        var groupData = $(this).data('group');
-        $('.contacts-done-holder').addClass('creating');
-
-        if (!Fliplet.Navigator.isOnline()){
-          options = {
-            title: 'You are offline',
-            message: 'An internet connection is necessary to create a conversation or group.'
-          };
-
-          Fliplet.Navigate.popup(options);
-          $('.contacts-done-holder').removeClass('creating');
-          return;
-        }
-
-        createGroupConversation(groupData);
-      })
-      .on('click', '.start-new', function() {
-        // Use a named function
-        openContacts();
-      })
-      .on('click', '.contacts-back', function() {
-        // Use a named function
-        closeContacts();
-      })
-      .on('click', '.clear-selection', function() {
-        // Use a named function
-        removeSelected();
-      })
-      .on('keyup change', '.group-name-field', function() {
-        // Use a named function
-        checkGroupCanBeCreated();
-      })
-      .on('click', '.contacts-create-back', function() {
-        // Use a named function
-        closeGroupCreationSettings();
-      })
-      .on('click', '.contacts-create', function() {
-        // Use a named function
-        var userIds = [];
-        var groupName = $('.group-name-field').val();
-        $('.contacts-done-holder').addClass('creating');
-
-        if (!Fliplet.Navigator.isOnline()){
-          options = {
-            title: 'You are offline',
-            message: 'An internet connection is necessary to create a conversation or group.'
-          };
-
-          Fliplet.Navigate.popup(options);
-          $('.contacts-done-holder').removeClass('creating');
-          return;
-        }
-
-        contactsSelected.forEach(function(element) {
-          userIds.push(element.id);
-        });
-
-        createConversation(userIds, false, groupName);
-      })
-      .on('click', '.contacts-done', function() {
-        // Use a named function
-        if (!Fliplet.Navigator.isOnline()){
-          options = {
-            title: 'You are offline',
-            message: 'An internet connection is necessary to create a conversation or group.'
-          };
-
-          Fliplet.Navigate.popup(options);
-          return;
-        }
-
-        if (contactsSelected.length === 1) {
-          var userIds = [];
-          $('.contacts-done-holder').addClass('creating');
-
-          // You can use _.map here to create userIds in one go
-          // e.g.
-          // var userIds = _.map(contactsSelected, function (el) { return el.id; });
-          contactsSelected.forEach(function(element) {
-            userIds.push(element.id);
-          });
-
-          createConversation(userIds);
-          return;
-        }
-
-        openGroupCreationSettings();
-      })
+      .on('click', '.chat-user-info.group', openGroupParticipantsPanel)
+      .on('click', '.group-participants-back', closeGroupParticipantsPanel)
+      .on('click', '.btn-create-group', createChatPresetGroup)
+      .on('click', '.start-new', openContacts)
+      .on('click', '.contacts-back', closeContacts)
+      .on('click', '.clear-selection', removeSelected)
+      .on('input', '.group-name-field', checkGroupCanBeCreated)
+      .on('click', '.contacts-create-back', closeGroupCreationSettings)
+      .on('click', '.contacts-create', createNewChatGroup)
+      .on('click', '.contacts-done', createNewChatGroupSettings)
       .on('click', '.contact-image-holder .fa-times', function() {
         var userId = $(this).parents('.contact-image-holder').data('selected-contact-id');
         removeContactSelectedByIcon($(this), userId);
       })
-      .on('click', '[data-conversation-id]', function(e) {
-        // e variable is not used
+      .on('click', '.chat-card-holder[data-conversation-id]', function() {
         if (allowClick) {
           var id = $(this).data('conversation-id');
           var conversation = _.find(conversations, { id: id });
@@ -687,8 +673,7 @@ Fliplet.Widget.instance('chat', function (data) {
           viewConversation(conversation);
         }
       })
-      .on('click', '.contacts-user-list .contact-card', function(e) {
-        // e variable is not used
+      .on('click', '.contacts-user-list .contact-card', function() {
         var userId = $(this).data('contact-id');
         var selectedUserInfo = _.filter(otherPeople, function(o) { return o.id === userId; });
 
@@ -707,9 +692,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
         deleteConversation(conversationId, currentUserAllData, isGroup);
       })
-      .on('click', '.chat-back', function() {
-        closeConversation($(this));
-      })
+      .on('click', '.chat-back', closeConversation)
       .on('touchstart', '.contact-card', function(event) {
         event.stopPropagation();
         $(this).addClass('hover');
@@ -729,17 +712,16 @@ Fliplet.Widget.instance('chat', function (data) {
           allowClick = true;
         }, 100);
       })
-      .on('touchmove', '.contact-card', function(e) {
-        // e variable is not used
+      .on('touchmove', '.contact-card', function() {
         allowClick = false;
         $(this).removeClass('hover');
       })
-      .on('touchmove', '.chat-card-holder', function(e) {
+      .on('touchmove', '.chat-card-holder', function() {
         allowClick = false;
         $(this).removeClass('hover');
 
-        var touchX = e.originalEvent.touches[0].clientX,
-            totalMove = touchX - _thisStartX;
+        var touchX = e.originalEvent.touches[0].clientX;
+        totalMove = touchX - _thisStartX;
 
         if (totalMove >= 0) { return; }
 
@@ -747,40 +729,30 @@ Fliplet.Widget.instance('chat', function (data) {
           'transition': 'none',
           '-webkit-transform': 'translate3d(' + totalMove + 'px, 0px, 0px)',
           'transform': 'translate3d(' + totalMove + 'px, 0px, 0px)'
-        }).on('touchend', function() {
-          // A touchend event handler is added for evert touchmove event triggered. This doesn't look very good.
-          if (totalMove > -66) {
-            $(this).removeClass('draggable').css({
-              'transition': 'all 150ms ease-out',
-              '-webkit-transform': 'translate3d(0px, 0px, 0px)',
-              'transform': 'translate3d(0px, 0px, 0px)'
-            });
-            $(this).removeClass('toLeftProxy');
-          } else {
-            $(this).removeClass('draggable').css({
-              'transition': 'all 150ms ease-out',
-              '-webkit-transform': 'translate3d(-67px, 0px, 0px)',
-              'transform': 'translate3d(-67px, 0px, 0px)'
-            });
-            $(this).addClass('toLeftProxy');
-            totalMove = 0;
-          }
         });
+      })
+      .on('touchend', '.chat-card-holder', function() {
+        // A touchend event handler is added for evert touchmove event triggered. This doesn't look very good.
+        if (totalMove > -66) {
+          $(this).removeClass('draggable').css({
+            'transition': 'all 150ms ease-out',
+            '-webkit-transform': 'translate3d(0px, 0px, 0px)',
+            'transform': 'translate3d(0px, 0px, 0px)'
+          });
+          $(this).removeClass('toLeftProxy');
+        } else {
+          $(this).removeClass('draggable').css({
+            'transition': 'all 150ms ease-out',
+            '-webkit-transform': 'translate3d(-67px, 0px, 0px)',
+            'transform': 'translate3d(-67px, 0px, 0px)'
+          });
+          $(this).addClass('toLeftProxy');
+          totalMove = 0;
+        }
       })
       .on('focus', '[data-message-body]', messageAreaOnFocus)
       .on('blur', '[data-message-body]', messageAreaOnBlur)
-      .on('keyup change', '[data-message-body]', function() {
-        // change only triggers when there's a blur event, I think
-        // keyup triggers only on desktops
-        // ^^^ the two trigger timings are inconsistent, and how about for touch devices? I think "input" is a good event to listen to as well. Maybe this captures it for all device types?
-        var value = $(this).val();
-
-        if (value.length) {
-          $(this).parents('.chat-input-controls').addClass('ready');
-        } else {
-          $(this).parents('.chat-input-controls').removeClass('ready');
-        }
-      })
+      .on('input', '[data-message-body]', messageAreaOnInput)
       .on('click', '[refresh-chat]', function() {
         location.reload();
       })
@@ -803,18 +775,17 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.edit-message', function() {
         messageToEdit = $(this).parents('.chat').data('message-id');
-        var $messageArea = $('[data-message-body]');
         var textToEdit = $(this).parents('.chat').find('.chat-text').text().trim();
 
         $(this).parents('.chat').addClass('editing');
         $('.chat.tapped').removeClass('tapped');
-        $messageArea.val(textToEdit).trigger('change'); // Instead of triggering a 'change' handler, make sure the event is handled through a named function and call it directly
+        $messageArea.val(textToEdit);
+        messageAreaOnInput();
         autosize.update($messageArea);
         $('.chat-input-controls').addClass('editing-message');
         $messageArea.focus();
       })
       .on('click', '.cancel-editing-button', function() {
-        var $messageArea = $('[data-message-body]');
         $messageArea.val('');
         autosize.update($messageArea);
         $('.chat').removeClass('editing');
@@ -862,7 +833,6 @@ Fliplet.Widget.instance('chat', function (data) {
         var _this = $(this);
         var $parentHolder = $(this).parents('.chat-input-controls');
         var $holder = $(this).parents('.input-second-row');
-        var $messageArea = $('[data-message-body]');
         var text = $messageArea.val();
         var files;
 
@@ -1290,13 +1260,12 @@ Fliplet.Widget.instance('chat', function (data) {
     sortContacts(otherPeople);
 
     // Check if there are selected contacts
-    // if no-length, return
-    if (contactsSelected.length) {
-      // Create an array of selectors, join it using ',' and then use a single $() selection to .addClass()
-      contactsSelected.forEach(function(contact) {
-        $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
-      });
-    }
+    if (!contactsSelected.length) { return; }
+
+    // Create an array of selectors, join it using ',' and then use a single $() selection to .addClass()
+    contactsSelected.forEach(function(contact) {
+      $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
+    });
   }
 
   /* CHAT FEATURE FUNCTIONS */
@@ -1566,7 +1535,6 @@ Fliplet.Widget.instance('chat', function (data) {
   function createConversation(userIds, isBroadcast, groupName) {
     isBroadcast = isBroadcast || false;
 
-    // You can use _.map for this
     userIds.forEach(function(userId, idx) {
       userIds[idx] = parseInt(userId, 10);
     });
@@ -1592,11 +1560,10 @@ Fliplet.Widget.instance('chat', function (data) {
         $messagesHolder.html('');
         viewConversation(newConversation);
       });
-    }).catch(function(err) {
+    }).catch(function(error) {
       $('.contacts-done-holder').removeClass('creating');
-      // Try using Fliplet.parseError() to parse errors that are to be shown to users
-      $wrapper.find('h4').text(err.message || err.description || err);
-      if (err.indexOf('Participant not found') !== -1) {
+      $wrapper.find('h4').text(Fliplet.parseError(error) || 'Error creating conversation');
+      if (error.indexOf('Participant not found') !== -1) {
         $wrapper.find('p').html('This most likely means you are trying to chat with a user belonging to a different data source from the chat users list.');
       }
     });
@@ -1722,14 +1689,14 @@ Fliplet.Widget.instance('chat', function (data) {
     var conversationHTML = conversationTemplate(data);
 
     if (replace === true) {
-      return $('[data-conversation-id="' + data.id + '"]').parents('.chat-card').replaceWith(conversationHTML);
+      return $('.chat-card[data-conversation-id="' + data.id + '"]').replaceWith(conversationHTML);
     }
 
     $conversationsList.append(conversationGroupsHTML);
   }
 
   function moveConversationToTop(conversation) {
-    var $el = $('[data-conversation-id="' + conversation.id + '"]').parents('.chat-card');
+    var $el = $('.chat-card[data-conversation-id="' + conversation.id + '"]');
 
     $('.chat-group-holder').first().prepend($el);
   }
@@ -1773,8 +1740,9 @@ Fliplet.Widget.instance('chat', function (data) {
       }
 
       return Promise.resolve(previousMessages);
+    }).catch(function(error) {
+      console.warn(error);
     });
-    // What happens if the promise fails?
   }
 
   function checkConversationStatus(conversation) {
