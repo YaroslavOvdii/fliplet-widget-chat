@@ -432,7 +432,22 @@ Fliplet.Widget.instance('chat', function (data) {
       $parentHolder.removeClass('editing-message');
       $holder.removeClass('sending');
 
-      Fliplet.UI.Toast(Fliplet.parseError(error) || 'Error updating the message. Please try again.');
+      var actions = [];
+      var details = Fliplet.parseError(error);
+      if (details) {
+        actions.push({
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              message: details
+            });
+          }
+        });
+      }
+      Fliplet.UI.Toast({
+        message: 'Error updating the message. Please try again.',
+        actions: actions
+      });
     });
   }
 
@@ -457,7 +472,22 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     })
     .catch(function(error) {
-      Fliplet.UI.Toast(Fliplet.parseError(error) || 'Error deleting the message. Please try again.');
+      var actions = [];
+      var details = Fliplet.parseError(error);
+      if (details) {
+        actions.push({
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              message: details
+            });
+          }
+        });
+      }
+      Fliplet.UI.Toast({
+        message: 'Error deleting the message. Please try again.',
+        actions: actions
+      });
     });
   }
 
