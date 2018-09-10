@@ -1,6 +1,6 @@
 {
   "name": "Chat",
-  "package": "com.fliplet.chat",
+  "package": "com.fliplet.chat-test",
   "version": "2.0.0",
   "icon": "img/icon.png",
   "tags": ["category:general"],
