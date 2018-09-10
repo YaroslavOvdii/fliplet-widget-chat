@@ -160,21 +160,21 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function panChat(e) {
     listOffset = listOffset || $list.offset().left;
-    var position = listOffset + (e.deltaX / 4);
 
     // Prevent scrolling right when scrolling up and bit to the right
-    var deltaY = Math.abs(e.deltaY);
-    var deltaX = Math.abs(e.deltaX);
-    var distanceY = e.distance - deltaY;
-    var distanceX = e.distance - deltaX;
+    var deltaY = e.deltaY;
+    var deltaX = e.deltaX;
+    var distanceY = e.distance - Math.abs(deltaY);
+    var distanceX = e.distance - Math.abs(deltaX);
+    var position = listOffset + (deltaX / 4);
 
     if (distanceX < distanceY) {
       messageAreaOnBlur();
 
       $chatOverlay.css({
         'transition': 'none',
-        '-webkit-transform': 'translate3d(' + Math.max(e.deltaX, 0) + 'px, 0, 0)',
-        'transform': 'translate3d(' + Math.max(e.deltaX, 0) + 'px, 0, 0)'
+        '-webkit-transform': 'translate3d(' + Math.max(deltaX, 0) + 'px, 0, 0)',
+        'transform': 'translate3d(' + Math.max(deltaX, 0) + 'px, 0, 0)'
       });
 
       $list.css({
@@ -186,14 +186,15 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function panChatEnd(e) {
-    var animationSpeed = (e.velocityX < PAN_VELOCITY_BOUNDARY)
+    // Prevent closing animation
+    var deltaY = e.deltaY;
+    var deltaX = e.deltaX;
+    var distanceY = e.distance - Math.abs(deltaY);
+    var distanceX = e.distance - Math.abs(deltaX);
+    var velocityX = e.velocityX;
+    var animationSpeed = (velocityX < PAN_VELOCITY_BOUNDARY)
       ? ANIMATION_SPEED_SLOW
       : ANIMATION_SPEED_FAST;
-    // Prevent closing animation
-    var deltaY = Math.abs(e.deltaY);
-    var deltaX = Math.abs(e.deltaX);
-    var distanceY = e.distance - deltaY;
-    var distanceX = e.distance - deltaX;
 
     $chatOverlay.css({
       'transition': 'all ' + animationSpeed + 'ms ease-out'
@@ -202,13 +203,13 @@ Fliplet.Widget.instance('chat', function (data) {
       'transition': 'all ' + animationSpeed + 'ms ease-out'
     });
 
-    if (e.velocityX > PAN_VELOCITY_BOUNDARY) {
+    if (velocityX > PAN_VELOCITY_BOUNDARY) {
       closeConversation();
       return;
     }
 
     // Reverse the if-else here and avoid indentation
-    if (e.deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
+    if (deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
       closeConversation();
       return;
     }
