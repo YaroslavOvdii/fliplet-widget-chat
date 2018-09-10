@@ -136,6 +136,11 @@ html.native body,
   transition: opacity 0.1s ease-out, transform 0.2s ease-out, padding-top 0.2s ease-out;
 }
 
+.fl-with-bottom-menu .chat-holder .chat-list {
+  padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
 .chat-holder.offline .chat-list {
   padding-top: 99px; /* 56 + 15 + 28 - Tweak this based on top bar */
 }
