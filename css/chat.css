@@ -4,6 +4,11 @@ html.native body,
   height: 100% !important;
 }
 
+/* Remove this before Production */
+.fl-widget-instance[data-name="Chat (INTERNAL TEST)"] {
+  height: 100% !important;
+}
+
 /* Locks scroll when panel is expanded */
 .lock {
   overflow: hidden !important;
