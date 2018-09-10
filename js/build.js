@@ -1305,7 +1305,6 @@ Fliplet.Widget.instance('chat', function (data) {
     // Check if there are selected contacts
     if (!contactsSelected.length) { return; }
 
-    // Create an array of selectors, join it using ',' and then use a single $() selection to .addClass()
     var selectorsArray = [];
     contactsSelected.forEach(function(contact) {
       selectorsArray.push('[data-contact-id="' + contact.id + '"]');
