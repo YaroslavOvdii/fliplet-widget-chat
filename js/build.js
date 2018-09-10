@@ -170,7 +170,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var position = listOffset + (deltaX / 4);
 
     if (distanceX < distanceY) {
-      messageAreaOnBlur();
+      onMessageAreaBlur();
 
       $chatOverlay.css({
         'transition': 'none',
@@ -417,7 +417,7 @@ Fliplet.Widget.instance('chat', function (data) {
       renderMessageInPlace(messageToReplace, true);
 
       $messageArea.val('');
-      messageAreaOnInput();
+      onMessageAreaInput();
       autosize.update($messageArea);
       $parentHolder.removeClass('editing-message');
       $holder.removeClass('sending');
@@ -433,13 +433,12 @@ Fliplet.Widget.instance('chat', function (data) {
       $holder.removeClass('sending');
 
       var actions = [];
-      var details = Fliplet.parseError(error);
-      if (details) {
+      if (error) {
         actions.push({
           label: 'Details',
           action: function () {
             Fliplet.UI.Toast({
-              message: details
+              message: Fliplet.parseError(error)
             });
           }
         });
@@ -473,13 +472,12 @@ Fliplet.Widget.instance('chat', function (data) {
     })
     .catch(function(error) {
       var actions = [];
-      var details = Fliplet.parseError(error);
-      if (details) {
+      if (error) {
         actions.push({
           label: 'Details',
           action: function () {
             Fliplet.UI.Toast({
-              message: details
+              message: Fliplet.parseError(error)
             });
           }
         });
@@ -534,7 +532,7 @@ Fliplet.Widget.instance('chat', function (data) {
       });
   }
 
-  function messageAreaOnBlur() {
+  function onMessageAreaBlur() {
     if (Modernizr.ios) {
       setTimeout(function() {
         $messageArea.parents('.chat-input-controls').removeClass('open');
@@ -546,7 +544,7 @@ Fliplet.Widget.instance('chat', function (data) {
     }
   }
 
-  function messageAreaOnFocus() {
+  function onMessageAreaFocus() {
     if (Modernizr.ios) {
       // Fixes chat area height on iOS
       // @TODO: Test other keyboards
@@ -576,7 +574,7 @@ Fliplet.Widget.instance('chat', function (data) {
     }
   }
 
-  function messageAreaOnInput() {
+  function onMessageAreaInput() {
     var value = $messageArea.val();
 
     if (value.length) {
@@ -648,6 +646,9 @@ Fliplet.Widget.instance('chat', function (data) {
   function attacheEventListeners() {
     var _thisStartX;
     var totalMove;
+    var deviceEvents;
+    var startTouchEvent = Modernizr.touchevents ? 'touchstart' : 'mousedown';
+    var endTouchEvent = Modernizr.touchevents ? 'touchend' : 'mouseup';
 
     $(window).blur(function() { isActiveWindow = false; });
     $(window).focus(function() { isActiveWindow = true; });
@@ -659,10 +660,6 @@ Fliplet.Widget.instance('chat', function (data) {
     Fliplet.Navigator.onOnline(function() {
       $wrapper.removeClass('offline');
     });
-
-    var deviceEvents;
-    var startTouchEvent = Modernizr.touchevents ? 'touchstart' : 'mousedown';
-    var endTouchEvent = Modernizr.touchevents ? 'touchend' : 'mouseup';
 
     $(document)
       .on('click', '.chat-image', function(e) {
@@ -778,9 +775,9 @@ Fliplet.Widget.instance('chat', function (data) {
           totalMove = 0;
         }
       })
-      .on('focus', '[data-message-body]', messageAreaOnFocus)
-      .on('blur', '[data-message-body]', messageAreaOnBlur)
-      .on('input', '[data-message-body]', messageAreaOnInput)
+      .on('focus', '[data-message-body]', onMessageAreaFocus)
+      .on('blur', '[data-message-body]', onMessageAreaBlur)
+      .on('input', '[data-message-body]', onMessageAreaInput)
       .on('click', '[refresh-chat]', function() {
         location.reload();
       })
@@ -808,7 +805,7 @@ Fliplet.Widget.instance('chat', function (data) {
         $(this).parents('.chat').addClass('editing');
         $('.chat.tapped').removeClass('tapped');
         $messageArea.val(textToEdit);
-        messageAreaOnInput();
+        onMessageAreaInput();
         autosize.update($messageArea);
         $('.chat-input-controls').addClass('editing-message');
         $messageArea.focus();
