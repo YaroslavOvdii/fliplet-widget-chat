@@ -647,7 +647,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function attacheEventListeners() {
-    var _thisStartX;
+    var elementStartX;
     var totalMove;
     var deviceEvents;
     var startTouchEvent = Modernizr.touchevents ? 'touchstart' : 'mousedown';
@@ -728,7 +728,7 @@ Fliplet.Widget.instance('chat', function (data) {
       .on('touchstart', '.chat-card-holder', function(event) {
         event.stopPropagation();
         var rect = event.target.getBoundingClientRect();
-        _thisStartX = event.originalEvent.touches[0].pageX - rect.left;
+        elementStartX = event.originalEvent.touches[0].pageX - rect.left;
 
         $(this).addClass('draggable');
         $(this).addClass('hover');
@@ -749,7 +749,7 @@ Fliplet.Widget.instance('chat', function (data) {
         $(this).removeClass('hover');
 
         var touchX = e.originalEvent.touches[0].clientX;
-        totalMove = touchX - _thisStartX;
+        totalMove = touchX - elementStartX;
 
         if (totalMove >= 0) { return; }
 
@@ -867,8 +867,9 @@ Fliplet.Widget.instance('chat', function (data) {
         $holder.addClass('sending');
 
         if (Modernizr.ios) {
-          // Instead of triggering an event, make sure the event is handled through a named function and call it
-          onMessageAreaTouchStart();
+          // For iOS we need to trigger the touchstart event for the .focus() to register
+          // It's not ideal but required
+          $messageArea.trigger('touchstart');
         } else {
           $messageArea.focus();
         }
