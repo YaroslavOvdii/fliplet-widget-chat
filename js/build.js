@@ -209,7 +209,6 @@ Fliplet.Widget.instance('chat', function (data) {
       return;
     }
 
-    // Reverse the if-else here and avoid indentation
     if (deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
       closeConversation();
       return;
@@ -760,7 +759,6 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       })
       .on('touchend', '.chat-card-holder', function() {
-        // A touchend event handler is added for evert touchmove event triggered. This doesn't look very good.
         if (totalMove > -66) {
           $(this).removeClass('draggable').css({
             'transition': 'all 150ms ease-out',
@@ -2213,7 +2211,7 @@ Fliplet.Widget.instance('chat', function (data) {
       }
 
       if (authId.hasOwnProperty('flUserToken')) {
-        where = authId // Use 'User Token'
+        where = authId; // Use 'User Token'
       } else {
         where[crossLoginColumnName] = { $iLike: authId }; // Use 'Email'
       }
