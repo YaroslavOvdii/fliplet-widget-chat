@@ -226,11 +226,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openConversation(conversationId) {
-    // Does it matter whether .open is added first or the CSS gets applied first? If .open need to ideally be applied first, then this executes it in the wrong order. If not, then it's best to place the setTimeout at the end of function.
-    setTimeout(function() {
-      $('.chat-card-holder[data-conversation-id="'+ conversationId +'"]').addClass('open');
-    }, 1);
-
     $chatOverlay.css({
       '-webkit-transform': 'translate3d(0, 0, 0)',
       'transform': 'translate3d(0, 0, 0)',
@@ -242,6 +237,7 @@ Fliplet.Widget.instance('chat', function (data) {
       'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
     });
     bindChatTouchEvents();
+    $('.chat-card-holder[data-conversation-id="'+ conversationId +'"]').addClass('open');
   }
 
   function openContacts() {
@@ -1651,7 +1647,6 @@ Fliplet.Widget.instance('chat', function (data) {
         var conversationName = _.compact(_.filter(otherPeople, function(c) {
           return allParticipants.indexOf(c.data.flUserId) !== -1;
         }).map(function(c) {
-          // Separate ? and : lines (and indent them) so they are easier to read and form shorter lines
           return multipleNameColumns
             ? c.data[firstNameColumnName] + ' ' + c.data[lastNameColumnName]
             : c.data[fullNameColumnName];
@@ -1759,7 +1754,6 @@ Fliplet.Widget.instance('chat', function (data) {
   function viewConversation(conversation) {
     openConversation(conversation.id);
 
-    // This is the preferred format for multiline logic expressions
     if (conversation
       && conversation.definition
       && conversation.definition.group
@@ -2146,17 +2140,18 @@ Fliplet.Widget.instance('chat', function (data) {
       }
 
       // Log in using authentication from a different component
-      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function(email) {
-        // You can stop at return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY); with a semi-colo so that this .then() function doesn't need to be indented. It can just get chained up.
-        if (email) {
-          var where = {};
-          where[crossLoginColumnName] = { $iLike: email };
-          return Promise.resolve(where);
-        }
+      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY);
+    })
+    .then(function(email) {
+      var where = {};
 
+      if (!email) {
         Fliplet.Navigate.to(securityScreenAction);
         return Promise.reject('User is not logged in');
-      });
+      }
+
+      where[crossLoginColumnName] = { $iLike: email };
+      return Promise.resolve(where);
     });
   }).then(function onLocalLoginAvailable(loginQuery) {
     return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {

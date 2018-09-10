@@ -1,5 +1,5 @@
-/* Check whether body always needs height 100%, or perhaps this is only needed for native apps */
-body,
+html.mode-interact body,
+html.native body,
 .fl-widget-instance[data-name="Chat"] {
   height: 100% !important;
 }
@@ -56,6 +56,10 @@ body,
   bottom: 0;
   left: 0;
   overflow: hidden;
+}
+
+.fl-with-top-menu .chat-holder {
+  top: 44px;
 }
 
 .offline-note {
