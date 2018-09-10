@@ -112,7 +112,6 @@ Fliplet.Widget.instance('chat', function (data) {
 
   var securityScreenAction = data.securityLinkAction;
   var chatConnection = Fliplet.Chat.connect({
-    primaryKey: crossLoginColumnName,
     encryptMessages: true,
     pushNotifications: true,
     dataSourceId: data.dataSourceId,
