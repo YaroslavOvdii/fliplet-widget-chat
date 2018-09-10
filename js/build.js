@@ -429,10 +429,11 @@ Fliplet.Widget.instance('chat', function (data) {
       renderConversations(currentConversation, true);
     })
     .catch(function(error) {
+      var actions = [];
+
       $parentHolder.removeClass('editing-message');
       $holder.removeClass('sending');
 
-      var actions = [];
       if (error) {
         actions.push({
           label: 'Details',
@@ -544,6 +545,10 @@ Fliplet.Widget.instance('chat', function (data) {
     }
   }
 
+  function onMessageAreaTouchStart() {
+    $messageArea.focus();
+  }
+
   function onMessageAreaFocus() {
     if (Modernizr.ios) {
       // Fixes chat area height on iOS
@@ -567,9 +572,7 @@ Fliplet.Widget.instance('chat', function (data) {
         $messageArea.parents('.chat-area').addClass('open');
 
         // Adds binding
-        $(document).on('touchstart', '[data-message-body]', function() {
-          $(this).focus();
-        });
+        $(document).on('touchstart', '[data-message-body]', onMessageAreaTouchStart);
       }, 0);
     }
   }
@@ -865,7 +868,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
         if (Modernizr.ios) {
           // Instead of triggering an event, make sure the event is handled through a named function and call it
-          $messageArea.trigger('touchstart');
+          onMessageAreaTouchStart();
         } else {
           $messageArea.focus();
         }
@@ -996,8 +999,24 @@ Fliplet.Widget.instance('chat', function (data) {
           }
           loadMoreReqPromise = undefined;
           return Promise.resolve();
+        })
+        .catch(function(error) {
+          var actions = [];
+          if (error) {
+            actions.push({
+              label: 'Details',
+              action: function () {
+                Fliplet.UI.Toast({
+                  message: Fliplet.parseError(error)
+                });
+              }
+            });
+          }
+          Fliplet.UI.Toast({
+            message: 'Error loading more messages.',
+            actions: actions
+          });
         });
-        // What happens if the promise fails?
       }
       iScrollPos = iCurScrollPos;
     });
@@ -1288,9 +1307,12 @@ Fliplet.Widget.instance('chat', function (data) {
     if (!contactsSelected.length) { return; }
 
     // Create an array of selectors, join it using ',' and then use a single $() selection to .addClass()
+    var selectorsArray = [];
     contactsSelected.forEach(function(contact) {
-      $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
+      selectorsArray.push('[data-contact-id="' + contact.id + '"]');
     });
+
+    $(selectorsArray.join(', ')).addClass('contact-selected');
   }
 
   /* CHAT FEATURE FUNCTIONS */
@@ -1586,11 +1608,23 @@ Fliplet.Widget.instance('chat', function (data) {
         viewConversation(newConversation);
       });
     }).catch(function(error) {
+      var actions = [];
       $('.contacts-done-holder').removeClass('creating');
-      $wrapper.find('h4').text(Fliplet.parseError(error) || 'Error creating conversation');
-      if (error.indexOf('Participant not found') !== -1) {
-        $wrapper.find('p').html('This most likely means you are trying to chat with a user belonging to a different data source from the chat users list.');
+
+      if (error) {
+        actions.push({
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              message: Fliplet.parseError(error)
+            });
+          }
+        });
       }
+      Fliplet.UI.Toast({
+        message: 'Error creating conversation.',
+        actions: actions
+      });
     });
   }
 

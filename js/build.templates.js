@@ -49,7 +49,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.new-conversation"] = Handlebar
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;
 
-  return "<div class=\"list-of-contacts hidden\">\n<h4>New conversation</h4>\n\n<p>Select contact to start a conversation</p>\n\n<ul class=\"contacts\">\n"
+  return "<div class=\"list-of-contacts hidden\">\n<h4>New conversation</h4>\n<p>Select contacts to start a conversation</p>\n\n<ul class=\"contacts\">\n"
     + ((stack1 = helpers.each.call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? depth0.contacts : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "</ul>\n</div>\n";
 },"useData":true});
