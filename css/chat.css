@@ -141,13 +141,13 @@ html.native body,
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.windows.web .chat-holder .chat-list {
+.windows.web .chat-holder .chat-list:after {
   content: "";
   height: 20px;
   display: block;
 }
 
-.windows.web .fl-with-bottom-menu .chat-holder .chat-list {
+.windows.web .fl-with-bottom-menu .chat-holder .chat-list:after {
   content: "";
   height: 80px;
   display: block;
