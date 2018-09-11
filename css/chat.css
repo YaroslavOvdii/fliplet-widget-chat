@@ -141,6 +141,18 @@ html.native body,
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
+.windows.web .chat-holder .chat-list {
+  content: "";
+  height: 20px;
+  display: block;
+}
+
+.windows.web .fl-with-bottom-menu .chat-holder .chat-list {
+  content: "";
+  height: 80px;
+  display: block;
+}
+
 .chat-holder.offline .chat-list {
   padding-top: 99px; /* 56 + 15 + 28 - Tweak this based on top bar */
 }
@@ -731,6 +743,14 @@ html.native body,
   overflow-x: hidden;
   padding: 69px 15px 114px 15px;
   padding-bottom: calc(114px + env(safe-area-inset-bottom));
+}
+
+// Fixes padding issue on IE
+.windows.web .chat-messages-holder:after,
+.windows.web .all-users-holder:after {
+  content: "";
+  height: 114px;
+  display: block;
 }
 
 .chat-area.open .chat-messages-holder {
