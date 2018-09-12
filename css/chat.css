@@ -745,7 +745,7 @@ html.native body,
   padding-bottom: calc(114px + env(safe-area-inset-bottom));
 }
 
-// Fixes padding issue on IE
+/* Fixes padding issue on IE */
 .windows.web .chat-messages-holder:after,
 .windows.web .all-users-holder:after {
   content: "";
