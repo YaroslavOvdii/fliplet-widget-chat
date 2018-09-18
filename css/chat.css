@@ -96,10 +96,10 @@ html.native body,
 .error-area,
 .empty-area {
   display: none;
-  position: absolute;
-  top: 48%;
-  left: 15px;
-  right: 15px;
+  height: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 71px; /* 56 + 15 - Tweak this based on top bar */
   text-align: center;
   opacity: 0.6;
   z-index: 1;
@@ -209,6 +209,10 @@ html.native body,
 
 .chat-card .group ~ .delete-holder {
   font-size: 1em
+}
+
+.chat-card .delete-holder .fa {
+  color: #ffffff;
 }
 
 .chat-card .delete-holder .delete-conversation {
@@ -514,6 +518,14 @@ html.native body,
   line-height: 34px;
   cursor: pointer;
   color: #337ab7;
+}
+
+.group-participants-holder .group-participants-back.icon-btn {
+  display: flex;
+}
+
+.group-participants-holder .group-participants-back.cancel-btn {
+  display: none;
 }
 
 .chat-user-info {
@@ -1347,4 +1359,120 @@ html.native body,
 .pswp {
   top: env(safe-area-inset-top);
   height: calc(100% - env(safe-area-inset-bottom));
+}
+
+.tablet-chat-screen {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 11;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+@media screen and (min-width: 640px) {
+  .chat-holder {
+    display: flex;
+  }
+
+  .top-header {
+    right: calc(60% + 1px); /* 1px for the border of .chat-list */
+  }
+
+  .chat-holder .chat-list,
+  .loading-area,
+  .error-area,
+  .empty-area {
+    width: 40%;
+    border-right: 1px solid #ccc;
+  }
+
+  .chat-area {
+    position: relative;
+    width: 60%;
+    z-index: 1;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
+    padding-top: 69px;
+  }
+
+  .chat-card-holder.open {
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+  }
+
+  .fl-with-top-menu .chat-area .chat-top-header {
+    top: 44px;
+  }
+
+  .fl-with-top-menu .chat-messages-holder {
+    padding-top: 113px;
+  }
+
+  .chat-top-header .chat-back {
+    display: none;
+  }
+
+  .chat-input-controls {
+    display: none;
+  }
+
+  .chat-open .chat-input-controls {
+    display: block;
+  }
+
+  .tablet-chat-screen {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+  }
+
+  .in-contacts .tablet-chat-screen,
+  .in-group-info .tablet-chat-screen {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+  }
+
+  .contacts-holder-overlay,
+  .group-name-holder,
+  .group-participants-holder {
+    left: 30%;
+    border-left: 1px solid #ccc;
+  }
+
+  .group-participants-holder .group-participants-back.icon-btn {
+    display: none;
+  }
+
+  .group-participants-holder .group-participants-back.cancel-btn {
+    display: flex;
+    width: auto;
+    font-size: 14px;
+    line-height: 34px;
+  }
+
+  .in-create-group .contacts-holder-overlay {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  .fl-menu-bottom-bar .chat-messages-holder {
+    padding-bottom: calc(175px + env(safe-area-inset-bottom));
+  }
+
+  .fl-menu-bottom-bar .chat-input-controls {
+    bottom: 65px;
+  }
+
+  .fl-bar-padding .chat-messages-holder {
+    padding-bottom: calc(158px + env(safe-area-inset-bottom));
+  }
+
+  .fl-bar-padding .chat-input-controls {
+    padding-bottom: 44px;
+  }
 }
