@@ -2119,7 +2119,11 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function onNewMessage(message) {
-    if (messagesIds.indexOf(message.id) === -1 && message.deletedAt !== null) {
+    if (message.isDeleted || message.deletedAt !== null) {
+      return;
+    }
+
+    if (messagesIds.indexOf(message.id) === -1) {
       messages.push(message);
       messagesIds.push(message.id);
     }
@@ -2154,9 +2158,7 @@ Fliplet.Widget.instance('chat', function (data) {
           getConversations(false);
         } else {
           checkConversationStatus(conversation);
-          if (!message.isDeleted || message.deletedAt === null) {
-            setConversationLastMessage(conversation, message);
-          }
+          setConversationLastMessage(conversation, message);
 
           if (!message.isReadByCurrentUser) {
             if (!currentConversation || currentConversation.id !== message.dataSourceId) {
