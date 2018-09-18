@@ -2154,7 +2154,9 @@ Fliplet.Widget.instance('chat', function (data) {
           getConversations(false);
         } else {
           checkConversationStatus(conversation);
-          setConversationLastMessage(conversation, message);
+          if (!message.isDeleted || message.deletedAt === null) {
+            setConversationLastMessage(conversation, message);
+          }
 
           if (!message.isReadByCurrentUser) {
             if (!currentConversation || currentConversation.id !== message.dataSourceId) {
