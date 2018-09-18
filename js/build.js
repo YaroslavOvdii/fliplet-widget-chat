@@ -189,8 +189,8 @@ Fliplet.Widget.instance('chat', function (data) {
     // Prevent closing animation
     var deltaY = e.deltaY;
     var deltaX = e.deltaX;
-    var distanceY = e.distance - Math.abs(deltaY);
-    var distanceX = e.distance - Math.abs(deltaX);
+    var distanceY = Math.abs(deltaY);
+    var distanceX = Math.abs(deltaX);
     var velocityX = e.velocityX;
     var animationSpeed = (velocityX < PAN_VELOCITY_BOUNDARY)
       ? ANIMATION_SPEED_SLOW
@@ -203,12 +203,12 @@ Fliplet.Widget.instance('chat', function (data) {
       'transition': 'all ' + animationSpeed + 'ms ease-out'
     });
 
-    if (velocityX > PAN_VELOCITY_BOUNDARY) {
+    if (distanceX > distanceY && velocityX > PAN_VELOCITY_BOUNDARY) {
       closeConversation();
       return;
     }
 
-    if (deltaX > screenWidth / PAN_WINDOW_FRACTION || distanceX > distanceY) {
+    if (deltaX > screenWidth / PAN_WINDOW_FRACTION && distanceX > distanceY) {
       closeConversation();
       return;
     }
@@ -224,17 +224,20 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openConversation(conversationId) {
-    $chatOverlay.css({
-      '-webkit-transform': 'translate3d(0, 0, 0)',
-      'transform': 'translate3d(0, 0, 0)',
-      'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
-    });
-    $list.css({
-      '-webkit-transform': 'translate3d(-25%, 0, 0)',
-      'transform': 'translate3d(-25%, 0, 0)',
-      'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
-    });
-    bindChatTouchEvents();
+    if (screenWidth < 640) {
+      $chatOverlay.css({
+        '-webkit-transform': 'translate3d(0, 0, 0)',
+        'transform': 'translate3d(0, 0, 0)',
+        'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
+      });
+      $list.css({
+        '-webkit-transform': 'translate3d(-25%, 0, 0)',
+        'transform': 'translate3d(-25%, 0, 0)',
+        'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
+      });
+      bindChatTouchEvents();
+    }
+    $('.chat-card-holder').removeClass('open');
     $('.chat-card-holder[data-conversation-id="'+ conversationId +'"]').addClass('open');
   }
 
@@ -286,6 +289,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function closeConversation(clickedChat) {
+    $wrapper.removeClass('chat-open');
     $('.long-pressed').removeClass('long-pressed');
     $('.chat-area').removeClass('message-focused');
     $('.chat-card-holder').removeClass('open');
@@ -299,6 +303,7 @@ Fliplet.Widget.instance('chat', function (data) {
       'transform': 'translate3d(0, 0, 0)'
     });
     unbindTouchEvents();
+    $messageArea.blur();
 
     currentConversation = undefined;
   }
@@ -593,7 +598,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function onMessageAreaInput() {
     var value = $messageArea.val();
 
-    if (value.length) {
+    if (value.length || $('.chat-area').hasClass('image-selected')) {
       $messageArea.parents('.chat-input-controls').addClass('ready');
     } else {
       $messageArea.parents('.chat-input-controls').removeClass('ready');
@@ -677,6 +682,10 @@ Fliplet.Widget.instance('chat', function (data) {
       $wrapper.removeClass('offline');
     });
 
+    $(window).resize(function() {
+      screenWidth = $(window).width();
+    });
+
     $(document)
       .on('click', '.chat-image', function(e) {
         e.stopPropagation();
@@ -757,11 +766,11 @@ Fliplet.Widget.instance('chat', function (data) {
         allowClick = false;
         $(this).removeClass('hover');
       })
-      .on('touchmove', '.chat-card-holder', function() {
+      .on('touchmove', '.chat-card-holder', function(event) {
         allowClick = false;
         $(this).removeClass('hover');
 
-        var touchX = e.originalEvent.touches[0].clientX;
+        var touchX = event.originalEvent.touches[0].clientX;
         totalMove = touchX - elementStartX;
 
         if (totalMove >= 0) { return; }
@@ -1106,6 +1115,7 @@ Fliplet.Widget.instance('chat', function (data) {
     };
 
     $('.chat-area').addClass('image-selected');
+    onMessageAreaInput();
 
     $('canvas#image-canvas').each(function forEachCanvas() {
       var canvas = this;
@@ -1754,9 +1764,20 @@ Fliplet.Widget.instance('chat', function (data) {
   function renderConversations(data, replace) {
     var conversationGroupsHTML = conversationGroupsTemplate(data);
     var conversationHTML = conversationTemplate(data);
+    var conversationIsOpen = false;
 
     if (replace === true) {
-      return $('.chat-card[data-conversation-id="' + data.id + '"]').replaceWith(conversationHTML);
+      if ($('.chat-card-holder[data-conversation-id="' + data.id + '"]').hasClass('open')) {
+        conversationIsOpen = true;
+      }
+      if (conversationIsOpen) {
+        $('.chat-card[data-conversation-id="' + data.id + '"]').replaceWith(conversationHTML);
+        $('.chat-card-holder[data-conversation-id="' + data.id + '"]').addClass('open');
+        return;
+      }
+
+      $('.chat-card[data-conversation-id="' + data.id + '"]').replaceWith(conversationHTML);
+      return 
     }
 
     $conversationsList.append(conversationGroupsHTML);
@@ -1819,6 +1840,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function viewConversation(conversation) {
+    $wrapper.addClass('chat-open');
     openConversation(conversation.id);
 
     if (conversation
