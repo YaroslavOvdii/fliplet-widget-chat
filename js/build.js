@@ -615,7 +615,7 @@ Fliplet.Widget.instance('chat', function (data) {
         message: 'An internet connection is necessary to create a conversation or group.'
       };
 
-      Fliplet.Navigate.popup(options);
+      Fliplet.UI.Toast(options);
       $('.contacts-done-holder').removeClass('creating');
       return;
     }
@@ -634,7 +634,7 @@ Fliplet.Widget.instance('chat', function (data) {
         message: 'An internet connection is necessary to create a conversation or group.'
       };
 
-      Fliplet.Navigate.popup(options);
+      Fliplet.UI.Toast(options);
       $('.contacts-done-holder').removeClass('creating');
       return;
     }
@@ -649,7 +649,7 @@ Fliplet.Widget.instance('chat', function (data) {
         message: 'An internet connection is necessary to create a conversation or group.'
       };
 
-      Fliplet.Navigate.popup(options);
+      Fliplet.UI.Toast(options);
       return;
     }
 
@@ -676,10 +676,12 @@ Fliplet.Widget.instance('chat', function (data) {
     
     Fliplet.Navigator.onOffline(function() {
       $wrapper.addClass('offline');
+      Fliplet.UI.Toast('You are offline');
     });
 
     Fliplet.Navigator.onOnline(function() {
       $wrapper.removeClass('offline');
+      Fliplet.UI.Toast('You are back online');
     });
 
     $(window).resize(function() {
@@ -856,7 +858,7 @@ Fliplet.Widget.instance('chat', function (data) {
             message: 'An internet connection is necessary to delete a message.'
           };
 
-          Fliplet.Navigate.popup(options);
+          Fliplet.UI.Toast(options);
           return;
         }
 
@@ -924,13 +926,15 @@ Fliplet.Widget.instance('chat', function (data) {
             })
             .then(function(savedQueue) {
               var sendReqPromises = [];
-              savedQueue.forEach(function(message) {
-                sendReqPromises.push(chat.message(currentConversation.id, message));
-              });
+              if (Fliplet.Navigator.isOnline()){
+                savedQueue.forEach(function(message) {
+                  sendReqPromises.push(chat.message(currentConversation.id, message));
+                });
 
-              return Promise.all(sendReqPromises).then(function(results) {
-                moveConversationToTop(currentConversation);
-              });
+                return Promise.all(sendReqPromises).then(function(results) {
+                  moveConversationToTop(currentConversation);
+                });
+              }
             });
         })
         .catch(function(error) {
@@ -1882,7 +1886,9 @@ Fliplet.Widget.instance('chat', function (data) {
     if (messagesQueue.length) {
       setTimeout(function() {
         messagesQueue.forEach(function(message) {
-          renderQueueMessage(message);
+          if (message.conversationId === conversation.id) {
+            renderQueueMessage(message);
+          }
         });
       }, 1);
     }

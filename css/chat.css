@@ -71,7 +71,7 @@ html.native body,
   opacity: 0;
   visibility: hidden;
   position: absolute;
-  top: 56px;
+  top: 60px;
   left: 0;
   right: 0;
   -webkit-transform: translate3d(0, -28px, 0);
@@ -83,6 +83,10 @@ html.native body,
   color: rgba(51, 51, 51, 0.7);
   transition: all 0.2s ease-out;
   z-index: 1;
+}
+
+.fl-with-top-menu .offline-note {
+  top: 104px;
 }
 
 .chat-holder.offline .offline-note {
@@ -1377,6 +1381,7 @@ html.native body,
     display: flex;
   }
 
+  .offline-note,
   .top-header {
     right: calc(60% + 1px); /* 1px for the border of .chat-list */
   }
