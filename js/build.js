@@ -2119,7 +2119,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function onNewMessage(message) {
-    if (messagesIds.indexOf(message.id) === -1) {
+    if (messagesIds.indexOf(message.id) === -1 && message.deletedAt !== null) {
       messages.push(message);
       messagesIds.push(message.id);
     }
