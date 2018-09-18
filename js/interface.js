@@ -53,11 +53,13 @@ $('form').submit(function (event) {
 $('#manage-data').on('click', manageAppData);
 
 $('#show-seperate-name-fields').on('click', function() {
+  data.multipleNames = true;
   $('.full-name-field').addClass('hidden');
   $('.first-last-names-holder').removeClass('hidden');
 });
 
 $('#show-full-name-field').on('click', function() {
+  data.multipleNames = false;
   $('.full-name-field').removeClass('hidden');
   $('.first-last-names-holder').addClass('hidden');
 });
@@ -154,6 +156,10 @@ function getColumns(dataSourceId) {
     }
 
     $userInformationFields.prop('disabled', false);
+    if (data.multipleNames) {
+      $('.full-name-field').addClass('hidden');
+      $('.first-last-names-holder').removeClass('hidden');
+    }
   });
 }
 
@@ -209,9 +215,13 @@ function reloadDataSources(dataSourceId) {
   }).then(function(results) {
     allDataSources = results;
     $dataSources.html('<option value="none">-- Select a data source</option><option disabled>------</option><option value="new">Create a new data source</option><option disabled>------</option>');
+    var options = [];
+
     allDataSources.forEach(function (d) {
-      $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
+      options.push('<option value="' + d.id + '">' + d.name + '</option>');
     });
+
+    $dataSources.append(options.join(''));
 
     if (dataSourceId) {
       $dataSources.val(dataSourceId);
@@ -225,14 +235,18 @@ Fliplet.DataSources.get({
   organizationId: organizationId
 }).then(function (dataSources) {
   allDataSources = dataSources;
-  dataSources.forEach(function (d) {
-    $dataSources.append('<option value="' + d.id + '">' + d.name + '</option>');
+  var options = [];
+
+  allDataSources.forEach(function (d) {
+    options.push('<option value="' + d.id + '">' + d.name + '</option>');
   });
+
+  $dataSources.append(options.join(''));
 
   if (data.dataSourceId) {
     $dataSources.val(data.dataSourceId);
   }
   $dataSources.trigger('change');
 
-  $dataSources.prop('disabled', '');
+  $dataSources.prop('disabled', false);
 });
