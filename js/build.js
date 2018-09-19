@@ -122,6 +122,7 @@ Fliplet.Widget.instance('chat', function (data) {
     avatarColumnName: avatarColumnName
   });
 
+  var gallery;
   var fileImages = {};
   var selectedFileInputName;
   var jpegQuality = 80;
@@ -668,6 +669,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var elementStartX;
     var totalMove;
     var deviceEvents;
+    var pressTimer;
     var startTouchEvent = Modernizr.touchevents ? 'touchstart' : 'mousedown';
     var endTouchEvent = Modernizr.touchevents ? 'touchend' : 'mouseup';
 
@@ -807,11 +809,28 @@ Fliplet.Widget.instance('chat', function (data) {
       .on('click', '[refresh-chat]', function() {
         location.reload();
       })
-      .on('click', '.chat-body', function(e) {
+      .on('click', '.chat-body', function() {
         var parent = $(this).parents('.chat');
-
+        longPressed = false;
         $('.chat.tapped').not(parent).removeClass('tapped');
         parent.toggleClass('tapped');
+      })
+      .on('mousedown touchstart', '.chat-body', function(e){
+        var parent = $(this).parents('.chat');
+        pressTimer = setTimeout(function() {
+          longPressed = true;
+          $('.chat.tapped').not(parent).removeClass('tapped');
+          parent.toggleClass('tapped');
+        },800);
+
+        return;
+      })
+      .on('mouseup touchend touchcancel', '.chat-body', function(e){
+        clearTimeout(pressTimer);
+        setTimeout(function() {
+          longPressed = false;
+        }, 0);
+        return;
       })
       .on('click', '.copy-message', function() {
         var _this = $(this);
@@ -1909,6 +1928,9 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function expandImage(imgElement) {
+    if (longPressed) {
+      return;
+    }
     var clickedImgURL = imgElement.attr('src');
     var items = [];
     var clickedIndex;
@@ -1934,7 +1956,7 @@ Fliplet.Widget.instance('chat', function (data) {
     var options = {
       index: clickedIndex
     };
-    var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
+    gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
     gallery.init();
   }
 
