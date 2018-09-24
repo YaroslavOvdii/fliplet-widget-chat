@@ -315,7 +315,7 @@ Fliplet.Widget.instance('chat', function (data) {
     hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
     hammer.on('panright panleft', panChat);
-    hammer.on('panend', panChatEnd);
+    hammer.on('panend pancancel', panChatEnd);
   }
 
   function unbindTouchEvents() {
