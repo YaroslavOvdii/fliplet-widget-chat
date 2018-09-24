@@ -236,7 +236,9 @@ Fliplet.Widget.instance('chat', function (data) {
         'transform': 'translate3d(-25%, 0, 0)',
         'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
       });
-      bindChatTouchEvents();
+      if (Modernizr.ios) {
+        bindChatTouchEvents();
+      }
     }
     $('.chat-card-holder').removeClass('open');
     $('.chat-card-holder[data-conversation-id="'+ conversationId +'"]').addClass('open');
@@ -303,7 +305,9 @@ Fliplet.Widget.instance('chat', function (data) {
       '-webkit-transform': 'translate3d(0, 0, 0)',
       'transform': 'translate3d(0, 0, 0)'
     });
-    unbindTouchEvents();
+    if (Modernizr.ios) {
+      unbindTouchEvents();
+    }
     $messageArea.blur();
 
     currentConversation = undefined;
@@ -312,15 +316,14 @@ Fliplet.Widget.instance('chat', function (data) {
   function bindChatTouchEvents() {
     var handle = document.getElementById('chat-handle');
     hammer = hammer || new Hammer(handle);
-    hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
     hammer.on('panright panleft', panChat);
-    hammer.on('panend pancancel', panChatEnd);
+    hammer.on('panend', panChatEnd);
   }
 
   function unbindTouchEvents() {
     hammer.off('panright panleft', panChat);
-    hammer.off('panend pancancel', panChatEnd);
+    hammer.off('panend', panChatEnd);
   }
 
   function checkGroupCanBeCreated() {
