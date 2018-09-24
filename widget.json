@@ -1,6 +1,6 @@
 {
-  "name": "Chat (INTERNAL TEST)",
-  "package": "com.fliplet.chat-test",
+  "name": "Chat",
+  "package": "com.fliplet.chat",
   "version": "2.0.0",
   "icon": "img/icon.png",
   "tags": ["type:component", "category:general"],
