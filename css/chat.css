@@ -1403,6 +1403,10 @@ html.native body,
     padding-top: 69px;
   }
 
+  .chat-area {
+    touch-action: auto !important;
+  }
+
   .chat-card-holder.open {
     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
   }
