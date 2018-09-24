@@ -461,6 +461,10 @@ html.native body,
   transition: all 0.2s ease-out;
 }
 
+.chat-area {
+  touch-action: auto !important;
+}
+
 .group-name-holder,
 .group-participants-holder {
   z-index: 13;
@@ -1401,10 +1405,6 @@ html.native body,
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
     padding-top: 69px;
-  }
-
-  .chat-area {
-    touch-action: auto !important;
   }
 
   .chat-card-holder.open {
