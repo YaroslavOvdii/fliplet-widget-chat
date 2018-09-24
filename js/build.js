@@ -311,9 +311,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function bindChatTouchEvents() {
     var handle = document.getElementById('chat-handle');
-    hammer = hammer || new Hammer(handle, {
-      touchAction: 'auto'
-    });
+    hammer = hammer || new Hammer(handle);
+    hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
     hammer.on('panright panleft', panChat);
     hammer.on('panend', panChatEnd);
