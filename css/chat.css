@@ -461,10 +461,6 @@ html.native body,
   transition: all 0.2s ease-out;
 }
 
-.chat-area {
-  touch-action: auto !important;
-}
-
 .group-name-holder,
 .group-participants-holder {
   z-index: 13;
