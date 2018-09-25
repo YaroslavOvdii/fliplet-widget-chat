@@ -257,7 +257,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
     var participantsHTML = groupContactTemplate(participants);
 
-     $('.participants-info').html(currentConversation.name);
+    $('.participants-info').html(currentConversation.name);
     $participantsList.html(participantsHTML);
     $wrapper.addClass('in-group-info');
   }
