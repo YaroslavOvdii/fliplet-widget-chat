@@ -4,46 +4,38 @@
     <a id="help_tip" href="#">Need help?</a>
   </header>
 
-  <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active" id="chat-contacts-settings"><a href="#chat-contacts-tab" aria-controls="chat-contacts" role="tab" data-toggle="tab">Contacts</a></li>
-    <li role="presentation" class="" id="chat-security-settings"><a href="#chat-settings-tab" aria-controls="chat-settings" role="tab" data-toggle="tab">Security settings</a></li>
+  <ul class="nav nav-tabs">
+    <li class="active" id="chat-contacts-settings"><a href="#chat-contacts-tab" data-toggle="tab">Contacts</a></li>
+    <li class="" id="chat-security-settings"><a href="#chat-settings-tab" data-toggle="tab">Security settings</a></li>
   </ul>
 
   <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="chat-contacts-tab">
+    <div class="tab-pane active" id="chat-contacts-tab">
       <h2><small>Contacts Data</small></h2>
       <p class="text-helper">Chat requires you to provide a contact list data source. This will be a list of the users with access to chat.</p>
       <div class="form-group clearfix">
         <div class="col-sm-4 control-label">
-          <label for="select-menu">Select a data source of the contacts list</label>
+          <label for="contactsList">Select a data source of the contacts list</label>
         </div>
         <div class="col-sm-8">
-          <label for="select_datasource" class="select-proxy-display">
-            <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>
-              <option value="none">-- Select a data source</option>
-              <option disabled>------</option>
-              <option value="new">Create a new data source</option>
-              <option disabled>------</option>
-            </select>
-            <span class="icon fa fa-chevron-down"></span>
-            <span class="select-value-proxy">-- Please wait</span>
-          </label>
+          <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>
+            <option value="none">-- Select a data source</option>
+            <option disabled>------</option>
+            <option value="new">Create a new data source</option>
+            <option disabled>------</option>
+          </select>
           <small id="manage-data" class="hidden"><a href="#">Edit data source</a></small>
         </div>
       </div>
       <div class="column-selection">
         <div class="form-group clearfix">
           <div class="col-sm-4 control-label">
-            <label for="emailAddress">Select the user's email address field</label>
+            <label for="emailColumn">Select the user's email address field</label>
           </div>
           <div class="col-sm-8">
-            <label for="select_email" class="select-proxy-display">
-              <select name="emailAddress" id="emailColumn" data-label="select" class="hidden-select form-control" disabled>
-                <option value="">-- Please wait...</option>
-              </select>
-              <span class="icon fa fa-chevron-down"></span>
-              <span class="select-value-proxy">-- Please wait...</span>
-            </label>
+            <select name="emailAddress" id="emailColumn" data-label="select" class="hidden-select form-control" disabled>
+              <option value="">-- Please wait...</option>
+            </select>
           </div>
         </div>
         <div class="form-group clearfix full-name-field">
@@ -51,13 +43,9 @@
             <label for="fullName">Select the user's full name field</label>
           </div>
           <div class="col-sm-8">
-            <label for="select_name" class="select-proxy-display">
-              <select name="fullName" id="fullName" data-label="select" class="hidden-select form-control" disabled>
-                <option value="">-- Please wait...</option>
-              </select>
-              <span class="icon fa fa-chevron-down"></span>
-              <span class="select-value-proxy">-- Please wait...</span>
-            </label>
+            <select name="fullName" id="fullName" data-label="select" class="hidden-select form-control" disabled>
+              <option value="">-- Please wait...</option>
+            </select>
             <small id="show-seperate-name-fields" class=""><a href="#">Or select the first and last names separately</a></small>
           </div>
         </div>
@@ -67,13 +55,9 @@
               <label for="firstName">Select the user's first name field</label>
             </div>
             <div class="col-sm-8">
-              <label for="select_name" class="select-proxy-display">
-                <select name="firstName" id="firstName" data-label="select" class="hidden-select form-control" disabled>
-                  <option value="">-- Please wait...</option>
-                </select>
-                <span class="icon fa fa-chevron-down"></span>
-                <span class="select-value-proxy">-- Please wait...</span>
-              </label>
+              <select name="firstName" id="firstName" data-label="select" class="hidden-select form-control" disabled>
+                <option value="">-- Please wait...</option>
+              </select>
             </div>
           </div>
           <div class="form-group clearfix">
@@ -81,13 +65,9 @@
               <label for="lastName">Select the user's last name field</label>
             </div>
             <div class="col-sm-8">
-              <label for="select_name" class="select-proxy-display">
-                <select name="lastName" id="lastName" data-label="select" class="hidden-select form-control" disabled>
-                  <option value="">-- Please wait...</option>
-                </select>
-                <span class="icon fa fa-chevron-down"></span>
-                <span class="select-value-proxy">-- Please wait...</span>
-              </label>
+              <select name="lastName" id="lastName" data-label="select" class="hidden-select form-control" disabled>
+                <option value="">-- Please wait...</option>
+              </select>
               <small id="show-full-name-field" class=""><a href="#">Back to select the full name field</a></small>
             </div>
           </div>
@@ -97,13 +77,9 @@
             <label for="titleName">Select the user's job title field (optional)</label>
           </div>
           <div class="col-sm-8">
-            <label for="select_avatar" class="select-proxy-display">
-              <select name="titleName" id="titleName" data-label="select" class="hidden-select form-control" disabled>
-                <option value="">-- Please wait...</option>
-              </select>
-              <span class="icon fa fa-chevron-down"></span>
-              <span class="select-value-proxy">-- Please wait...</span>
-            </label>
+            <select name="titleName" id="titleName" data-label="select" class="hidden-select form-control" disabled>
+              <option value="">-- Please wait...</option>
+            </select>
           </div>
         </div>
         <div class="form-group clearfix">
@@ -111,24 +87,20 @@
             <label for="avatarColumn">Select the user's image field (optional)</label>
           </div>
           <div class="col-sm-8">
-            <label for="select_avatar" class="select-proxy-display">
-              <select name="avatar" id="avatarColumn" data-label="select" class="hidden-select form-control" disabled>
-                <option value="">-- Please wait...</option>
-              </select>
-              <span class="icon fa fa-chevron-down"></span>
-              <span class="select-value-proxy">-- Please wait...</span>
-            </label>
+            <select name="avatar" id="avatarColumn" data-label="select" class="hidden-select form-control" disabled>
+              <option value="">-- Please wait...</option>
+            </select>
           </div>
         </div>
       </div>
     </div>
-    <div role="tabpanel" class="tab-pane" id="chat-settings-tab">
+    <div class="tab-pane" id="chat-settings-tab">
       <h2><small>Security screen</small></h2>
       <div class="row">
-          <div class="col-xs-12">
-              <p>In which screen is your security component located?</p>
-              <p class="text-helper">Chat requires some form of validation to be able to use it. Use one of Fliplet's security components (e.g.: Email Validation, Login).<br>If a user accesses the Chat screen without being validated, the user will be redirected to the Security screen.</p>
-          </div>
+        <div class="col-xs-12">
+          <p>In which screen is your security component located?</p>
+          <p class="text-helper">Chat requires some form of validation to be able to use it. Use one of Fliplet's security components (e.g.: Email Validation, Login).<br>If a user accesses the Chat screen without being validated, the user will be redirected to the Security screen.</p>
+        </div>
       </div>
       <div id="security-screen"></div>
     </div>

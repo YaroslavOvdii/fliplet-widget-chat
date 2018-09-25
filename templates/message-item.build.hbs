@@ -29,7 +29,7 @@
     \{{#if message.fileType}}
     <div class="chat-image" style="width: \{{ containerWidth }}; height: \{{ containerHeight }}">
       <div class="offline-image-holder hidden"><span class="fa fa-picture-o"></span> No internet</div>
-      <img src="\{{ message.file.[0] }}" width="\{{ message.imageWidth }}" height="\{{ message.imageHeight }}" />
+      <img src="\{{ auth message.file.[0] }}" width="\{{ message.imageWidth }}" height="\{{ message.imageHeight }}" />
     </div>
     \{{/if}}
     <div class="chat-text">

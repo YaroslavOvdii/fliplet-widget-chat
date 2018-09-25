@@ -1,4 +1,4 @@
-# Fliplet Chat Widget
+# Fliplet Chat Widget (v2.0.0)
 
 ## Instance options
 
