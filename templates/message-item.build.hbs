@@ -1,0 +1,42 @@
+<div class="chat \{{#if isFromCurrentUser}}chat-right\{{else}}chat-left\{{/if}}" data-message-id="\{{ id }}">
+  <div class="message-hidden-controls">
+    <div class="msg-time-holder">
+      <div class="msg-time">\{{ timeAgo }}</div>
+    </div>
+    <div class="edit-message-control">
+      <div class="edit-button copy-message">
+        <i class="fa fa-clone"></i>
+        <span>Copy</span>
+      </div>
+      \{{#if isFromCurrentUser}}
+      <div class="edit-button edit-message">
+        <i class="fa fa-pencil"></i>
+        <span>Edit</span>
+      </div>
+      <div class="edit-button delete-message">
+        <i class="fa fa-trash-o"></i>
+        <span>Delete</span>
+      </div>
+      \{{/if}}
+    </div>
+  </div>
+  <div class="chat-body">
+    \{{#unless isFromCurrentUser}}
+      \{{#if isFromGroup}}
+      <div class="chat-name">\{{ name }}</div>
+      \{{/if}}
+    \{{/unless}}
+    \{{#if message.fileType}}
+    <div class="chat-image" style="width: \{{ containerWidth }}; height: \{{ containerHeight }}">
+      <div class="offline-image-holder hidden"><span class="fa fa-picture-o"></span> No internet</div>
+      <img src="\{{ auth message.file.[0] }}" width="\{{ message.imageWidth }}" height="\{{ message.imageHeight }}" />
+    </div>
+    \{{/if}}
+    <div class="chat-text">
+      \{{ formatMessage message.body }}
+    </div>
+    \{{#if message.isEdited}}
+      <div class="chat-edited">Edited</div>
+    \{{/if}}
+  </div>
+</div>

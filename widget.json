@@ -1,15 +1,15 @@
 {
   "name": "Chat",
   "package": "com.fliplet.chat",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "icon": "img/icon.png",
-  "tags": ["category:general"],
+  "tags": ["type:component", "category:general"],
   "provider_only": false,
   "references": [
     "dataSourceId:dataSource",
-    "contactLinkAction.page:page"
+    "securityLinkAction.page:page"
   ],
-  "html_tag": "span",
+  "html_tag": "div",
   "interface": {
     "dependencies": [
       "fliplet-core",
@@ -28,12 +28,14 @@
       "bootstrap",
       "handlebars",
       "font-awesome",
+      "photoswipe",
       "fliplet-core",
       "fliplet-chat"
     ],
     "assets": [
       "vendor/notification.js",
       "vendor/autosize.js",
+      "vendor/load-image.all.min.js",
       "js/build.templates.js",
       "js/build.js",
       "css/chat.css"
