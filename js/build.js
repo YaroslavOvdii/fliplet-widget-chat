@@ -174,13 +174,11 @@ Fliplet.Widget.instance('chat', function (data) {
 
       $chatOverlay.css({
         'transition': 'none',
-        '-webkit-transform': 'translate3d(' + Math.max(deltaX, 0) + 'px, 0, 0)',
         'transform': 'translate3d(' + Math.max(deltaX, 0) + 'px, 0, 0)'
       });
 
       $list.css({
         'transition': 'none',
-        '-webkit-transform': 'translate3d(' + position + 'px, 0, 0)',
         'transform': 'translate3d(' + position + 'px, 0, 0)'
       });
     }
@@ -215,11 +213,9 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     $chatOverlay.css({
-      '-webkit-transform': 'translate3d(0, 0, 0)',
       'transform': 'translate3d(0, 0, 0)'
     });
     $list.css({
-      '-webkit-transform': 'translate3d(-25%, 0, 0)',
       'transform': 'translate3d(-25%, 0, 0)'
     });
   }
@@ -227,12 +223,10 @@ Fliplet.Widget.instance('chat', function (data) {
   function openConversation(conversationId) {
     if (screenWidth < 640) {
       $chatOverlay.css({
-        '-webkit-transform': 'translate3d(0, 0, 0)',
         'transform': 'translate3d(0, 0, 0)',
         'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
       });
       $list.css({
-        '-webkit-transform': 'translate3d(-25%, 0, 0)',
         'transform': 'translate3d(-25%, 0, 0)',
         'transition': 'all ' + ANIMATION_SPEED_SLOW + 'ms ease-out'
       });
@@ -298,11 +292,9 @@ Fliplet.Widget.instance('chat', function (data) {
     $('.chat-card-holder').removeClass('open');
 
     $chatOverlay.css({
-      '-webkit-transform': 'translate3d(100%, 0, 0)',
       'transform': 'translate3d(100%, 0, 0)'
     });
     $list.css({
-      '-webkit-transform': 'translate3d(0, 0, 0)',
       'transform': 'translate3d(0, 0, 0)'
     });
     if (Modernizr.ios) {
@@ -785,7 +777,6 @@ Fliplet.Widget.instance('chat', function (data) {
 
         $(this).css({
           'transition': 'none',
-          '-webkit-transform': 'translate3d(' + totalMove + 'px, 0px, 0px)',
           'transform': 'translate3d(' + totalMove + 'px, 0px, 0px)'
         });
       })
@@ -793,14 +784,12 @@ Fliplet.Widget.instance('chat', function (data) {
         if (totalMove > -66) {
           $(this).removeClass('draggable').css({
             'transition': 'all 150ms ease-out',
-            '-webkit-transform': 'translate3d(0px, 0px, 0px)',
             'transform': 'translate3d(0px, 0px, 0px)'
           });
           $(this).removeClass('toLeftProxy');
         } else {
           $(this).removeClass('draggable').css({
             'transition': 'all 150ms ease-out',
-            '-webkit-transform': 'translate3d(-67px, 0px, 0px)',
             'transform': 'translate3d(-67px, 0px, 0px)'
           });
           $(this).addClass('toLeftProxy');
