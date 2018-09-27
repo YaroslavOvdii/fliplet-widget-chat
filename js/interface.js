@@ -209,6 +209,8 @@ function manageAppData() {
 
 function reloadDataSources(dataSourceId) {
   return Fliplet.DataSources.get({
+    organizationId: organizationId,
+    roles: 'publisher,editor',
     type: null
   }, {
     cache: false
@@ -230,9 +232,18 @@ function reloadDataSources(dataSourceId) {
   });
 }
 
+{
+        roles: 'publisher,editor',
+        type: null
+      }, {
+        cache: false
+      }
+
 // Load the data source for the contacts
 Fliplet.DataSources.get({
-  organizationId: organizationId
+  organizationId: organizationId,
+  roles: 'publisher,editor',
+  type: null
 }).then(function (dataSources) {
   allDataSources = dataSources;
   var options = [];
