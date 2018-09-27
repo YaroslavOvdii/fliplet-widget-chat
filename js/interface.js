@@ -232,13 +232,6 @@ function reloadDataSources(dataSourceId) {
   });
 }
 
-{
-        roles: 'publisher,editor',
-        type: null
-      }, {
-        cache: false
-      }
-
 // Load the data source for the contacts
 Fliplet.DataSources.get({
   organizationId: organizationId,
