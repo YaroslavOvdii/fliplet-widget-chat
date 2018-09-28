@@ -156,7 +156,10 @@ html.native body,
   padding-top: 99px; /* 56 + 15 + 28 - Tweak this based on top bar */
 }
 
-.fl-with-top-menu .chat-holder .chat-list {
+.fl-with-top-menu .chat-holder .chat-list,
+.fl-with-top-menu .loading-area,
+.fl-with-top-menu .error-area,
+.fl-with-top-menu .empty-area {
   padding-top: 119px;
 }
 
