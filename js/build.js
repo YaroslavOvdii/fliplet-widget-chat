@@ -107,7 +107,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var firstNameColumnName = data.firstNameColumnName;
   var lastNameColumnName = data.lastNameColumnName;
   var avatarColumnName = data.avatarColumnName;
-  var titleColumnName = data.titleColumnName;
+  var titleColumnName = data.titleNameColumnName;
   var multipleNameColumns = !!(firstNameColumnName && lastNameColumnName);
 
   var securityScreenAction = data.securityLinkAction;
@@ -1418,8 +1418,8 @@ Fliplet.Widget.instance('chat', function (data) {
     // Map template data
     otherPeopleSorted.forEach(function(person, index) {
       otherPeopleSorted[index]['fullName'] = multipleNameColumns
-        ? person.data[fullNameColumnName]
-        : person.data[firstNameColumnName] + ' ' + person.data[lastNameColumnName];
+        ? person.data[firstNameColumnName] + ' ' + person.data[lastNameColumnName]
+        : person.data[fullNameColumnName];
       otherPeopleSorted[index]['title'] = person.data[titleColumnName];
       otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
     });
