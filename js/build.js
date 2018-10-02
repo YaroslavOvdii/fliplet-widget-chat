@@ -1417,11 +1417,11 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Map template data
     otherPeopleSorted.forEach(function(person, index) {
-      otherPeopleSorted[index][fullName] = multipleNameColumns
+      otherPeopleSorted[index]['fullName'] = multipleNameColumns
         ? person.data[fullNameColumnName]
         : person.data[firstNameColumnName] + ' ' + person.data[lastNameColumnName];
-      otherPeopleSorted[index][title] = person.data[titleColumnName];
-      otherPeopleSorted[index][image] = person.data[avatarColumnName];
+      otherPeopleSorted[index]['title'] = person.data[titleColumnName];
+      otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
     });
 
     // Groups people by initial
