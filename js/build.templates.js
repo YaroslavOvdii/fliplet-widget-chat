@@ -11,7 +11,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.chat-header"] = Handlebars.tem
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.contacts-list"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "{{#each this}}\n  <div class=\"seperator\">{{ @key }}</div>\n  {{#each this}}\n  <div class=\"contact-card\" data-contact-id=\"{{ id }}\">\n    <div class=\"profile-image-holder\">\n      <div class=\"profile-image\" style=\"background-image: url('{{auth data.[Image] }}')\"></div>\n      <i class=\"fl-icon fl-icon-user\"></i>\n    </div>\n    <div class=\"contact-info\">\n      <div class=\"contact-user-name\">{{ data.[First Name] }} {{ data.[Last Name] }}</div>\n      <div class=\"contact-user-preview-holder\">\n        <div class=\"contact-user-preview\">{{ data.[Title] }}</div>\n      </div>\n    </div>\n  </div>\n  {{/each}}\n{{/each}}";
+    return "{{#each this}}\n  <div class=\"seperator\">{{ @key }}</div>\n  {{#each this}}\n  <div class=\"contact-card\" data-contact-id=\"{{ id }}\">\n    <div class=\"profile-image-holder\">\n      <div class=\"profile-image\" style=\"background-image: url('{{auth image }}')\"></div>\n      <i class=\"fl-icon fl-icon-user\"></i>\n    </div>\n    <div class=\"contact-info\">\n      <div class=\"contact-user-name\">{{ fullName }}</div>\n      <div class=\"contact-user-preview-holder\">\n        <div class=\"contact-user-preview\">{{ title }}</div>\n      </div>\n    </div>\n  </div>\n  {{/each}}\n{{/each}}";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.conversation-content"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
