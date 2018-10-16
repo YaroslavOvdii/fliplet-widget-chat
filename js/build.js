@@ -1512,11 +1512,12 @@ Fliplet.Widget.instance('chat', function (data) {
   function getContacts(fromOffline) {
     if (!contactsReqPromise) {
       contactsReqPromise = chat.contacts({ offline: fromOffline }).then(function(response) {
-        return Fliplet.Hooks.run('flChatModifyUsers', {
-          contacts: response
-        }).then(function(modifiedContacts) {
-          if (modifiedContacts[0]) {
-            contacts = modifiedContacts[0];
+        return Fliplet.Hooks.run('beforeChatContactsRendering', {
+          contacts: response,
+          container: $wrapper
+        }).then(function([ hookData ]) {
+          if (hookData) {
+            contacts = hookData.contacts;
           } else {
             contacts = response;
           }
