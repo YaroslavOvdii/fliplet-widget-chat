@@ -255,7 +255,17 @@ Fliplet.Widget.instance('chat', function (data) {
     var participants = _.filter(contacts, function(contact) {
       return participantsIds.indexOf(contact.data.flUserId) > -1;
     });
-    var participantsHTML = groupContactTemplate(participants);
+    var participantsData = _.map(participants, function(participant) {
+      return {
+        id: participant.id,
+        userImage: avatarColumnName ? participant.data[avatarColumnName] : '',
+        userName: !multipleNameColumns
+          ? participant.data[fullNameColumnName]
+          : participant.data[firstNameColumnName] + ' ' + participant.data[lastNameColumnName],
+        userTitle: titleColumnName ? participant.data[titleColumnName] : ''
+      }
+    });
+    var participantsHTML = groupContactTemplate(participantsData);
 
     $('.participants-info').html(currentConversation.name);
     $participantsList.html(participantsHTML);
@@ -361,7 +371,14 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function handleContactSelection(element, selectedUserInfo, userId) {
     var $selectedUsers = $('.show-selected-users');
-    var selectedContactHTML = selectedContactTemplate(selectedUserInfo[0]);
+    var selectedUserData = {
+      id: selectedUserInfo[0].id,
+      userImage: avatarColumnName ? selectedUserInfo[0].data[avatarColumnName] : '',
+      userName: !multipleNameColumns
+        ? selectedUserInfo[0].data[fullNameColumnName]
+        : selectedUserInfo[0].data[firstNameColumnName] + ' ' + selectedUserInfo[0].data[lastNameColumnName]
+    }
+    var selectedContactHTML = selectedContactTemplate(selectedUserData);
     var totalWidth = 0;
 
     if (element.hasClass('contact-selected')) {
@@ -1292,13 +1309,13 @@ Fliplet.Widget.instance('chat', function (data) {
     var searchedData = _.filter(otherPeople, function(obj) {
       var userName = '';
 
-      if (fullNameColumnName) {
+      if (fullNameColumnName && obj.data[fullNameColumnName]) {
         userName = obj.data[fullNameColumnName];
       }
-      if (firstNameColumnName && userName === '') {
+      if (firstNameColumnName && userName === '' && obj.data[firstNameColumnName]) {
         userName = obj.data[firstNameColumnName]
       }
-      if (lastNameColumnName && userName !== '') {
+      if (lastNameColumnName && userName !== '' && obj.data[lastNameColumnName]) {
         userName = userName + ' ' + obj.data[lastNameColumnName]
       }
 
@@ -1306,7 +1323,7 @@ Fliplet.Widget.instance('chat', function (data) {
         return false;
       }
 
-      if (titleColumnName) {
+      if (titleColumnName && obj.data[titleColumnName]) {
         return userName.toLowerCase().indexOf(value) > -1 || obj.data[titleColumnName].toLowerCase().indexOf(value) > -1;
       } else {
         return userName.toLowerCase().indexOf(value) > -1
@@ -1495,14 +1512,24 @@ Fliplet.Widget.instance('chat', function (data) {
   function getContacts(fromOffline) {
     if (!contactsReqPromise) {
       contactsReqPromise = chat.contacts({ offline: fromOffline }).then(function(response) {
-        contacts = response;
+        return Fliplet.Hooks.run('beforeChatContactsRendering', {
+          contacts: response,
+          container: $wrapper
+        }).then(function([ hookData ]) {
+          if (hookData) {
+            contacts = hookData.contacts;
+          } else {
+            contacts = response;
+          }
 
-        // Sort by name and place list in HTML
-        otherPeople = getContactsWithoutCurrentUser();
-        sortContacts(otherPeople);
+          // Sort by name and place list in HTML
+          otherPeople = getContactsWithoutCurrentUser();
+          sortContacts(otherPeople);
 
-        contactsReqPromise = undefined;
-        return Promise.resolve();
+          contactsReqPromise = undefined;
+
+          return Promise.resolve();
+        });
       });
     }
 

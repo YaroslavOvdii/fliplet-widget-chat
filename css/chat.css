@@ -796,6 +796,7 @@ html.native body,
   z-index: 5;
   padding: 0 15px;
   white-space: nowrap;
+  word-break: break-word;
   overflow-x: auto;
   overflow-y: hidden;
   background-color: #ffffff;
@@ -885,6 +886,9 @@ html.native body,
 
 .contact-image-holder .contact-name-holder {
   font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .group-buttons-label p {
