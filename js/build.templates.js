@@ -27,7 +27,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.conversations-group"] = Handle
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.group-contacts-template"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "{{#each this}}\n<div class=\"contact-card\" data-contact-id=\"{{ id }}\">\n  <div class=\"profile-image-holder\">\n    <div class=\"profile-image\" style=\"background-image: url('{{auth data.[Image] }}')\"></div>\n    <i class=\"fa fa-user\"></i>\n  </div>\n  <div class=\"contact-info\">\n    <div class=\"contact-user-name\">{{ data.[First Name] }} {{ data.[Last Name] }}</div>\n    <div class=\"contact-user-preview-holder\">\n      <div class=\"contact-user-preview\">{{ data.[Title] }}</div>\n    </div>\n  </div>\n</div>\n{{/each}}";
+    return "{{#each this}}\n<div class=\"contact-card\" data-contact-id=\"{{ id }}\">\n  <div class=\"profile-image-holder\">\n    <div class=\"profile-image\" style=\"background-image: url('{{auth userImage }}')\"></div>\n    <i class=\"fa fa-user\"></i>\n  </div>\n  <div class=\"contact-info\">\n    <div class=\"contact-user-name\">{{ userName }}</div>\n    <div class=\"contact-user-preview-holder\">\n      <div class=\"contact-user-preview\">{{ userTitle }}</div>\n    </div>\n  </div>\n</div>\n{{/each}}";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.message-item"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -55,5 +55,5 @@ this["Fliplet"]["Widget"]["Templates"]["templates.new-conversation"] = Handlebar
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.select-contact-bubble"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"contact-image-holder\" data-selected-contact-id=\"{{ id }}\">\n  <div class=\"contact-image-wrapper\">\n    <div class=\"contact-profile-image\" style=\"background-image: url('{{auth data.[Image] }}')\"></div>\n    <i class=\"fa fa-user\"></i>\n    <i class=\"fa fa-times\"></i>\n  </div>\n  <div class=\"contact-name-holder\">{{ data.[First Name] }}</div>\n</div>";
+    return "<div class=\"contact-image-holder\" data-selected-contact-id=\"{{ id }}\">\n  <div class=\"contact-image-wrapper\">\n    <div class=\"contact-profile-image\" style=\"background-image: url('{{auth userImage }}')\"></div>\n    <i class=\"fa fa-user\"></i>\n    <i class=\"fa fa-times\"></i>\n  </div>\n  <div class=\"contact-name-holder\">{{ userName }}</div>\n</div>";
 },"useData":true});

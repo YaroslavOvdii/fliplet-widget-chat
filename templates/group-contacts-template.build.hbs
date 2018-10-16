@@ -1,13 +1,13 @@
 \{{#each this}}
 <div class="contact-card" data-contact-id="\{{ id }}">
   <div class="profile-image-holder">
-    <div class="profile-image" style="background-image: url('\{{auth data.[Image] }}')"></div>
+    <div class="profile-image" style="background-image: url('\{{auth userImage }}')"></div>
     <i class="fa fa-user"></i>
   </div>
   <div class="contact-info">
-    <div class="contact-user-name">\{{ data.[First Name] }} \{{ data.[Last Name] }}</div>
+    <div class="contact-user-name">\{{ userName }}</div>
     <div class="contact-user-preview-holder">
-      <div class="contact-user-preview">\{{ data.[Title] }}</div>
+      <div class="contact-user-preview">\{{ userTitle }}</div>
     </div>
   </div>
 </div>
