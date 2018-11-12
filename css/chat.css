@@ -1378,6 +1378,18 @@ html.native body,
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+.show-more-contacts {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.show-more-contacts .btn {
+  background-color: transparent;
+  border: 1px solid #337ab7;
+  border-radius: 20px;
+  color: #337ab7;
+}
+
 @media screen and (min-width: 640px) {
   .chat-holder {
     display: flex;
