@@ -303,7 +303,9 @@ Fliplet.Widget.instance('chat', function (data) {
     $wrapper.removeClass('in-contacts');
 
     // Clean the selected contacts
+
     removeSelected();
+    clearSearch();
 
     // Scroll up
     $('.all-users-holder').scrollTop(0);
@@ -2310,7 +2312,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    getContacts(true).then(function() {
+    getContacts(false).then(function() {
       return getConversations(true);
     }).then(function() {
       return chat.stream(onNewMessage, { offline: false });
