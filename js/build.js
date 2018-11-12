@@ -1356,7 +1356,7 @@ Fliplet.Widget.instance('chat', function (data) {
       }
     });
 
-    sortContacts(searchedData);
+    sortContacts(searchedData, true);
 
     if (contactsSelected.length) {
       contactsSelected.forEach(function(contact) {
@@ -1414,7 +1414,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   /* CHAT FEATURE FUNCTIONS */
-  function sortContacts(peopleList) {
+  function sortContacts(peopleList, fromSearch) {
     // Custom sort of names
     var customSorted = _.sortBy(peopleList, function (obj) {
       obj.data['customSortName'] = obj.data[fullNameColumnName] || obj.data[firstNameColumnName] || '';
@@ -1490,13 +1490,14 @@ Fliplet.Widget.instance('chat', function (data) {
       otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
     });
 
-    renderListOfPeople(otherPeopleSorted);
+    renderListOfPeople(otherPeopleSorted, fromSearch);
   }
 
-  function renderListOfPeople(listOfPeople) {
+  function renderListOfPeople(listOfPeople, fromSearch) {
     var entriesToShow = listOfPeople;
+    $('.show-more-contacts').addClass('hidden');
 
-    if (data.limitContacts && data.howManyEntriesToShow) {
+    if (data.limitContacts && data.howManyEntriesToShow && !fromSearch) {
       entriesToShow = incrementalShow(listOfPeople);
     }
 
