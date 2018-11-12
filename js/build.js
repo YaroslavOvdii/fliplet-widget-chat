@@ -64,6 +64,13 @@ Fliplet.Widget.instance('chat', function (data) {
   var pswpElement = document.querySelectorAll('.pswp')[0];
   var galleries = {};
 
+  // Show More Variables
+  var showStartIndex = 0;
+  var howManyEntriesToShow = data.howManyEntriesToShow;
+  var showEndIndex = howManyEntriesToShow;
+  var totalEntriesToShow = []; // Used for comparisson purposes
+  var entriesToAppend;
+
   /* Templates */
   var conversationGroupsTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.conversations-group']());
   var conversationTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.conversation-item']());
@@ -90,6 +97,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var messageToEdit;
   var contacts = [];
   var otherPeople = [];
+  var otherPeopleSorted;
   var contactsSelected = [];
   var currentUser;
   var scrollToMessageTimeout;
@@ -291,8 +299,23 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function closeContacts() {
-    removeSelected();
+    // Close
     $wrapper.removeClass('in-contacts');
+
+    // Clean the selected contacts
+    removeSelected();
+
+    // Scroll up
+    $('.all-users-holder').scrollTop(0);
+
+    // Reset contacts list if limit is ON
+    if (data.limitContacts) {
+      showStartIndex = 0;
+      howManyEntriesToShow = data.howManyEntriesToShow;
+      showEndIndex = howManyEntriesToShow;
+      totalEntriesToShow = [];
+      renderListOfPeople(otherPeopleSorted);
+    }
   }
 
   function closeConversation(clickedChat) {
@@ -1034,6 +1057,9 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.clear-image', function() {
         resetImages();
+      })
+      .on('click', '.show-more-contacts .btn', function() {
+        renderListOfPeople(otherPeopleSorted);
       });
 
     var iScrollPos = 0;
@@ -1364,6 +1390,29 @@ Fliplet.Widget.instance('chat', function (data) {
     $(selectorsArray.join(', ')).addClass('contact-selected');
   }
 
+  function incrementalShow(peopleList) {
+    entriesToAppend = peopleList.slice(showStartIndex, showEndIndex);
+    entriesToShow();
+    $('.show-more-contacts').removeClass('hidden');
+    
+    if (totalEntriesToShow.length === showEndIndex) {
+      showStartIndex = showEndIndex;
+      showEndIndex = showStartIndex + howManyEntriesToShow;
+    }
+    
+    if (totalEntriesToShow.length === peopleList.length) {
+      $('.show-more-contacts').addClass('hidden');
+    }
+
+    return totalEntriesToShow;
+  }
+
+  function entriesToShow() {
+    entriesToAppend.forEach(function(item) {
+      totalEntriesToShow.push(item);
+    });
+  }
+
   /* CHAT FEATURE FUNCTIONS */
   function sortContacts(peopleList) {
     // Custom sort of names
@@ -1372,12 +1421,12 @@ Fliplet.Widget.instance('chat', function (data) {
       var value = obj.data['customSortName'].toString().toUpperCase();
       // Push all non-alphabetical values to after the 'z' character
       // based on Unicode values
-      return value.match(/[A-Za-z]/)
+      return value.normalize('NFD').match(/[A-Za-z]/)
         ? value
         : '{' + value;
     });
 
-    var otherPeopleSorted = _.orderBy(customSorted, function(obj) {
+    otherPeopleSorted = _.orderBy(customSorted, function(obj) {
       var value = obj.data['customSortName'].toString();
       var nameArray = value.split(' ');
       var foundCapital = 0;
@@ -1385,11 +1434,11 @@ Fliplet.Widget.instance('chat', function (data) {
 
       if (nameArray.length > 1) {
         nameArray.forEach(function(element, index) {
-          if ( element.charAt(0).match(/[a-z]/) ) {
+          if ( element.charAt(0).normalize('NFD').match(/[a-z]/) ) {
             return;
           }
 
-          if ( element.charAt(0).match(/[A-Z]/) && !foundCapital ) {
+          if ( element.charAt(0).normalize('NFD').match(/[A-Z]/) && !foundCapital ) {
             value = element;
             foundCapital++;
             firstCapital = element;
@@ -1411,11 +1460,11 @@ Fliplet.Widget.instance('chat', function (data) {
 
       if (nameArray.length > 1) {
         nameArray.forEach(function(element, index) {
-          if ( element.charAt(0).match(/[a-z]/) ) {
+          if ( element.charAt(0).normalize('NFD').match(/[a-z]/) ) {
             return;
           }
 
-          if ( element.charAt(0).match(/[A-Z]/) && !foundCapital ) {
+          if ( element.charAt(0).normalize('NFD').match(/[A-Z]/) && !foundCapital ) {
             value = element;
             foundCapital++;
             firstCapital = element;
@@ -1425,7 +1474,7 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       }
 
-      if (!value.charAt(0).match(/[A-Za-z]/)) {
+      if (!value.charAt(0).normalize('NFD').match(/[A-Za-z]/)) {
         person.letterGroup = '#'
       } else {
         person.letterGroup = value.charAt(0);
@@ -1441,8 +1490,18 @@ Fliplet.Widget.instance('chat', function (data) {
       otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
     });
 
+    renderListOfPeople(otherPeopleSorted);
+  }
+
+  function renderListOfPeople(listOfPeople) {
+    var entriesToShow = listOfPeople;
+
+    if (data.limitContacts && data.howManyEntriesToShow) {
+      entriesToShow = incrementalShow(listOfPeople);
+    }
+
     // Groups people by initial
-    var peopleGroupedByLetter = _.groupBy(otherPeopleSorted, function(obj) { return obj.letterGroup; });
+    var peopleGroupedByLetter = _.groupBy(entriesToShow, function(obj) { return obj.letterGroup; });
 
     // Add contacts to list
     var contactsListHTML = contactsListTemplate(peopleGroupedByLetter);

@@ -11,6 +11,7 @@ var $lastName = $('[name="lastName"]');
 var $fullName = $('[name="fullName"]');
 var $avatar = $('[name="avatar"]');
 var $titleName = $('[name="titleName"]');
+var $contactsNumber = $('#contacts-number');
 var $userInformationFields = $('[name="emailAddress"], [name="firstName"], [name="lastName"], [name="fullName"], [name="avatar"], [name="titleName"]');
 
 // Set link action to screen by default
@@ -23,6 +24,10 @@ if (!data.securityLinkAction) {
       hideAction: true
     }
   };
+}
+
+if (data.howManyEntriesToShow) {
+  $contactsNumber.val(data.howManyEntriesToShow.toString());
 }
 
 var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
@@ -104,6 +109,10 @@ function save(notifyComplete) {
   data.lastNameColumnName = $lastName.val();
   data.titleNameColumnName = $titleName.val();
   data.avatarColumnName = $avatar.val();
+  data.howManyEntriesToShow = $contactsNumber.val() !== ''
+    ? parseInt($contactsNumber.val(), 10)
+    : '';
+  data.limitContacts = !!data.howManyEntriesToShow;
 
   Fliplet.Widget.save(data).then(function () {
     if (notifyComplete) {
