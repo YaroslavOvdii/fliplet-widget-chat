@@ -303,8 +303,8 @@ Fliplet.Widget.instance('chat', function (data) {
     $wrapper.removeClass('in-contacts');
 
     // Clean the selected contacts
-
     removeSelected();
+    // Clear search
     clearSearch();
 
     // Scroll up
