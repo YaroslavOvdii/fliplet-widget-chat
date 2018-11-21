@@ -994,6 +994,22 @@ Fliplet.Widget.instance('chat', function (data) {
         .catch(function(error) {
           $holder.addClass('error');
 
+          var actions = [];
+          if (error) {
+            actions.push({
+              label: 'Details',
+              action: function () {
+                Fliplet.UI.Toast({
+                  message: Fliplet.parseError(error)
+                });
+              }
+            });
+          }
+          Fliplet.UI.Toast({
+            message: 'Error loading data',
+            actions: actions
+          });
+
           setTimeout(function() {
             $holder.removeClass('error');
           }, 1000);
@@ -1943,7 +1959,21 @@ Fliplet.Widget.instance('chat', function (data) {
 
       return Promise.resolve(previousMessages);
     }).catch(function(error) {
-      console.warn(error);
+      var actions = [];
+      if (error) {
+        actions.push({
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              message: Fliplet.parseError(error)
+            });
+          }
+        });
+      }
+      Fliplet.UI.Toast({
+        message: 'Error loading messages',
+        actions: actions
+      });
     });
   }
 
@@ -2331,10 +2361,25 @@ Fliplet.Widget.instance('chat', function (data) {
         return getConversations(false);
       });
     }).catch(function(error) {
-      console.warn(error);
       $wrapper.removeClass('loading');
       $wrapper.removeClass('empty');
       $wrapper.addClass('error');
+
+      var actions = [];
+      if (error) {
+        actions.push({
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              message: Fliplet.parseError(error)
+            });
+          }
+        });
+      }
+      Fliplet.UI.Toast({
+        message: 'Error logging in',
+        actions: actions
+      });
     });
   }
 
@@ -2378,8 +2423,23 @@ Fliplet.Widget.instance('chat', function (data) {
   }).then(function onLoginSuccess(user) {
     return setCurrentUser(user).then(onLogin);
   }).catch(function(error) {
-    console.error(error);
     $wrapper.removeClass('loading');
     $wrapper.addClass('error');
+
+    var actions = [];
+    if (error) {
+      actions.push({
+        label: 'Details',
+        action: function () {
+          Fliplet.UI.Toast({
+            message: Fliplet.parseError(error)
+          });
+        }
+      });
+    }
+    Fliplet.UI.Toast({
+      message: 'Error connecting you to chat',
+      actions: actions
+    });
   });
 });
