@@ -116,7 +116,11 @@ Fliplet.Widget.instance('chat', function (data) {
   var lastNameColumnName = data.lastNameColumnName;
   var avatarColumnName = data.avatarColumnName;
   var titleColumnName = data.titleNameColumnName;
-  var multipleNameColumns = !!(firstNameColumnName && lastNameColumnName);
+  var multipleNameColumns = false;
+  if (typeof firstNameColumnName === 'string' && firstNameColumnName !== ''
+    && typeof lastNameColumnName === 'string' && lastNameColumnName !== '') {
+    multipleNameColumns = true;
+  }
 
   var securityScreenAction = data.securityLinkAction;
   var chatConnection = Fliplet.Chat.connect({

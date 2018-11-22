@@ -103,12 +103,12 @@ function save(notifyComplete) {
   data.pushNotifications = true;
 
   data.dataSourceId = $dataSources.val();
-  data.crossLoginColumnName = $emailAddress.val();
-  data.fullNameColumnName = $fullName.val();
-  data.firstNameColumnName = $firstName.val();
-  data.lastNameColumnName = $lastName.val();
-  data.titleNameColumnName = $titleName.val();
-  data.avatarColumnName = $avatar.val();
+  data.crossLoginColumnName = $emailAddress.val() !== 'none' ? $emailAddress.val() : undefined;
+  data.fullNameColumnName = $fullName.val() !== 'none' ? $fullName.val() : undefined;
+  data.firstNameColumnName = $firstName.val() !== 'none' ? $firstName.val() : undefined;
+  data.lastNameColumnName = $lastName.val() !== 'none' ? $lastName.val() : undefined;
+  data.titleNameColumnName = $titleName.val() !== 'none' ? $titleName.val() : undefined;
+  data.avatarColumnName = $avatar.val() !== 'none' ? $avatar.val() : undefined;
   data.howManyEntriesToShow = $contactsNumber.val() !== ''
     ? parseInt($contactsNumber.val(), 10)
     : '';
@@ -136,7 +136,7 @@ function getColumns(dataSourceId) {
     cache: false
   }).then(function (dataSource) {
      var options = [
-      '<option value="">-- Select a field</option>'
+      '<option value="none">-- Select a field</option>'
     ];
 
     dataSource.columns.forEach(function (c) {
