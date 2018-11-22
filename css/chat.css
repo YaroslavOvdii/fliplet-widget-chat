@@ -461,7 +461,7 @@ html.native body,
 
 .group-name-holder,
 .group-participants-holder {
-  z-index: 13;
+  z-index: 1013;
 }
 
 .in-contacts .contacts-holder-overlay {

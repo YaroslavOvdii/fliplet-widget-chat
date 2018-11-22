@@ -116,7 +116,11 @@ Fliplet.Widget.instance('chat', function (data) {
   var lastNameColumnName = data.lastNameColumnName;
   var avatarColumnName = data.avatarColumnName;
   var titleColumnName = data.titleNameColumnName;
-  var multipleNameColumns = !!(firstNameColumnName && lastNameColumnName);
+  var multipleNameColumns = false;
+  if (typeof firstNameColumnName === 'string' && firstNameColumnName !== ''
+    && typeof lastNameColumnName === 'string' && lastNameColumnName !== '') {
+    multipleNameColumns = true;
+  }
 
   var securityScreenAction = data.securityLinkAction;
   var chatConnection = Fliplet.Chat.connect({
@@ -268,8 +272,8 @@ Fliplet.Widget.instance('chat', function (data) {
         id: participant.id,
         userImage: avatarColumnName ? participant.data[avatarColumnName] : '',
         userName: !multipleNameColumns
-          ? participant.data[fullNameColumnName]
-          : participant.data[firstNameColumnName] + ' ' + participant.data[lastNameColumnName],
+          ? participant.data['flChatFullName']
+          : participant.data['flChatFirstName'] + ' ' + participant.data['flChatLastName'],
         userTitle: titleColumnName ? participant.data[titleColumnName] : ''
       }
     });
@@ -400,8 +404,8 @@ Fliplet.Widget.instance('chat', function (data) {
       id: selectedUserInfo[0].id,
       userImage: avatarColumnName ? selectedUserInfo[0].data[avatarColumnName] : '',
       userName: !multipleNameColumns
-        ? selectedUserInfo[0].data[fullNameColumnName]
-        : selectedUserInfo[0].data[firstNameColumnName] + ' ' + selectedUserInfo[0].data[lastNameColumnName]
+        ? selectedUserInfo[0].data['flChatFullName']
+        : selectedUserInfo[0].data['flChatFirstName'] + ' ' + selectedUserInfo[0].data['flChatLastName']
     }
     var selectedContactHTML = selectedContactTemplate(selectedUserData);
     var totalWidth = 0;
@@ -1353,14 +1357,14 @@ Fliplet.Widget.instance('chat', function (data) {
     var searchedData = _.filter(otherPeople, function(obj) {
       var userName = '';
 
-      if (fullNameColumnName && obj.data[fullNameColumnName]) {
-        userName = obj.data[fullNameColumnName];
+      if (fullNameColumnName && obj.data['flChatFullName']) {
+        userName = obj.data['flChatFullName'];
       }
-      if (firstNameColumnName && userName === '' && obj.data[firstNameColumnName]) {
-        userName = obj.data[firstNameColumnName]
+      if (firstNameColumnName && userName === '' && obj.data['flChatFirstName']) {
+        userName = obj.data['flChatFirstName']
       }
-      if (lastNameColumnName && userName !== '' && obj.data[lastNameColumnName]) {
-        userName = userName + ' ' + obj.data[lastNameColumnName]
+      if (lastNameColumnName && userName !== '' && obj.data['flChatLastName']) {
+        userName = userName + ' ' + obj.data['flChatLastName']
       }
 
       if (userName === '') {
@@ -1435,7 +1439,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function sortContacts(peopleList, fromSearch) {
     // Custom sort of names
     var customSorted = _.sortBy(peopleList, function (obj) {
-      obj.data['customSortName'] = obj.data[fullNameColumnName] || obj.data[firstNameColumnName] || '';
+      obj.data['customSortName'] = obj.data['flChatFullName'] || obj.data['flChatFirstName'] || '';
       var value = obj.data['customSortName'].toString().toUpperCase();
       // Push all non-alphabetical values to after the 'z' character
       // based on Unicode values
@@ -1471,7 +1475,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Adds first letter for each person to be grouped by
     otherPeopleSorted.forEach(function(person) {
-      var value = person.data[fullNameColumnName || firstNameColumnName].toString();
+      var value = person.data['flChatFullName'] || person.data['flChatFirstName'] || '';
+      value = value.toString();
       var nameArray = value.split(' ');
       var foundCapital = 0;
       var firstCapital;
@@ -1502,8 +1507,8 @@ Fliplet.Widget.instance('chat', function (data) {
     // Map template data
     otherPeopleSorted.forEach(function(person, index) {
       otherPeopleSorted[index]['fullName'] = multipleNameColumns
-        ? person.data[firstNameColumnName] + ' ' + person.data[lastNameColumnName]
-        : person.data[fullNameColumnName];
+        ? person.data['flChatFirstName'] + ' ' + person.data['flChatLastName']
+        : person.data['flChatFullName'];
       otherPeopleSorted[index]['title'] = person.data[titleColumnName];
       otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
     });
@@ -1584,6 +1589,16 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
+  function normalizeData(users) {
+    users.forEach(function(user) {
+      user.data['flChatFirstName'] = user.data[firstNameColumnName] || '';
+      user.data['flChatLastName'] = user.data[lastNameColumnName] || '';
+      user.data['flChatFullName'] = user.data[fullNameColumnName] || '';
+    });
+
+    return users;
+  }
+
   /* Get contacts function */
   var contactsReqPromise;
 
@@ -1600,6 +1615,8 @@ Fliplet.Widget.instance('chat', function (data) {
             contacts = response;
           }
 
+          // Normalize contacts data
+          contacts = normalizeData(contacts);
           // Sort by name and place list in HTML
           otherPeople = getContactsWithoutCurrentUser();
           sortContacts(otherPeople);
@@ -1855,8 +1872,8 @@ Fliplet.Widget.instance('chat', function (data) {
           return allParticipants.indexOf(c.data.flUserId) !== -1;
         }).map(function(c) {
           return multipleNameColumns
-            ? c.data[firstNameColumnName] + ' ' + c.data[lastNameColumnName]
-            : c.data[fullNameColumnName];
+            ? c.data['flChatFirstName'] + ' ' + c.data['flChatLastName']
+            : c.data['flChatFullName'];
         })).join(', ').trim();
 
         var friend = _.find(otherPeople, function(p) {
@@ -2113,8 +2130,8 @@ Fliplet.Widget.instance('chat', function (data) {
         isFromGroup: message.fromGroup,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         name: multipleNameColumns
-          ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName]
-          : sender.data[fullNameColumnName],
+          ? sender.data['flChatFirstName'] + ' ' + sender.data['flChatLastName']
+          : sender.data['flChatFullName'],
         avatar: sender.data[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
@@ -2177,7 +2194,9 @@ Fliplet.Widget.instance('chat', function (data) {
       var messageHTML = chatMessageTemplate({
         id: message.id,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
-        name: multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[fullNameColumnName],
+        name: multipleNameColumns
+        ? sender.data['flChatFirstName'] + ' ' + sender.data['flChatLastName']
+        : sender.data['flChatFullName'],
         avatar: sender.data[avatarColumnName],
         message: message.data,
         timeAgo: message.createdAtDate.calendar(null, {
@@ -2315,7 +2334,9 @@ Fliplet.Widget.instance('chat', function (data) {
             if ((!currentConversation || !isActiveWindow) && messagesIds.indexOf(message.id) === -1) {
               var sender = findContact(message.data.fromUserId);
               if (sender) {
-                var notification = Notification(multipleNameColumns ? sender.data[firstNameColumnName] + ' ' + sender.data[lastNameColumnName] : sender.data[fullNameColumnName], {
+                var notification = Notification(multipleNameColumns
+                  ? sender.data['flChatFirstName'] + ' ' + sender.data['flChatLastName']
+                  : sender.data['flChatFullName'], {
                   body: message.data.body,
                   icon: $('link[rel="icon"]').attr('href'),
                   timestamp: message.createdAtDate.unix(),
