@@ -30,7 +30,8 @@
       "font-awesome",
       "photoswipe",
       "fliplet-core",
-      "fliplet-chat"
+      "fliplet-chat",
+      "clipboardjs"
     ],
     "assets": [
       "vendor/notification.js",
