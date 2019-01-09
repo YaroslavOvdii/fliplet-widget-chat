@@ -54,6 +54,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var listOffset;
   var opacity = 0.3;
   var allowClick = true;
+  var clipboardjs;
   var autosizeInit = false;
   /** PHOTOSWIPE **/
   var photoswipeHtml = '<!-- Root element of PhotoSwipe. Must have class pswp. --> <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"> <!-- Background of PhotoSwipe. It s a separate element as animating opacity is faster than rgba(). --> <div class="pswp__bg"></div> <!-- Slides wrapper with overflow:hidden. --> <div class="pswp__scroll-wrap"> <!-- Container that holds slides. PhotoSwipe keeps only 3 of them in the DOM to save memory. Don t modify these 3 pswp__item elements, data is added later on. --> <div class="pswp__container"> <div class="pswp__item"></div> <div class="pswp__item"></div> <div class="pswp__item"></div> </div> <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. --> <div class="pswp__ui pswp__ui--hidden"> <div class="pswp__top-bar"> <!-- Controls are self-explanatory. Order can be changed. --> <div class="pswp__counter"></div> <button class="pswp__button pswp__button--close" title="Close (Esc)"></button> <!-- <button class="pswp__button pswp__button--share" title="Share"> --> </button> <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button> <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button> <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR --> <!-- element will get class pswp__preloader--active when preloader is running --> <div class="pswp__preloader"> <div class="pswp__preloader__icn"> <div class="pswp__preloader__cut"> <div class="pswp__preloader__donut"></div> </div> </div> </div> </div> <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"> <div class="pswp__share-tooltip"></div> </div> <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"> </button> <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"> </button> <div class="pswp__caption"> <div class="pswp__caption__center"></div> </div> </div> </div> </div>';
@@ -140,36 +141,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var jpegQuality = 80;
   var customWidth = 1024;
   var customHeight = 1024;
-
-  // Copy to clipboard text prototype
-  HTMLElement.prototype.copyText = function() {
-    var range = document.createRange();
-    this.style.webkitUserSelect = 'text';
-    range.selectNode(this);
-    window.getSelection().addRange(range);
-    this.style.webkitUserSelect = 'inherit';
-
-    try {
-      // Now that we've selected the anchor text, execute the copy command
-      var successful = document.execCommand('copy');
-      var msg = successful ? 'successful' : 'unsuccessful';
-    } catch(err) {
-      console.error('Oops, unable to copy', err);
-    }
-
-    // Remove the selections - NOTE: Should use
-    // removeRange(range) when it is supported
-    window.getSelection().removeAllRanges();
-  };
-
-  if (typeof jQuery !== 'undefined') {
-    $.fn.copyText = function(){
-      return $(this).each(function(i){
-        if (i > 0) return;
-        this.copyText();
-      });
-    };
-  }
 
   function panChat(e) {
     listOffset = listOffset || $list.offset().left;
@@ -732,6 +703,26 @@ Fliplet.Widget.instance('chat', function (data) {
       screenWidth = $(window).width();
     });
 
+    clipboardjs = new ClipboardJS('.copy-message', {
+      text: function(trigger) {
+          var text = trigger.getAttribute('data-clipboard-text');
+          if (!text) {
+            return;
+          }
+          return text;
+      }
+    });
+
+    clipboardjs.on('success', function(e) {
+      e.clearSelection();
+
+      $('.chat-area').addClass('copied');
+      $('.chat.tapped').removeClass('tapped');
+      setTimeout(function() {
+        $('.chat-area').removeClass('copied');
+      }, 1200);
+    });
+
     $(document)
       .on('click', '.chat-image', function(e) {
         e.stopPropagation();
@@ -870,17 +861,6 @@ Fliplet.Widget.instance('chat', function (data) {
           longPressed = false;
         }, 0);
         return;
-      })
-      .on('click', '.copy-message', function() {
-        var _this = $(this);
-        var elementToCopy = $(this).parents('.chat').find('.chat-text');
-        elementToCopy.copyText();
-
-        $('.chat-area').addClass('copied');
-        $('.chat.tapped').removeClass('tapped');
-        setTimeout(function() {
-          $('.chat-area').removeClass('copied');
-        }, 1200);
       })
       .on('click', '.edit-message', function() {
         messageToEdit = $(this).parents('.chat').data('message-id');
