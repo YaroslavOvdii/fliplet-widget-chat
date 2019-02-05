@@ -1531,7 +1531,7 @@ Fliplet.Widget.instance('chat', function (data) {
       otherPeopleSorted[index]['fullName'] = multipleNameColumns
         ? person.data['flChatFirstName'] + ' ' + person.data['flChatLastName']
         : person.data['flChatFullName'];
-      otherPeopleSorted[index]['title'] = person.data[titleColumnName];
+      otherPeopleSorted[index]['title'] = person.data[titleColumnName] || person.data.flChatDescription;
       otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
     });
 
@@ -1894,7 +1894,8 @@ Fliplet.Widget.instance('chat', function (data) {
               participants: channel.definition.participants,
               fullName: channel.name,
               flChatFirstName: channel.name,
-              flChatFullName: channel.name
+              flChatFullName: channel.name,
+              flChatDescription: '<i class="fa fa-user"></i> ' + channel.definition.participants.length
             }
           };
         });

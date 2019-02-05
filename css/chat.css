@@ -919,11 +919,20 @@ html.native body,
 
 .group-tabs-holder label {
   flex: 1;
-  margin: 0 10px;
   padding: 5px 10px;
-  border: 2px solid blue;
-  border-radius: 30px;
+  border: 2px solid #337ab7;
   text-align: center;
+  color: #337ab7;
+}
+
+.group-tabs-holder label:first-of-type {
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+}
+
+.group-tabs-holder label:last-of-type {
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
 }
 
 .group-tabs-holder label:hover {
@@ -931,7 +940,7 @@ html.native body,
 }
 
 .group-tabs-holder input:checked + label {
-  background: blue;
+  background: #337ab7;
   color: #FFF;
 }
 
