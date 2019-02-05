@@ -281,8 +281,12 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function getChatChannels() {
     if (!fetchChatChannels) {
-      fetchChatChannels = Fliplet.Hooks.run('chatChannels', {
-        chat: chat
+      fetchChatChannels = Fliplet.DataSources.get({
+        appId: Fliplet.Env.get('appId'),
+        type: 'conversation',
+        definition: { group: { public: true } }
+      }, {
+        cache: false
       });
     }
 
@@ -653,6 +657,16 @@ Fliplet.Widget.instance('chat', function (data) {
     createGroupConversation(groupData);
   }
 
+  function joinPublicChannel(channel) {
+    if (!Fliplet.Navigator.isOnline()){
+      Fliplet.UI.Toast({
+        title: 'You are offline',
+        message: 'An internet connection is necessary to join a public channel.'
+      });
+      return;
+    }
+  }
+
   function createNewChatGroup() {
     var groupName = $('.group-name-field').val();
     var userIds = _.map(contactsSelected, function (el) { return el.id; });
@@ -778,11 +792,15 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.contacts-user-list .contact-card', function() {
         var userId = $(this).data('contact-id');
-        var selectedUserInfo = _.filter(otherPeople, function(o) { return o.id === userId; });
+        var selectedUserInfo = _.filter(getCurrentContactsList(), function(o) { return o.id === userId; });
 
         if (allowClick) {
-          $(this).toggleClass('contact-selected');
-          handleContactSelection($(this), selectedUserInfo, userId);
+          if (isViewingChannels) {
+            // TODO: Add current user to channel
+          } else {
+            $(this).toggleClass('contact-selected');
+            handleContactSelection($(this), selectedUserInfo, userId);
+          }
         }
       })
       .on('click', '.show-more', function(e) {
@@ -1864,20 +1882,16 @@ Fliplet.Widget.instance('chat', function (data) {
       //   $('.predefined-groups-holder').html('');
       // }
 
-      getChatChannels().then(function ([ result ]) {
-        if (typeof result !== 'object') {
+      getChatChannels().then(function (result) {
+        if (!result.length) {
           return;
         }
 
-        if (!Array.isArray(result.channels)) {
-          throw new Error('No channels have been defined');
-        }
-
-        channels = result.channels.map(function (channel) {
+        channels = result.map(function (channel) {
           return {
-            id: Fliplet.guid(),
+            id: channel.id,
             data: {
-              participants: channel.participants,
+              participants: channel.definition.participants,
               fullName: channel.name,
               flChatFirstName: channel.name,
               flChatFullName: channel.name
@@ -1885,10 +1899,9 @@ Fliplet.Widget.instance('chat', function (data) {
           };
         });
 
-        // Default label for second tab
-        result.label = result.label || 'Channels';
-
-        $('.predefined-groups-holder').html(groupTabsTemplate(result));
+        $('.predefined-groups-holder').html(groupTabsTemplate({
+          channels: channels
+        }));
       });
 
       // Add a readable name to the conversation, based on the other people in the group

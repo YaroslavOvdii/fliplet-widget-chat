@@ -31,7 +31,7 @@ this["Fliplet"]["Widget"]["Templates"]["templates.group-contacts-template"] = Ha
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.group-tabs"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<section class=\"group-tabs-holder\">\n  <input type=\"radio\" name=\"group-tabs\" checked=\"checked\" id=\"group-tabs-0\" value=\"\" />\n  <label for=\"group-tabs-0\">Direct messages</label>\n  <input type=\"radio\" name=\"group-tabs\" id=\"group-tabs-1\" value=\"1\" />\n  <label for=\"group-tabs-1\">{{label}}</label>\n</section>";
+    return "<section class=\"group-tabs-holder\">\n  <input type=\"radio\" name=\"group-tabs\" checked=\"checked\" id=\"group-tabs-0\" value=\"\" />\n  <label for=\"group-tabs-0\">Direct messages</label>\n  <input type=\"radio\" name=\"group-tabs\" id=\"group-tabs-1\" value=\"1\" />\n  <label for=\"group-tabs-1\">Public channels</label>\n</section>";
 },"useData":true});
 
 this["Fliplet"]["Widget"]["Templates"]["templates.message-item"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
