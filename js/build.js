@@ -689,6 +689,9 @@ Fliplet.Widget.instance('chat', function (data) {
     chat.channels.join(channelsSelected[0].id).then(function (channel) {
       var toast = Fliplet.UI.Toast('Successfully joined channel');
 
+      // refetch channels next time the view is opened
+      fetchChatChannels = null;
+
       return getContacts(false).then(function() {
         return getConversations(false);
       }).then(function () {
@@ -696,6 +699,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
         channelsSelected = [];
         $('.contacts-done-holder').removeClass('creating');
+        $('[name="group-tabs"]:eq(0)').click();
+        clearSearch();
         closeGroupCreationSettings();
         closeContacts();
         scrollToMessageTs = 100;
