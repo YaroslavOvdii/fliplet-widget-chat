@@ -231,7 +231,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function openContacts() {
     // Reset to contacts list
     isViewingChannels = false;
-    $('[name="group-tabs"]:eq(0)').click();
+    switchToContactsList();
 
     $wrapper.addClass('in-contacts');
   }
@@ -651,6 +651,10 @@ Fliplet.Widget.instance('chat', function (data) {
     }
   }
 
+  function switchToContactsList() {
+    $('[name="group-tabs"]:eq(0)').click();
+  }
+
   function createChatPresetGroup() {
     var groupData = $(this).data('group');
     $('.contacts-done-holder').addClass('creating');
@@ -699,7 +703,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
         channelsSelected = [];
         $('.contacts-done-holder').removeClass('creating');
-        $('[name="group-tabs"]:eq(0)').click();
+        switchToContactsList();
         clearSearch();
         closeGroupCreationSettings();
         closeContacts();
