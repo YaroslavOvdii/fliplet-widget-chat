@@ -687,11 +687,13 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Add current user to target public channel
     chat.channels.join(channelsSelected[0].id).then(function (channel) {
-      Fliplet.UI.Toast('Successfully joined channel');
+      var toast = Fliplet.UI.Toast('Successfully joined channel');
 
       return getContacts(false).then(function() {
         return getConversations(false);
       }).then(function () {
+        chat.poll();
+
         channelsSelected = [];
         $('.contacts-done-holder').removeClass('creating');
         closeGroupCreationSettings();
@@ -699,6 +701,10 @@ Fliplet.Widget.instance('chat', function (data) {
         scrollToMessageTs = 100;
         $messagesHolder.html('');
         viewConversation(channel);
+
+        toast.then(function (instance) {
+          instance.dismiss();
+        });
       });
     }).catch(function (error) {
       $('.contacts-done-holder').removeClass('creating');
