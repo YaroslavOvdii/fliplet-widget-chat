@@ -106,6 +106,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var otherPeople = [];
   var otherPeopleSorted;
   var contactsSelected = [];
+  var channelsSelected = [];
   var currentUser;
   var scrollToMessageTimeout;
   var scrollToMessageTs = 0;
@@ -237,7 +238,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function openGroupCreationSettings() {
     checkGroupCanBeCreated();
-    $('.participant-count').text(contactsSelected.length);
+    $('.participant-count').text((isViewingChannels ? channelsSelected : contactsSelected).length);
 
     $wrapper.addClass('in-create-group');
   }
@@ -360,7 +361,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function checkHowManySelected() {
     checkGroupCanBeCreated();
-    var count = contactsSelected.length;
+    var count = (isViewingChannels ? channelsSelected : contactsSelected).length;
 
     if (count) {
       $('.contacts-top-header').addClass('ready');
@@ -382,6 +383,16 @@ Fliplet.Widget.instance('chat', function (data) {
 
     if (!contactsSelected.length && $('.show-selected-users').hasClass('showing')) {
       $('.show-selected-users').removeClass('showing');
+    }
+
+    checkHowManySelected();
+  }
+
+  function handleChannelSelection(element, selectedChannelInfo, channelId) {
+    if (element.hasClass('contact-selected')) {
+      channelsSelected = selectedChannelInfo;
+    } else {
+      channelsSelected = [];
     }
 
     checkHowManySelected();
@@ -658,7 +669,7 @@ Fliplet.Widget.instance('chat', function (data) {
     createGroupConversation(groupData);
   }
 
-  function joinPublicChannel(channel) {
+  function joinPublicChannel() {
     if (!Fliplet.Navigator.isOnline()){
       Fliplet.UI.Toast({
         title: 'You are offline',
@@ -666,6 +677,35 @@ Fliplet.Widget.instance('chat', function (data) {
       });
       return;
     }
+
+    if (!channelsSelected.length) {
+      return;
+    }
+
+    Fliplet.UI.Toast('Joining channel...');
+    $('.contacts-done-holder').addClass('creating');
+
+    // Add current user to target public channel
+    chat.channels.join(channelsSelected[0].id).then(function (channel) {
+      Fliplet.UI.Toast('Successfully joined channel');
+
+      return getContacts(false).then(function() {
+        return getConversations(false);
+      }).then(function () {
+        channelsSelected = [];
+        $('.contacts-done-holder').removeClass('creating');
+        closeGroupCreationSettings();
+        closeContacts();
+        scrollToMessageTs = 100;
+        $messagesHolder.html('');
+        viewConversation(channel);
+      });
+    }).catch(function (error) {
+      $('.contacts-done-holder').removeClass('creating');
+      Fliplet.UI.Toast({
+        message: Fliplet.parseError(error)
+      });
+    });
   }
 
   function createNewChatGroup() {
@@ -688,6 +728,10 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function createNewChatGroupSettings() {
+    if (isViewingChannels) {
+      return joinPublicChannel();
+    }
+
     if (!Fliplet.Navigator.isOnline()){
       options = {
         title: 'You are offline',
@@ -793,33 +837,21 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.contacts-user-list .contact-card', function() {
         var targetId = $(this).data('contact-id');
-        var selectedUserInfo = _.filter(getCurrentContactsList(), function(o) { return o.id === targetId; });
+        var selectedInfo = _.filter(getCurrentContactsList(), function(o) { return o.id === targetId; });
 
         if (allowClick) {
           if (isViewingChannels) {
-            Fliplet.UI.Toast('Joining channel...');
-            $('.contacts-done-holder').addClass('creating');
+            $('.contact-card.contact-selected').removeClass('contact-selected');
+          }
 
-            // Add current user to target public channel
-            chat.channels.join(targetId).then(function (channel) {
-              conversations.push(channel);
-              $('.contacts-done-holder').removeClass('creating');
-              closeGroupCreationSettings();
-              closeContacts();
-              scrollToMessageTs = 100;
-              $messagesHolder.html('');
-              viewConversation(channel);
-              Fliplet.UI.Toast('Successfully joined channel');
-            }).catch(function (error) {
-              $('.contacts-done-holder').removeClass('creating');
-              Fliplet.UI.Toast({
-                message: Fliplet.parseError(error)
-              });
-            });
+          $(this).toggleClass('contact-selected');
+
+          if (isViewingChannels) {
+            // Select/deselect target channel
+            handleChannelSelection($(this), selectedInfo, targetId);
           } else {
             // Select/deselect target user
-            $(this).toggleClass('contact-selected');
-            handleContactSelection($(this), selectedUserInfo, targetId);
+            handleContactSelection($(this), selectedInfo, targetId);
           }
         }
       })
@@ -1122,6 +1154,12 @@ Fliplet.Widget.instance('chat', function (data) {
         isViewingChannels = !!$('[name="group-tabs"]:checked').val();
         $('.contacts-info').text(isViewingChannels ? 'Select a channel' : 'Select recipients');
         clearSearch();
+
+        if (isViewingChannels) {
+          $('.show-selected-users').removeClass('showing');
+        } else if (contactsSelected.length) {
+          $('.show-selected-users').addClass('showing');
+        }
       });
 
     var iScrollPos = 0;
@@ -1420,10 +1458,18 @@ Fliplet.Widget.instance('chat', function (data) {
 
     sortContacts(searchedData, true);
 
-    if (contactsSelected.length) {
-      contactsSelected.forEach(function(contact) {
-        $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
-      });
+    if (isViewingChannels) {
+      if (channelsSelected.length) {
+        channelsSelected.forEach(function(contact) {
+          $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
+        });
+      }
+    } else {
+      if (contactsSelected.length) {
+        contactsSelected.forEach(function(contact) {
+          $('[data-contact-id="' + contact.id + '"]').addClass('contact-selected');
+        });
+      }
     }
 
     if (!searchedData.length) {
@@ -1441,11 +1487,13 @@ Fliplet.Widget.instance('chat', function (data) {
     // Resets list
     sortContacts(getCurrentContactsList());
 
-    // Check if there are selected contacts
-    if (!contactsSelected.length) { return; }
+    var selected = isViewingChannels ? channelsSelected : contactsSelected;
+
+    // Check if there are selected contacts or channels
+    if (!selected.length) { return; }
 
     var selectorsArray = [];
-    contactsSelected.forEach(function(contact) {
+    selected.forEach(function(contact) {
       selectorsArray.push('[data-contact-id="' + contact.id + '"]');
     });
 
