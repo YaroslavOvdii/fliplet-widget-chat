@@ -228,6 +228,10 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openContacts() {
+    // Reset to contacts list
+    isViewingChannels = false;
+    $('[name="group-tabs"]:eq(0)').click();
+
     $wrapper.addClass('in-contacts');
   }
 
@@ -281,13 +285,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function getChatChannels() {
     if (!fetchChatChannels) {
-      fetchChatChannels = Fliplet.DataSources.get({
-        appId: Fliplet.Env.get('appId'),
-        type: 'conversation',
-        definition: { group: { public: true } }
-      }, {
-        cache: false
-      });
+      fetchChatChannels = chat.channels.get();
     }
 
     return fetchChatChannels;
@@ -527,11 +525,14 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
-  function deleteConversation(conversationId, userToRemove, isGroup) {
+  function deleteConversation(conversationId, userToRemove, isGroup, isChannel) {
+    var groupLabel = isChannel ? 'channel' : 'group';
+    var isChannelOrGroup = isGroup || isChannel;
+
     var options = {
-      title: isGroup ? 'Leave group' : 'Delete conversation',
-      message: isGroup ? 'Are you sure you want to leave this group?' : 'Are you sure you want to delete this conversation?',
-      labels: isGroup ? ['Leave','Cancel'] : ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
+      title: isChannelOrGroup ? ('Leave ' + groupLabel) : 'Delete conversation',
+      message: isChannelOrGroup ? ('Are you sure you want to leave this ' + groupLabel + '?') : 'Are you sure you want to delete this conversation?',
+      labels: isChannelOrGroup ? ['Leave','Cancel'] : ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
     };
 
     Fliplet.Navigate.confirm(options)
@@ -791,15 +792,34 @@ Fliplet.Widget.instance('chat', function (data) {
         }
       })
       .on('click', '.contacts-user-list .contact-card', function() {
-        var userId = $(this).data('contact-id');
-        var selectedUserInfo = _.filter(getCurrentContactsList(), function(o) { return o.id === userId; });
+        var targetId = $(this).data('contact-id');
+        var selectedUserInfo = _.filter(getCurrentContactsList(), function(o) { return o.id === targetId; });
 
         if (allowClick) {
           if (isViewingChannels) {
-            // TODO: Add current user to channel
+            Fliplet.UI.Toast('Joining channel...');
+            $('.contacts-done-holder').addClass('creating');
+
+            // Add current user to target public channel
+            chat.channels.join(targetId).then(function (channel) {
+              conversations.push(channel);
+              $('.contacts-done-holder').removeClass('creating');
+              closeGroupCreationSettings();
+              closeContacts();
+              scrollToMessageTs = 100;
+              $messagesHolder.html('');
+              viewConversation(channel);
+              Fliplet.UI.Toast('Successfully joined channel');
+            }).catch(function (error) {
+              $('.contacts-done-holder').removeClass('creating');
+              Fliplet.UI.Toast({
+                message: Fliplet.parseError(error)
+              });
+            });
           } else {
+            // Select/deselect target user
             $(this).toggleClass('contact-selected');
-            handleContactSelection($(this), selectedUserInfo, userId);
+            handleContactSelection($(this), selectedUserInfo, targetId);
           }
         }
       })
@@ -809,9 +829,10 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.delete-conversation', function() {
         var isGroup = $(this).parents('.chat-card').find('.chat-card-holder').hasClass('group');
+        var isChannel = $(this).parents('.chat-card').find('.chat-card-holder').hasClass('channel');
         var conversationId = $(this).parents('.chat-card').find('.chat-card-holder').data('conversation-id');
 
-        deleteConversation(conversationId, currentUserAllData, isGroup);
+        deleteConversation(conversationId, currentUserAllData, isGroup, isChannel);
       })
       .on('click', '.chat-back', closeConversation)
       .on('touchstart', '.contact-card', function(event) {
@@ -1099,6 +1120,7 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('change', '[name="group-tabs"]', function () {
         isViewingChannels = !!$('[name="group-tabs"]:checked').val();
+        $('.contacts-info').text(isViewingChannels ? 'Select a channel' : 'Select recipients');
         clearSearch();
       });
 
@@ -1925,10 +1947,12 @@ Fliplet.Widget.instance('chat', function (data) {
           return participants.indexOf(p.data.flUserId) !== -1;
         });
 
-        conversation.name = participants.length > 2 ? conversation.name || 'Group' : conversationName;
+        conversation.isChannel = conversation.definition.group && conversation.definition.group.public;
+        conversation.name = participants.length > 2 || conversation.isChannel ? conversation.name || 'Group' : conversationName;
         conversation.avatar = participants.length > 2 ? '' : friend ? friend.data[avatarColumnName] : '';
-        conversation.isGroup = participants.length > 2;
+        conversation.isGroup = !conversation.isChannel && participants.length > 2;
         conversation.usersInConversation = conversationName;
+        conversation.nParticipants = participants.length;
         conversation.absoluteTime = moment(conversation.updatedAt).calendar(null, {
           sameDay: '[Today]',
           lastDay: '[Yesterday]',
@@ -2067,6 +2091,8 @@ Fliplet.Widget.instance('chat', function (data) {
     $wrapper.find('.chat-user-info').html(chatHeaderHTML);
     if (conversation.isGroup) {
       $wrapper.find('.chat-user-info').addClass('group');
+    } else if (conversation.isChannel) {
+      $wrapper.find('.chat-user-info').addClass('channel');
     } else {
       $wrapper.find('.chat-user-info').removeClass('group');
     }
@@ -2078,6 +2104,10 @@ Fliplet.Widget.instance('chat', function (data) {
     conversationMessages.forEach(function(message) {
       if (conversation.isGroup) {
         message.fromGroup = true;
+      }
+
+      if (conversation.isChannel) {
+        message.fromChannel = true;
       }
 
       if (!message.isDeleted || message.deletedAt === null) {
@@ -2173,6 +2203,7 @@ Fliplet.Widget.instance('chat', function (data) {
       var $message = $(chatMessageTemplate({
         id: message.id,
         isFromGroup: message.fromGroup,
+        isFromChannel: message.fromChannel,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         name: multipleNameColumns
           ? sender.data['flChatFirstName'] + ' ' + sender.data['flChatLastName']

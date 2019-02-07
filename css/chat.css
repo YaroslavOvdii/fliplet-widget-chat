@@ -329,14 +329,18 @@ html.native body,
 }
 
 .chat-card-holder.group .profile-image-holder .fa-users,
+.chat-card-holder.channel .profile-image-holder .fa-users,
 .chat-card-holder .profile-image-holder .fa-user,
 .profile-image-holder.group .fa-users,
+.profile-image-holder.channel .fa-users,
 .profile-image-holder .fa-user {
   display: block;
 }
 
 .chat-card-holder.group .profile-image-holder .fa-user,
-.profile-image-holder.group .fa-user {
+.chat-card-holder.channel .profile-image-holder .fa-user,
+.profile-image-holder.group .fa-user,
+.profile-image-holder.channel .fa-user {
   display: none;
 }
 
