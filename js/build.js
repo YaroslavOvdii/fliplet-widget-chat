@@ -1603,6 +1603,7 @@ Fliplet.Widget.instance('chat', function (data) {
         : person.data['flChatFullName'];
       otherPeopleSorted[index]['title'] = person.data[titleColumnName] || person.data.flChatDescription;
       otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
+      otherPeopleSorted[index]['isChannel'] = !!person.isChannel;
     });
 
     renderListOfPeople(otherPeopleSorted, fromSearch);
@@ -1960,6 +1961,7 @@ Fliplet.Widget.instance('chat', function (data) {
         channels = result.map(function (channel) {
           return {
             id: channel.id,
+            isChannel: true,
             data: {
               participants: channel.definition.participants,
               fullName: channel.name,
