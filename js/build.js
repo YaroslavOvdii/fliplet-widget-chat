@@ -2058,7 +2058,7 @@ Fliplet.Widget.instance('chat', function (data) {
       }
 
       $('.chat-card[data-conversation-id="' + data.id + '"]').replaceWith(conversationHTML);
-      return
+      return;
     }
 
     $conversationsList.append(conversationGroupsHTML);
