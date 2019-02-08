@@ -911,41 +911,70 @@ html.native body,
   padding: 0 15px;
 }
 
-.group-tabs-holder {
+/* Tab groups */
+
+.tab-group {
   position: relative;
+  margin-bottom: 10px;
+}
+
+.tab-group-justify {
   display: flex;
-  margin-bottom: 20px;
+  max-width: 100%;
+  overflow: auto;
 }
 
-.group-tabs-holder input {
-  display: none;
+.tab-group-scrollable {
+  display: block;
+  overflow: auto;
+  white-space: nowrap;
 }
 
-.group-tabs-holder label {
-  flex: 1;
-  padding: 5px 10px;
-  border: 2px solid #337ab7;
-  text-align: center;
+.tab-group .tab {
+  display: inline-block;
+  margin: 0;
+  padding: 5px;
   color: #337ab7;
-}
-
-.group-tabs-holder label:first-of-type {
-  border-top-left-radius: 30px;
-  border-bottom-left-radius: 30px;
-}
-
-.group-tabs-holder label:last-of-type {
-  border-top-right-radius: 30px;
-  border-bottom-right-radius: 30px;
-}
-
-.group-tabs-holder label:hover {
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.group-tabs-holder input:checked + label {
-  background: #337ab7;
+.tab-group-justify .tab {
+  flex: 1;
+}
+
+.tab-group .tab input[type="radio"],
+.tab-group .tab input[type="checkbox"] {
+  display: block;
+  opacity: 0.01;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.tab-group .tab > .control-label {
+  border: 2px solid #dbdedf;
+  color: #dbdedf;
+  text-align: center;
+  display: block;
+  border-radius: 200px;
+  line-height: 22px;
+  padding: 11px 16px;
+}
+
+.tab-group .tab input:checked + .control-label,
+.tab-group .tab.active .control-label{
+  border-color: #1d0978;
+  background: #1d0978;
   color: #FFF;
+}
+
+@media only screen and (min-width: 640px) {
+  .tab-group-justify {
+    display: block;
+  }
 }
 
 .btn-create-group {
