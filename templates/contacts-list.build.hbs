@@ -2,14 +2,20 @@
   <div class="seperator">\{{ @key }}</div>
   \{{#each this}}
   <div class="contact-card" data-contact-id="\{{ id }}">
-    <div class="profile-image-holder">
-      <div class="profile-image" style="background-image: url('\{{auth image }}')"></div>
+    <div class="profile-image-holder \{{#if isChannel}}channel\{{/if}}">
+      \{{#if image}}
+        <div class="profile-image" style="background-image: url('\{{auth image }}')"></div>
+      \{{/if}}
+      \{{#if isChannel}}
+      <i class="fa fa-users"></i>
+      \{{else}}
       <i class="fa fa-user"></i>
+      \{{/if}}
     </div>
     <div class="contact-info">
       <div class="contact-user-name">\{{ fullName }}</div>
       <div class="contact-user-preview-holder">
-        <div class="contact-user-preview">\{{ title }}</div>
+        <div class="contact-user-preview">\{{{ title }}}</div>
       </div>
     </div>
   </div>

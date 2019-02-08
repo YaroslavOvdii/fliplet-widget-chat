@@ -4,7 +4,7 @@
   <div class="chat-group-holder">
     \{{#each this}}
     <div class="chat-card" data-conversation-id="\{{ id }}">
-      <div class="chat-card-holder \{{#if unreadMessages}}unread\{{/if}} \{{#if isGroup}}group\{{/if}}" id="chat-\{{ id }}" data-conversation-id="\{{ id }}">
+      <div class="chat-card-holder \{{#if unreadMessages}}unread\{{/if}} \{{#if isChannel}}channel\{{/if}} \{{#if isGroup}}group\{{/if}}" id="chat-\{{ id }}" data-conversation-id="\{{ id }}">
         <div class="show-more"><i class="fa fa-ellipsis-v"></i></div>
         <div class="profile-image-holder">
           <div class="profile-image" style="background-image: url('\{{auth avatar}}')"></div>
@@ -18,6 +18,9 @@
               \{{#if isGroup}}
               <div class="chat-participants-preview">\{{ usersInConversation }}</div>
               \{{/if}}
+              \{{#if isChannel}}
+              <div class="chat-participants-preview"><i class="fa fa-users"></i> \{{ nParticipants }}</div>
+              \{{/if}}
             \{{/unless}}
             \{{#with lastMessage}}
             <div class="chat-user-preview">\{{ body }}</div>
@@ -30,7 +33,11 @@
           \{{#if isGroup}}
           Leave
           \{{else}}
-          <i class="fa fa-trash-o"></i>
+            \{{#if isChannel}}
+            Leave
+            \{{else}}
+            <i class="fa fa-trash-o"></i>
+            \{{/if}}
           \{{/if}}
         </div>
       </div>

@@ -9,5 +9,8 @@
     \{{#if isGroup}}
     <div class="chat-participants-name">\{{ usersInConversation }}</div>
     \{{/if}}
+    \{{#if isChannel}}
+    <div class="chat-participants-name"><i class="fa fa-users"></i> \{{ nParticipants }}</div>
+    \{{/if}}
   \{{/unless}}
 </div>

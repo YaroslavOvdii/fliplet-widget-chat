@@ -329,14 +329,18 @@ html.native body,
 }
 
 .chat-card-holder.group .profile-image-holder .fa-users,
+.chat-card-holder.channel .profile-image-holder .fa-users,
 .chat-card-holder .profile-image-holder .fa-user,
 .profile-image-holder.group .fa-users,
+.profile-image-holder.channel .fa-users,
 .profile-image-holder .fa-user {
   display: block;
 }
 
 .chat-card-holder.group .profile-image-holder .fa-user,
-.profile-image-holder.group .fa-user {
+.chat-card-holder.channel .profile-image-holder .fa-user,
+.profile-image-holder.group .fa-user,
+.profile-image-holder.channel .fa-user {
   display: none;
 }
 
@@ -905,6 +909,72 @@ html.native body,
   overflow-x: auto;
   margin: 0 -15px 15px;
   padding: 0 15px;
+}
+
+/* Tab groups */
+
+.tab-group {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.tab-group-justify {
+  display: flex;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.tab-group-scrollable {
+  display: block;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.tab-group .tab {
+  display: inline-block;
+  margin: 0;
+  padding: 5px;
+  color: #337ab7;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-group-justify .tab {
+  flex: 1;
+}
+
+.tab-group .tab input[type="radio"],
+.tab-group .tab input[type="checkbox"] {
+  display: block;
+  opacity: 0.01;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.tab-group .tab > .control-label {
+  border: 2px solid #dbdedf;
+  color: #dbdedf;
+  text-align: center;
+  display: block;
+  border-radius: 200px;
+  line-height: 22px;
+  padding: 11px 16px;
+}
+
+.tab-group .tab input:checked + .control-label,
+.tab-group .tab.active .control-label{
+  border-color: #1d0978;
+  background: #1d0978;
+  color: #FFF;
+}
+
+@media only screen and (min-width: 640px) {
+  .tab-group-justify {
+    display: block;
+  }
 }
 
 .btn-create-group {

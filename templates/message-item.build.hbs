@@ -25,6 +25,9 @@
       \{{#if isFromGroup}}
       <div class="chat-name">\{{ name }}</div>
       \{{/if}}
+      \{{#if isFromChannel}}
+      <div class="chat-name">\{{ name }}</div>
+      \{{/if}}
     \{{/unless}}
     \{{#if message.fileType}}
     <div class="chat-image" style="width: \{{ containerWidth }}; height: \{{ containerHeight }}">
