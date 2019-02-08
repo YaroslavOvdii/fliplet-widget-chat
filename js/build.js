@@ -699,7 +699,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return getContacts(false).then(function() {
         return getConversations(false);
       }).then(function () {
-        chat.poll();
+        chat.poll({ reset: true });
 
         channelsSelected = [];
         $('.contacts-done-holder').removeClass('creating');
@@ -1870,6 +1870,7 @@ Fliplet.Widget.instance('chat', function (data) {
       var fetchRequiredData = getContacts(false).then(function() { return getConversations(false); });
 
       return fetchRequiredData.then(function() {
+        chat.poll({ reset: true });
         $('.contacts-done-holder').removeClass('creating');
         closeGroupCreationSettings();
         closeContacts();
