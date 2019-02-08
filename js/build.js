@@ -826,7 +826,7 @@ Fliplet.Widget.instance('chat', function (data) {
         var imgElement = $(this).find('img');
         expandImage(imgElement);
       })
-      .on('click', '.chat-user-info.group', openGroupParticipantsPanel)
+      .on('click', '.chat-user-info.group, .chat-user-info.channel', openGroupParticipantsPanel)
       .on('click', '.group-participants-back', closeGroupParticipantsPanel)
       .on('click', '.btn-create-group', createChatPresetGroup)
       .on('click', '.start-new', openContacts)
