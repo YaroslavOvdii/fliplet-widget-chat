@@ -1982,6 +1982,7 @@ Fliplet.Widget.instance('chat', function (data) {
               fullName: channel.name,
               flChatFirstName: channel.name,
               flChatFullName: channel.name,
+              flChatLastName: '',
               flChatDescription: '<i class="fa fa-user"></i> ' + channel.definition.participants.length
             }
           };
@@ -2600,7 +2601,7 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     }
     Fliplet.UI.Toast({
-      message: 'Error connecting you to chat',
+      message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat'),
       actions: actions
     });
   });
