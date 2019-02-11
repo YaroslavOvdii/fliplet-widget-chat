@@ -929,11 +929,11 @@ html.native body,
   margin-left: 0;
   padding: 0;
   cursor: pointer;
-  white-space: nowrap;
   font-size: 14px;
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  overflow: hidden;
 }
 
 .tab-group .tab + .tab {
@@ -963,7 +963,10 @@ html.native body,
   text-align: center;
   display: block;
   line-height: 1.42857143;
-  padding: 8px 0;
+  padding: 8px 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tab-group .tab:first-child > .control-label {
