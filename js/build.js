@@ -537,57 +537,61 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function deleteConversation(conversationId, userToRemove, isGroup, isChannel) {
+    var _this = this;
     var groupLabel = isChannel ? 'channel' : 'group';
     var isChannelOrGroup = isGroup || isChannel;
 
-    var options = {
-      title: isChannelOrGroup ? ('Leave ' + groupLabel) : 'Delete conversation',
-      message: isChannelOrGroup ? ('Are you sure you want to leave this ' + groupLabel + '?') : 'Are you sure you want to delete this conversation?',
-      labels: isChannelOrGroup ? ['Leave','Cancel'] : ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
-    };
+    Fliplet.UI.Actions({
+      title: isChannelOrGroup
+        ? ('Are you sure you want to leave this ' + groupLabel + '?')
+        : 'Are you sure you want to delete this conversation?',
+      labels: [{
+        label: isChannelOrGroup ? 'Leave' : 'Delete',
+        action: function () {
+          // Get the conversation
+          conversationToBeRemoved = _.filter(conversations, function(conversation) {
+            return conversation.id === conversationId;
+          });
 
-    Fliplet.Navigate.confirm(options)
-      .then(function(result) {
-        if (!result) {
-          return;
-        }
+          // Remove current user from conversation
+          conversationToBeRemoved[0].participants.remove(userToRemove.id);
 
-        // Get the conversation
-        conversationToBeRemoved = _.filter(conversations, function(conversation) {
-          return conversation.id === conversationId;
-        });
+          // Remove the conversation from the stored list
+          _.remove(conversations, function(conversation) {
+            return conversation.id === conversationId;
+          });
 
-        // Remove current user from conversation
-        conversationToBeRemoved[0].participants.remove(userToRemove.id);
+          // Remove conversation UI from screen
+          $('.chat-card[data-conversation-id="' + conversationId + '"]').remove();
 
-        // Remove the conversation from the stored list
-        _.remove(conversations, function(conversation) {
-          return conversation.id === conversationId;
-        });
+          // Check if time group is empty, if it is, remove it
+          $('.chat-group-holder').each(function() {
+            if ( !$.trim( $(_this).html() ).length ){
+              $(_this).parents('.chat-users-group').remove();
+            }
+          });
 
-        // Remove conversation UI from screen
-        $('.chat-card[data-conversation-id="' + conversationId + '"]').remove();
-
-        // Check if time group is empty, if it is, remove it
-        $('.chat-group-holder').each(function() {
-          if ( !$.trim( $(this).html() ).length ){
-            $(this).parents('.chat-users-group').remove();
+          // Check if conversation list is empty, if it is add empty state
+          if ( !$.trim( $('.chat-list').html() ).length ){
+            $('.chat-holder').addClass('empty');
           }
-        });
-
-        // Check if conversation list is empty, if it is add empty state
-        if ( !$.trim( $('.chat-list').html() ).length ){
-          $('.chat-holder').addClass('empty');
         }
-      });
+      }]
+    });
   }
 
   function toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel) {
+    var conversation = _.find(conversations, { id: conversationId });
+
+    if (!conversation) {
+      return Promise.reject('Conversation not found');
+    }
+
     return Fliplet.UI.Actions({
       title: 'Notification settings',
       labels: [
         {
-          label: 'Mute', // Or "Unmute", depending on status
+          label: conversation.isMuted ? 'Unmute' : 'Mute',
           action: function () {
             // @TODO Toggle notification for conversation, then
             // update conversation UI to show/hide mute icon accordingly
@@ -933,9 +937,17 @@ Fliplet.Widget.instance('chat', function (data) {
             toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
             break;
         }
-
       })
       .on('click', '.chat-back', closeConversation)
+      .on('click', '.muted-icon', function (event) {
+        event.stopPropagation();
+        var $cardHolder = $(this).parents('.chat-card').find('.chat-card-holder');
+        var isGroup = $cardHolder.hasClass('group');
+        var isChannel = $cardHolder.hasClass('channel');
+        var conversationId = $cardHolder.data('conversation-id');
+        // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
+        toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
+      })
       .on('click', '.chat-mute', function () {
         // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
         toggleNotifications(currentConversation.id, currentUserAllData, currentConversation.isGroup, currentConversation.isChannel);
@@ -1040,35 +1052,29 @@ Fliplet.Widget.instance('chat', function (data) {
         $('.chat-input-controls').removeClass('editing-message ready');
       })
       .on('click', '.delete-message', function() {
+        var _this = this;
         var deleteButton = $(this);
         var message = $(this).parents('.chat');
 
-        var options = {
-          title: 'Delete message',
-          message: 'Are you sure you want to delete this message?',
-          labels: ['Delete','Cancel'] // Native only (defaults to [OK,Cancel])
-        };
-
         if (!Fliplet.Navigator.isOnline()){
-          options = {
+          Fliplet.UI.Toast({
             title: 'You are offline',
             message: 'An internet connection is necessary to delete a message.'
-          };
-
-          Fliplet.UI.Toast(options);
+          });
           return;
         }
 
-        Fliplet.Navigate.confirm(options)
-          .then(function(result) {
-            if (!result) {
-              return;
+        Fliplet.UI.Actions({
+          title: 'Are you sure you want to delete this message?',
+          labels: [{
+            label: 'Delete',
+            action: function () {
+              $(_this).find('span').text('Deleting...')
+
+              deleteMessage(message);
             }
-
-            $(this).find('span').text('Deleting...')
-
-            deleteMessage(message);
-          });
+          }]
+        });
       })
       .on('click', '.send-save-button', function(e) {
         e.preventDefault();

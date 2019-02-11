@@ -14,8 +14,10 @@
     \{{/if}}
   \{{/unless}}
 </div>
-\{{#if isMuted}}
 <div class="chat-mute">
+\{{#if isMuted}}
+  <i class="fa fa-bell-slash"></i>
+\{{else}}
   <i class="fa fa-bell"></i>
-</div>
 \{{/if}}
+</div>

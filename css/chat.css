@@ -418,7 +418,7 @@ html.native body,
 }
 
 .platform-web .chat-card-holder {
-  padding-right: 58px;
+  padding-right: 63px;
 }
 
 .chat-card-holder .muted-icon {
@@ -431,7 +431,7 @@ html.native body,
   width: 25px;
   justify-content: center;
   align-items: center;
-  font-size: 0.9em;
+  width: 33px;
 }
 
 .chat-card-holder .show-more {
