@@ -328,6 +328,10 @@ html.native body,
   background-color: rgba(51, 51, 51, 0.04);
 }
 
+.contact-card.contact-selected .profile-image-holder .fa {
+  color: rgba(255, 255, 255, 0.1);
+}
+
 .chat-card-holder.group .profile-image-holder .fa-users,
 .chat-card-holder.channel .profile-image-holder .fa-users,
 .chat-card-holder .profile-image-holder .fa-user,
@@ -676,7 +680,6 @@ html.native body,
   top: 54px;
   left: 0;
   right: 0;
-  background-color: #ffffff;
   padding: 10px 15px;
 }
 
@@ -729,7 +732,7 @@ html.native body,
 }
 
 .search-holder .form-control {
-  border: 1px solid #ffffff;
+  border: 1px solid rgba(51, 51, 51, 0.3);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -782,7 +785,7 @@ html.native body,
 
 .all-users-holder {
   bottom: 0;
-  padding: 127px 15px 20px;
+  padding: 112px 15px 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
   transition: padding-top 0.2s ease-out;
   z-index: 1;
@@ -803,7 +806,6 @@ html.native body,
   word-break: break-word;
   overflow-x: auto;
   overflow-y: hidden;
-  background-color: #ffffff;
   height: 0;
   -webkit-transition: height 0.2s ease-out;
   transition: height 0.2s ease-out;
@@ -916,31 +918,32 @@ html.native body,
 .tab-group {
   position: relative;
   margin-bottom: 10px;
-}
-
-.tab-group-justify {
   display: flex;
   max-width: 100%;
   overflow: auto;
 }
 
-.tab-group-scrollable {
-  display: block;
-  overflow: auto;
-  white-space: nowrap;
-}
-
 .tab-group .tab {
   display: inline-block;
-  margin: 0;
-  padding: 5px;
-  color: #337ab7;
+  flex: 1;
+  margin-left: 0;
+  padding: 0;
   cursor: pointer;
   white-space: nowrap;
+  font-size: 14px;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-.tab-group-justify .tab {
-  flex: 1;
+.tab-group .tab + .tab {
+  margin-left: -1px;
+}
+
+@media only screen and (max-width: 639px) {
+  .tab-group .tab {
+    margin-bottom: 0;
+  }
 }
 
 .tab-group .tab input[type="radio"],
@@ -955,26 +958,29 @@ html.native body,
 }
 
 .tab-group .tab > .control-label {
-  border: 2px solid #dbdedf;
-  color: #dbdedf;
+  border: 1px solid rgba(51, 51, 51, 0.3);
+  color: rgba(51, 51, 51, 0.3);
   text-align: center;
   display: block;
-  border-radius: 200px;
-  line-height: 22px;
-  padding: 11px 16px;
+  line-height: 1.42857143;
+  padding: 11px 0;
+}
+
+.tab-group .tab:first-child > .control-label {
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+}
+
+.tab-group .tab:last-child > .control-label {
+  border-top-right-radius: 30px;
+  border-bottom-right-radius: 30px;
 }
 
 .tab-group .tab input:checked + .control-label,
 .tab-group .tab.active .control-label{
-  border-color: #1d0978;
-  background: #1d0978;
-  color: #FFF;
-}
-
-@media only screen and (min-width: 640px) {
-  .tab-group-justify {
-    display: block;
-  }
+  border-color: #337ab7;
+  background: #337ab7;
+  color: #ffffff;
 }
 
 .btn-create-group {
