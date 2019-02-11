@@ -4,7 +4,10 @@
   <div class="chat-group-holder">
     \{{#each this}}
     <div class="chat-card" data-conversation-id="\{{ id }}">
-      <div class="chat-card-holder \{{#if unreadMessages}}unread\{{/if}} \{{#if isChannel}}channel\{{/if}} \{{#if isGroup}}group\{{/if}}" id="chat-\{{ id }}" data-conversation-id="\{{ id }}">
+      <div class="chat-card-holder \{{#if unreadMessages}}unread\{{/if}} \{{#if isChannel}}channel\{{/if}} \{{#if isGroup}}group\{{/if}} \{{#if isMuted}}muted\{{/if}}" id="chat-\{{ id }}" data-conversation-id="\{{ id }}">
+        \{{#if isMuted}}
+        <div class="muted-icon"><i class="fa fa-bell-slash"></i></div>
+        \{{/if}}
         <div class="show-more"><i class="fa fa-ellipsis-v"></i></div>
         <div class="profile-image-holder">
           <div class="profile-image" style="background-image: url('\{{auth avatar}}')"></div>
@@ -28,17 +31,30 @@
           </div>
         </div>
       </div>
-      <div class="delete-holder">
-        <div class="delete-conversation">
-          \{{#if isGroup}}
-          Leave
-          \{{else}}
-            \{{#if isChannel}}
+      <div class="actions-holder">
+        <div class="actions">
+          <div class="action" data-action="mute">
+            \{{#if isGroup}}
+            Mute
+            \{{else}}
+              \{{#if isChannel}}
+              Mute
+              \{{else}}
+              <i class="fa fa-lg fa-bell-o"></i>
+              \{{/if}}
+            \{{/if}}
+          </div>
+          <div class="action" data-action="delete">
+            \{{#if isGroup}}
             Leave
             \{{else}}
-            <i class="fa fa-trash-o"></i>
+              \{{#if isChannel}}
+              Leave
+              \{{else}}
+              <i class="fa fa-lg fa-trash-o"></i>
+              \{{/if}}
             \{{/if}}
-          \{{/if}}
+          </div>
         </div>
       </div>
     </div>

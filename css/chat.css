@@ -193,40 +193,44 @@ html.native body,
   margin-bottom: 20px;
 }
 
-.chat-card .delete-holder {
+.chat-card .actions-holder {
   position: absolute;
   top: 1px;
   right: 1px;
   bottom: 1px;
   left: 1px;
   z-index: 1;
-  background: #ea2727;
+  background: rgba(51, 51, 51, 0.3);
   color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  font-size: 1.5em;
+  font-size: 0;
   border-radius: 20px;
+  text-align: right;
+  overflow: hidden;
 }
 
-.chat-card .group ~ .delete-holder {
-  font-size: 1em
+.chat-card .actions-holder .actions {
+  display: inline-block;
 }
 
-.chat-card .delete-holder .fa {
-  color: #ffffff;
-}
-
-.chat-card .delete-holder .delete-conversation {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
+.chat-card .actions-holder .action {
+  font-size: 14px;
+  font-weight: 200;
+  display: inline-block;
   width: 67px;
+  height: 67px;
+  line-height: 67px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
+}
+
+.chat-card .actions-holder .action[data-action="delete"] {
+  background-color: #ea2727;
+}
+
+.chat-card .actions-holder .action .fa {
+  color: #ffffff;
+  line-height: 67px;
+  vertical-align: middle;
 }
 
 .chat-card-holder,
@@ -414,7 +418,20 @@ html.native body,
 }
 
 .platform-web .chat-card-holder {
-  padding-right: 33px;
+  padding-right: 58px;
+}
+
+.chat-card-holder .muted-icon {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 25px;
+  z-index: 1;
+  width: 25px;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9em;
 }
 
 .chat-card-holder .show-more {
@@ -425,8 +442,6 @@ html.native body,
   right: 0;
   z-index: 1;
   width: 25px;
-  background-color: #ffffff;
-  color: #333333;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   justify-content: center;
@@ -438,16 +453,10 @@ html.native body,
 
 .chat-card-holder .show-more:hover {
   background-color: rgba(51, 51, 51, 0.1);
-  color: #333333;
 }
 
 .platform-web .chat-card-holder .show-more {
   display: flex;
-}
-
-.chat-card-holder.show-delete {
-  -webkit-transform: translate3d(-67px, 0, 0);
-  transform: translate3d(-67px, 0, 0);
 }
 
 /* CHAT CONVERSATION */
@@ -500,7 +509,7 @@ html.native body,
   top: 0;
   right: 0;
   left: 0;
-  padding: 10px 15px;
+  padding: 10px 60px 10px 15px;
   display: flex;
   align-items: center;
   background-color: #ffffff;
@@ -551,6 +560,17 @@ html.native body,
 .broadcasting .chat-user-info.group {
   cursor: default;
   pointer-events: none;
+}
+
+.chat-top-header .chat-mute {
+  position: absolute;
+  right: 15px;
+  opacity: 0.5;
+  width: 44px;
+  height: 44px;
+  vertical-align: middle;
+  line-height: 44px;
+  text-align: center;
 }
 
 .contacts-info,

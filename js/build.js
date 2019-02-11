@@ -582,6 +582,21 @@ Fliplet.Widget.instance('chat', function (data) {
       });
   }
 
+  function toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel) {
+    return Fliplet.UI.Actions({
+      title: 'Notification settings',
+      labels: [
+        {
+          label: 'Mute', // Or "Unmute", depending on status
+          action: function () {
+            // @TODO Toggle notification for conversation, then
+            // update conversation UI to show/hide mute icon accordingly
+          }
+        }
+      ]
+    });
+  }
+
   function onMessageAreaBlur() {
     if (!Modernizr.ios) {
       return;
@@ -771,10 +786,36 @@ Fliplet.Widget.instance('chat', function (data) {
   function attachEventListeners() {
     var elementStartX;
     var totalMove;
+    var totalActionsWidth;
     var deviceEvents;
     var pressTimer;
     var startTouchEvent = Modernizr.touchevents ? 'touchstart' : 'mousedown';
     var endTouchEvent = Modernizr.touchevents ? 'touchend' : 'mouseup';
+
+    function toggleActions(id, show) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      totalActionsWidth = $chatCard.find('.actions').width();
+
+      if (typeof show === 'undefined') {
+        show = !$chatCard.hasClass('show-actions');
+      }
+
+      if (!!show) {
+        $chatCard.find('.chat-card-holder').removeClass('draggable').css({
+          'transition': 'all 150ms ease-out',
+          'transform': 'translate3d(-' + totalActionsWidth + 'px, 0, 0)'
+        });
+        $chatCard.addClass('show-actions');
+        totalMove = 0;
+      } else {
+        $chatCard.find('.chat-card-holder').removeClass('draggable').css({
+          'transition': 'all 150ms ease-out',
+          'transform': 'translate3d(0, 0, 0)'
+        });
+        $chatCard.removeClass('show-actions');
+        totalMove = -totalActionsWidth;
+      }
+    }
 
     $(window).blur(function() { isActiveWindow = false; });
     $(window).focus(function() { isActiveWindow = true; });
@@ -872,16 +913,33 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.show-more', function(e) {
         e.stopPropagation();
-        $(this).parents('.chat-card-holder').toggleClass('show-delete');
+        var id = $(this).parents('.chat-card').data('conversationId');
+        toggleActions(id);
       })
-      .on('click', '.delete-conversation', function() {
-        var isGroup = $(this).parents('.chat-card').find('.chat-card-holder').hasClass('group');
-        var isChannel = $(this).parents('.chat-card').find('.chat-card-holder').hasClass('channel');
-        var conversationId = $(this).parents('.chat-card').find('.chat-card-holder').data('conversation-id');
+      .on('click', '.actions-holder [data-action]', function() {
+        var action = $(this).data('action');
+        var $cardHolder = $(this).parents('.chat-card').find('.chat-card-holder');
+        var isGroup = $cardHolder.hasClass('group');
+        var isChannel = $cardHolder.hasClass('channel');
+        var conversationId = $cardHolder.data('conversation-id');
 
-        deleteConversation(conversationId, currentUserAllData, isGroup, isChannel);
+        switch (action) {
+          case 'delete':
+            deleteConversation(conversationId, currentUserAllData, isGroup, isChannel);
+            break;
+          case 'mute':
+            // @TODO Mute conversation
+            // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
+            toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
+            break;
+        }
+
       })
       .on('click', '.chat-back', closeConversation)
+      .on('click', '.chat-mute', function () {
+        // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
+        toggleNotifications(currentConversation.id, currentUserAllData, currentConversation.isGroup, currentConversation.isChannel);
+      })
       .on('touchstart', '.contact-card', function(event) {
         event.stopPropagation();
         $(this).addClass('hover');
@@ -890,6 +948,7 @@ Fliplet.Widget.instance('chat', function (data) {
         event.stopPropagation();
         var rect = event.target.getBoundingClientRect();
         elementStartX = event.originalEvent.touches[0].pageX - rect.left;
+        totalActionsWidth = $(event.target).next().find('.actions').width();
 
         $(this).addClass('draggable');
         $(this).addClass('hover');
@@ -912,27 +971,25 @@ Fliplet.Widget.instance('chat', function (data) {
         var touchX = event.originalEvent.touches[0].clientX;
         totalMove = touchX - elementStartX;
 
-        if (totalMove >= 0) { return; }
+        if (totalMove >= 0) {
+          return;
+        }
+
+        if (totalMove < -totalActionsWidth) {
+          // Slow down translation if it moves past size of action container
+          totalMove = -(totalActionsWidth + (Math.abs(totalMove) - totalActionsWidth) * 0.62);
+        }
 
         $(this).css({
           'transition': 'none',
-          'transform': 'translate3d(' + totalMove + 'px, 0px, 0px)'
+          'transform': 'translate3d(' + totalMove + 'px, 0, 0)'
         });
       })
       .on('touchend', '.chat-card-holder', function() {
-        if (totalMove > -66) {
-          $(this).removeClass('draggable').css({
-            'transition': 'all 150ms ease-out',
-            'transform': 'translate3d(0px, 0px, 0px)'
-          });
-          $(this).removeClass('toLeftProxy');
+        if (totalMove > -totalActionsWidth * 0.5) {
+          toggleActions($(this).data('conversationId'), false);
         } else {
-          $(this).removeClass('draggable').css({
-            'transition': 'all 150ms ease-out',
-            'transform': 'translate3d(-67px, 0px, 0px)'
-          });
-          $(this).addClass('toLeftProxy');
-          totalMove = 0;
+          toggleActions($(this).data('conversationId'), true);
         }
       })
       .on('focus', '[data-message-body]', onMessageAreaFocus)
@@ -2026,6 +2083,8 @@ Fliplet.Widget.instance('chat', function (data) {
           lastWeek: '[Older]',
           sameElse: '[Older]'
         });
+        // @TODO Update isMuted dynamically
+        conversation.isMuted = true;
 
         var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
         setConversationLastMessage(conversation, conversationMessages[conversationMessages.length - 1]);
