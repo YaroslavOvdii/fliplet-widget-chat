@@ -509,11 +509,15 @@ html.native body,
   top: 0;
   right: 0;
   left: 0;
-  padding: 10px 60px 10px 15px;
+  padding: 10px 15px;
   display: flex;
   align-items: center;
   background-color: #ffffff;
   z-index: 5;
+}
+
+.chat-area .chat-top-header {
+  padding-right: 60px;
 }
 
 .chat-top-header .chat-back,
