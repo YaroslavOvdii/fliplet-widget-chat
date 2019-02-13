@@ -249,14 +249,11 @@ html.native body,
   transform: translate3d(0, 0, 0);
 }
 
-.chat-card-holder .chat-info {
+.chat-card-holder .chat-info,
+.contact-card .contact-info {
   margin: 8px 5px 8px 15px;
   flex: 1;
   align-self: center;
-}
-
-.contact-card {
-  padding: 15px 15px 15px 85px;
 }
 
 .no-touchevents .chat-card-holder:active,
@@ -422,27 +419,47 @@ html.native body,
   color: rgba(255, 255, 255, 0.5);
 }
 
-.chat-card-holder .icon {
+.chat-card-holder .icon,
+.contact-card .icon {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
+  width: 44px;
   cursor: pointer;
   pointer-events: all;
+  opacity: 0.25;
 }
 
-.chat-card-holder .icon-show-more {
+.chat-card-holder .icon:hover,
+.contact-card .icon:hover {
+  background-color: rgba(51, 51, 51, 0.2);
+}
+
+.chat-card-holder .icon.icon-compact,
+.contact-card .icon.icon-compact {
   width: 25px;
-  border-top-left-radius: 20px;
+}
+
+.chat-card-holder .icon.icon-static,
+.contact-card .icon.icon-static {
+  pointer-events: none;
+}
+
+.chat-card-holder .icon.icon-rotate-45,
+.contact-card .icon.icon-rotate-45 {
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.chat-card-holder .icon:last-child,
+.contact-card .icon:last-child {
   border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .touchevents .chat-card-holder .icon-show-more {
   display: none;
-}
-
-.chat-card-holder .icon-show-more:hover {
-  background-color: rgba(51, 51, 51, 0.1);
 }
 
 /* CHAT CONVERSATION */
