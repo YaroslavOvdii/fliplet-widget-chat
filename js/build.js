@@ -915,7 +915,7 @@ Fliplet.Widget.instance('chat', function (data) {
           }
         }
       })
-      .on('click', '.show-more', function(e) {
+      .on('click', '.icon-show-more', function(e) {
         e.stopPropagation();
         var id = $(this).parents('.chat-card').data('conversationId');
         toggleActions(id);
@@ -939,7 +939,7 @@ Fliplet.Widget.instance('chat', function (data) {
         }
       })
       .on('click', '.chat-back', closeConversation)
-      .on('click', '.muted-icon', function (event) {
+      .on('click', '.icon-muted', function (event) {
         event.stopPropagation();
         var $cardHolder = $(this).parents('.chat-card').find('.chat-card-holder');
         var isGroup = $cardHolder.hasClass('group');

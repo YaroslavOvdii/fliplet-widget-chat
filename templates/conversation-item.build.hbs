@@ -1,9 +1,5 @@
 <div class="chat-card" data-conversation-id="\{{ id }}">
   <div class="chat-card-holder \{{#if unreadMessages}}unread\{{/if}} \{{#if isChannel}}channel\{{/if}} \{{#if isGroup}}group\{{/if}} \{{#if isMuted}}muted\{{/if}}" id="chat-\{{ id }}" data-conversation-id="\{{ id }}">
-    \{{#if isMuted}}
-    <div class="muted-icon"><i class="fa fa-bell-slash"></i></div>
-    \{{/if}}
-    <div class="show-more"><i class="fa fa-ellipsis-v"></i></div>
     <div class="profile-image-holder">
       <div class="profile-image" style="background-image: url('\{{auth avatar}}')"></div>
       <i class="fa fa-user"></i>
@@ -24,6 +20,14 @@
         <div class="chat-user-preview">\{{ body }}</div>
         \{{/with}}
       </div>
+    </div>
+    <div class="icon">
+      \{{#if isMuted}}
+      <div class="icon icon-muted"><i class="fa fa-bell-slash"></i></div>
+      \{{/if}}
+    </div>
+    <div class="icon">
+      <div class="icon icon-show-more"><i class="fa fa-ellipsis-v"></i></div>
     </div>
   </div>
   <div class="actions-holder">
