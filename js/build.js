@@ -580,7 +580,7 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
-  function toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel) {
+  function toggleNotifications(conversationId) {
     var conversation = _.find(conversations, { id: conversationId });
 
     if (!conversation) {
@@ -593,8 +593,15 @@ Fliplet.Widget.instance('chat', function (data) {
         {
           label: conversation.isMuted ? 'Unmute' : 'Mute',
           action: function () {
-            // @TODO Toggle notification for conversation, then
-            // update conversation UI to show/hide mute icon accordingly
+            if (conversation.isMuted) {
+              conversation.unmute().then(function () {
+                // @TODO: update conversation UI to show/hide mute icon accordingly
+              });
+            } else {
+              conversation.mute().then(function () {
+                // @TODO: update conversation UI to show/hide mute icon accordingly
+              });
+            }
           }
         }
       ]
@@ -932,9 +939,7 @@ Fliplet.Widget.instance('chat', function (data) {
             deleteConversation(conversationId, currentUserAllData, isGroup, isChannel);
             break;
           case 'mute':
-            // @TODO Mute conversation
-            // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
-            toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
+            toggleNotifications(conversationId);
             break;
         }
       })
@@ -945,12 +950,10 @@ Fliplet.Widget.instance('chat', function (data) {
         var isGroup = $cardHolder.hasClass('group');
         var isChannel = $cardHolder.hasClass('channel');
         var conversationId = $cardHolder.data('conversation-id');
-        // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
-        toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
+        toggleNotifications(conversationId);
       })
       .on('click', '.chat-mute', function () {
-        // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
-        toggleNotifications(currentConversation.id, currentUserAllData, currentConversation.isGroup, currentConversation.isChannel);
+        toggleNotifications(currentConversation.id);
       })
       .on('touchstart', '.contact-card', function(event) {
         event.stopPropagation();
