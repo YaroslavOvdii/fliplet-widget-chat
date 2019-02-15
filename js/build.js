@@ -2089,8 +2089,6 @@ Fliplet.Widget.instance('chat', function (data) {
           lastWeek: '[Older]',
           sameElse: '[Older]'
         });
-        // @TODO Update isMuted dynamically
-        conversation.isMuted = true;
 
         var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
         setConversationLastMessage(conversation, conversationMessages[conversationMessages.length - 1]);
