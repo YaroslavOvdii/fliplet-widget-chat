@@ -587,24 +587,21 @@ Fliplet.Widget.instance('chat', function (data) {
       return Promise.reject('Conversation not found');
     }
 
-    return Fliplet.UI.Actions({
-      title: 'Notification settings',
-      labels: [
-        {
-          label: conversation.isMuted ? 'Unmute' : 'Mute',
-          action: function () {
-            if (conversation.isMuted) {
-              conversation.unmute().then(function () {
-                // @TODO: update conversation UI to show/hide mute icon accordingly
-              });
-            } else {
-              conversation.mute().then(function () {
-                // @TODO: update conversation UI to show/hide mute icon accordingly
-              });
+    return new Promise(function (resolve, reject) {
+      return Fliplet.UI.Actions({
+        title: 'Notification settings',
+        labels: [
+          {
+            label: conversation.isMuted ? 'Unmute' : 'Mute',
+            action: function () {
+              // Toggles muting
+              conversation.notifications[conversation.isMuted ? 'unmute' : 'mute']().then(function () {
+                resolve();
+              }).catch(reject);
             }
           }
-        }
-      ]
+        ]
+      });
     });
   }
 
@@ -939,7 +936,9 @@ Fliplet.Widget.instance('chat', function (data) {
             deleteConversation(conversationId, currentUserAllData, isGroup, isChannel);
             break;
           case 'mute':
-            toggleNotifications(conversationId);
+            toggleNotifications(conversationId).then(function () {
+              renderConversations(_.find(conversations, function (c) { return c.id === conversationId; }), true);
+            });
             break;
         }
       })
@@ -950,10 +949,17 @@ Fliplet.Widget.instance('chat', function (data) {
         var isGroup = $cardHolder.hasClass('group');
         var isChannel = $cardHolder.hasClass('channel');
         var conversationId = $cardHolder.data('conversation-id');
-        toggleNotifications(conversationId);
+        toggleNotifications(conversationId).then(function () {
+          renderConversations(_.find(conversations, function (c) { return c.id === conversationId; }), true);
+        });
       })
-      .on('click', '.chat-mute', function () {
-        toggleNotifications(currentConversation.id);
+      .on('click', '.chat-mute', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleNotifications(currentConversation.id).then(function () {
+          $messages.html('');
+          viewConversation(currentConversation);
+        });
       })
       .on('touchstart', '.contact-card', function(event) {
         event.stopPropagation();
@@ -2111,7 +2117,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function renderConversations(data, replace) {
-    var conversationGroupsHTML = conversationGroupsTemplate(data);
     var conversationHTML = conversationTemplate(data);
     var conversationIsOpen = false;
 
@@ -2129,6 +2134,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return;
     }
 
+    var conversationGroupsHTML = conversationGroupsTemplate(data);
     $conversationsList.append(conversationGroupsHTML);
   }
 
