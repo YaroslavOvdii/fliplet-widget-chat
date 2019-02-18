@@ -10,9 +10,10 @@ var $firstName = $('[name="firstName"]');
 var $lastName = $('[name="lastName"]');
 var $fullName = $('[name="fullName"]');
 var $avatar = $('[name="avatar"]');
+var $primaryKey = $('[name="primaryKey"]');
 var $titleName = $('[name="titleName"]');
 var $contactsNumber = $('#contacts-number');
-var $userInformationFields = $('[name="emailAddress"], [name="firstName"], [name="lastName"], [name="fullName"], [name="avatar"], [name="titleName"]');
+var $userInformationFields = $('[name="emailAddress"], [name="firstName"], [name="lastName"], [name="fullName"], [name="avatar"], [name="primaryKey"], [name="titleName"]');
 
 // Set link action to screen by default
 if (!data.securityLinkAction) {
@@ -109,6 +110,7 @@ function save(notifyComplete) {
   data.lastNameColumnName = $lastName.val() !== 'none' ? $lastName.val() : undefined;
   data.titleNameColumnName = $titleName.val() !== 'none' ? $titleName.val() : undefined;
   data.avatarColumnName = $avatar.val() !== 'none' ? $avatar.val() : undefined;
+  data.primaryKeyColumnName = $primaryKey.val() !== 'none' ? $primaryKey.val() : undefined;
   data.howManyEntriesToShow = $contactsNumber.val() !== ''
     ? parseInt($contactsNumber.val(), 10)
     : '';
@@ -159,6 +161,9 @@ function getColumns(dataSourceId) {
     }
     if (data.avatarColumnName) {
       $avatar.val(data.avatarColumnName);
+    }
+    if (data.primaryKeyColumnName) {
+      $avatar.val(data.primaryKeyColumnName);
     }
     if (data.titleNameColumnName) {
       $titleName.val(data.titleNameColumnName);

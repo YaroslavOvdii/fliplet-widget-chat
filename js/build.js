@@ -135,6 +135,7 @@ Fliplet.Widget.instance('chat', function (data) {
     encryptMessages: true,
     pushNotifications: true,
     dataSourceId: data.dataSourceId,
+    primaryKey: data.primaryKeyColumnName,
     crossLoginColumnName: crossLoginColumnName,
     fullNameColumnName: fullNameColumnName
       ? fullNameColumnName

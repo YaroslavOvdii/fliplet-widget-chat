@@ -102,6 +102,19 @@
             <p class="text-muted field-text-info">Leave it blank to show all or enter a number.</p>
           </div>
         </div>
+        <hr />
+        <div class="form-group clearfix full-name-field">
+          <div class="col-sm-4 control-label">
+            <label for="primaryKey"><h2>Advanced settings</h2>Select a primary key for your contacts (optional)</label>
+            <p><small>Setting this is encouraged as will make the chat faster and more reliable when being used by hundreds of users at the same time.</small></p>
+          </div>
+          <div class="col-sm-8">
+            <select name="primaryKey" id="primaryKey" data-label="select" class="hidden-select form-control" disabled>
+              <option value="">-- Please wait...</option>
+            </select>
+            <small>Leave this empty if you're unsure on what to use.</small>
+          </div>
+        </div>
       </div>
     </div>
     <div class="tab-pane" id="chat-settings-tab">
