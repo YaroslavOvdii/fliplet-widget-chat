@@ -1688,9 +1688,10 @@ Fliplet.Widget.instance('chat', function (data) {
       otherPeopleSorted[index]['fullName'] = multipleNameColumns
         ? person.data['flChatFirstName'] + ' ' + person.data['flChatLastName']
         : person.data['flChatFullName'];
-      otherPeopleSorted[index]['title'] = person.data[titleColumnName] || person.data.flChatDescription;
-      otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
-      otherPeopleSorted[index]['isChannel'] = !!person.isChannel;
+      otherPeopleSorted[index].title = person.data[titleColumnName] || person.data.flChatDescription;
+      otherPeopleSorted[index].image = person.data[avatarColumnName];
+      otherPeopleSorted[index].isPinned = person.data.isPinned;
+      otherPeopleSorted[index].isChannel = !!person.isChannel;
     });
 
     renderListOfPeople(otherPeopleSorted, fromSearch);
@@ -1700,12 +1701,22 @@ Fliplet.Widget.instance('chat', function (data) {
     var entriesToShow = listOfPeople;
     $('.show-more-contacts').addClass('hidden');
 
+    var pinnedContacts = _.remove(listOfPeople, function (contact) {
+      return !!_.get(contact, 'data.isPinned');
+    });
+
     if (data.limitContacts && data.howManyEntriesToShow && !fromSearch) {
       entriesToShow = incrementalShow(listOfPeople);
     }
 
     // Groups people by initial
     var peopleGroupedByLetter = _.groupBy(entriesToShow, function(obj) { return obj.letterGroup; });
+
+    if (pinnedContacts.length) {
+      peopleGroupedByLetter = _.extend({
+        'Pinned': pinnedContacts
+      }, peopleGroupedByLetter);
+    }
 
     // Add contacts to list
     var contactsListHTML = contactsListTemplate(peopleGroupedByLetter);
