@@ -1689,9 +1689,15 @@ Fliplet.Widget.instance('chat', function (data) {
         ? person.data['flChatFirstName'] + ' ' + person.data['flChatLastName']
         : person.data['flChatFullName'];
       otherPeopleSorted[index].title = person.data[titleColumnName] || person.data.flChatDescription;
-      otherPeopleSorted[index].image = person.data[avatarColumnName];
       otherPeopleSorted[index].isPinned = person.data.isPinned;
       otherPeopleSorted[index].isChannel = !!person.isChannel;
+
+      var image = person.data[avatarColumnName];
+
+      // Only set the contact image when it's a URL
+      if (typeof image === 'string' && image.match(/^https?:\/\//)) {
+        otherPeopleSorted[index].image = image;
+      }
     });
 
     renderListOfPeople(otherPeopleSorted, fromSearch);
