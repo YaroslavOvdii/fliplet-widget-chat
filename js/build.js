@@ -1711,7 +1711,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return !!_.get(contact, 'data.isPinned');
     });
 
-    if (data.limitContacts && data.howManyEntriesToShow && !fromSearch) {
+    if (data.limitContacts && data.howManyEntriesToShow && !fromSearch && !isViewingChannels) {
       entriesToShow = incrementalShow(listOfPeople);
     }
 
