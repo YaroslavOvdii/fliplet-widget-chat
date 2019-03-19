@@ -559,7 +559,7 @@ html.native body,
   align-items: center;
 }
 
-.chat-user-info.group {
+.chat-user-info.group, .chat-user-info.channel {
   cursor: pointer;
   pointer-events: all;
 }
@@ -578,6 +578,8 @@ html.native body,
   vertical-align: middle;
   line-height: 44px;
   text-align: center;
+  cursor: pointer;
+  pointer-events: all;
 }
 
 .contacts-info,
