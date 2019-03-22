@@ -825,6 +825,7 @@ html.native body,
 }
 
 .show-selected-users {
+  display: flex;
   position: fixed;
   top: 112px;
   left: 0;
@@ -878,7 +879,7 @@ html.native body,
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 2;
+  z-index: 3;
   border-radius: 55px;
   background-size: cover;
   background-position: center center;
