@@ -81,7 +81,8 @@ Fliplet.Widget.instance('chat', function (data) {
   var conversationGroupsTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.conversations-group']());
   var conversationTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.conversation-item']());
   var chatHeaderTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.chat-header']());
-  var chatMessageTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-item']());
+  var chatMessageItemTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-item']());
+  var chatMessageGapTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-gap']());
   var chatQueueMessageTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-queue']());
   var groupTabsTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.group-tabs']());
   var contactsListTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.contacts-list']());
@@ -731,7 +732,7 @@ Fliplet.Widget.instance('chat', function (data) {
         closeGroupCreationSettings();
         closeContacts();
         scrollToMessageTs = 100;
-        $messagesHolder.html('');
+        $messagesHolder.html(chatMessageGapTemplate());
         viewConversation(channel);
 
         toast.then(function (instance) {
@@ -895,7 +896,7 @@ Fliplet.Widget.instance('chat', function (data) {
           var conversation = _.find(conversations, { id: id });
 
           scrollToMessageTs = 100;
-          $messagesHolder.html('');
+          $messagesHolder.html(chatMessageGapTemplate());
           viewConversation(conversation);
         }
       })
@@ -1965,7 +1966,7 @@ Fliplet.Widget.instance('chat', function (data) {
         closeContacts();
         var newConversation = _.find(conversations, { id: conversation.id });
         scrollToMessageTs = 100;
-        $messagesHolder.html('');
+        $messagesHolder.html(chatMessageGapTemplate());
         viewConversation(newConversation);
       });
     }).catch(function(error) {
@@ -2356,7 +2357,7 @@ Fliplet.Widget.instance('chat', function (data) {
         imgContainerHeight = reducedHeight + 'px';
       }
 
-      var $message = $(chatMessageTemplate({
+      var $message = $(chatMessageItemTemplate({
         id: message.id,
         isFromGroup: message.fromGroup,
         isFromChannel: message.fromChannel,
@@ -2423,7 +2424,7 @@ Fliplet.Widget.instance('chat', function (data) {
         imgContainerHeight = reducedHeight + 'px';
       }
 
-      var messageHTML = chatMessageTemplate({
+      var messageHTML = chatMessageItemTemplate({
         id: message.id,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         name: multipleNameColumns

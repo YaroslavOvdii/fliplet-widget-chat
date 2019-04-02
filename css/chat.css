@@ -1042,6 +1042,8 @@ html.native body,
   justify-content: flex-start;
   padding-top: 0;
   transition: padding-top 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-messages-holder .chat.chat-right {
@@ -1050,7 +1052,11 @@ html.native body,
   justify-content: flex-end;
 }
 
-.chat-messages-holder .chat:first-child {
+.chat-messages-holder .chat.chat-gap {
+  flex: 1;
+}
+
+.chat-messages-holder .chat.chat-gap + .chat {
   margin-top: 0;
 }
 
