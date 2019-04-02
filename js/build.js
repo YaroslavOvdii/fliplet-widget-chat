@@ -580,24 +580,28 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
-  function toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel) {
+  function toggleNotifications(conversationId) {
     var conversation = _.find(conversations, { id: conversationId });
 
     if (!conversation) {
       return Promise.reject('Conversation not found');
     }
 
-    return Fliplet.UI.Actions({
-      title: 'Notification settings',
-      labels: [
-        {
-          label: conversation.isMuted ? 'Unmute' : 'Mute',
-          action: function () {
-            // @TODO Toggle notification for conversation, then
-            // update conversation UI to show/hide mute icon accordingly
+    return new Promise(function (resolve, reject) {
+      return Fliplet.UI.Actions({
+        title: 'Notification settings',
+        labels: [
+          {
+            label: conversation.isMuted ? 'Unmute' : 'Mute',
+            action: function () {
+              // Toggles muting
+              conversation.notifications[conversation.isMuted ? 'unmute' : 'mute']().then(function () {
+                resolve();
+              }).catch(reject);
+            }
           }
-        }
-      ]
+        ]
+      });
     });
   }
 
@@ -932,9 +936,9 @@ Fliplet.Widget.instance('chat', function (data) {
             deleteConversation(conversationId, currentUserAllData, isGroup, isChannel);
             break;
           case 'mute':
-            // @TODO Mute conversation
-            // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
-            toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
+            toggleNotifications(conversationId).then(function () {
+              renderConversations(_.find(conversations, function (c) { return c.id === conversationId; }), true);
+            });
             break;
         }
       })
@@ -945,12 +949,17 @@ Fliplet.Widget.instance('chat', function (data) {
         var isGroup = $cardHolder.hasClass('group');
         var isChannel = $cardHolder.hasClass('channel');
         var conversationId = $cardHolder.data('conversation-id');
-        // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
-        toggleNotifications(conversationId, currentUserAllData, isGroup, isChannel);
+        toggleNotifications(conversationId).then(function () {
+          renderConversations(_.find(conversations, function (c) { return c.id === conversationId; }), true);
+        });
       })
-      .on('click', '.chat-mute', function () {
-        // @NOTE Not sure if all the data is needed. This copies the signature for deleteConversation()
-        toggleNotifications(currentConversation.id, currentUserAllData, currentConversation.isGroup, currentConversation.isChannel);
+      .on('click', '.chat-mute', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleNotifications(currentConversation.id).then(function () {
+          $messages.html('');
+          viewConversation(currentConversation);
+        });
       })
       .on('touchstart', '.contact-card', function(event) {
         event.stopPropagation();
@@ -1679,9 +1688,16 @@ Fliplet.Widget.instance('chat', function (data) {
       otherPeopleSorted[index]['fullName'] = multipleNameColumns
         ? person.data['flChatFirstName'] + ' ' + person.data['flChatLastName']
         : person.data['flChatFullName'];
-      otherPeopleSorted[index]['title'] = person.data[titleColumnName] || person.data.flChatDescription;
-      otherPeopleSorted[index]['image'] = person.data[avatarColumnName];
-      otherPeopleSorted[index]['isChannel'] = !!person.isChannel;
+      otherPeopleSorted[index].title = person.data[titleColumnName] || person.data.flChatDescription;
+      otherPeopleSorted[index].isPinned = person.data.isPinned;
+      otherPeopleSorted[index].isChannel = !!person.isChannel;
+
+      var image = person.data[avatarColumnName];
+
+      // Only set the contact image when it's a URL
+      if (typeof image === 'string' && image.match(/^https?:\/\//)) {
+        otherPeopleSorted[index].image = image;
+      }
     });
 
     renderListOfPeople(otherPeopleSorted, fromSearch);
@@ -1691,12 +1707,22 @@ Fliplet.Widget.instance('chat', function (data) {
     var entriesToShow = listOfPeople;
     $('.show-more-contacts').addClass('hidden');
 
-    if (data.limitContacts && data.howManyEntriesToShow && !fromSearch) {
+    var pinnedContacts = _.remove(listOfPeople, function (contact) {
+      return !!_.get(contact, 'data.isPinned');
+    });
+
+    if (data.limitContacts && data.howManyEntriesToShow && !fromSearch && !isViewingChannels) {
       entriesToShow = incrementalShow(listOfPeople);
     }
 
     // Groups people by initial
     var peopleGroupedByLetter = _.groupBy(entriesToShow, function(obj) { return obj.letterGroup; });
+
+    if (pinnedContacts.length) {
+      peopleGroupedByLetter = _.extend({
+        'Pinned': pinnedContacts
+      }, peopleGroupedByLetter);
+    }
 
     // Add contacts to list
     var contactsListHTML = contactsListTemplate(peopleGroupedByLetter);
@@ -2089,8 +2115,6 @@ Fliplet.Widget.instance('chat', function (data) {
           lastWeek: '[Older]',
           sameElse: '[Older]'
         });
-        // @TODO Update isMuted dynamically
-        conversation.isMuted = true;
 
         var conversationMessages = _.filter(messages, { dataSourceId: conversation.id });
         setConversationLastMessage(conversation, conversationMessages[conversationMessages.length - 1]);
@@ -2110,7 +2134,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function renderConversations(data, replace) {
-    var conversationGroupsHTML = conversationGroupsTemplate(data);
     var conversationHTML = conversationTemplate(data);
     var conversationIsOpen = false;
 
@@ -2128,6 +2151,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return;
     }
 
+    var conversationGroupsHTML = conversationGroupsTemplate(data);
     $conversationsList.append(conversationGroupsHTML);
   }
 
