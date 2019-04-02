@@ -707,6 +707,7 @@ html.native body,
   top: 54px;
   left: 0;
   right: 0;
+  background: #fff;
   padding: 10px 15px;
 }
 
@@ -824,7 +825,7 @@ html.native body,
 
 .show-selected-users {
   position: fixed;
-  top: 112px;
+  top: 111px;
   left: 0;
   right: 0;
   z-index: 5;
@@ -833,6 +834,7 @@ html.native body,
   word-break: break-word;
   overflow-x: auto;
   overflow-y: hidden;
+  background-color: #fff;
   height: 0;
   -webkit-transition: height 0.2s ease-out;
   transition: height 0.2s ease-out;
