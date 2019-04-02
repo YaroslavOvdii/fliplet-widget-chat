@@ -210,6 +210,7 @@ html.native body,
 
 .chat-card .actions-holder .actions {
   display: inline-block;
+  height: 100%;
 }
 
 .chat-card .actions-holder .action {
@@ -217,7 +218,7 @@ html.native body,
   font-weight: 200;
   display: inline-block;
   width: 67px;
-  height: 67px;
+  height: 100%;
   line-height: 67px;
   cursor: pointer;
   text-align: center;
@@ -709,6 +710,7 @@ html.native body,
   top: 54px;
   left: 0;
   right: 0;
+  background: #fff;
   padding: 10px 15px;
 }
 
@@ -827,7 +829,7 @@ html.native body,
 .show-selected-users {
   display: flex;
   position: fixed;
-  top: 112px;
+  top: 111px;
   left: 0;
   right: 0;
   z-index: 5;
@@ -836,6 +838,7 @@ html.native body,
   word-break: break-word;
   overflow-x: auto;
   overflow-y: hidden;
+  background-color: #fff;
   height: 0;
   -webkit-transition: height 0.2s ease-out;
   transition: height 0.2s ease-out;
