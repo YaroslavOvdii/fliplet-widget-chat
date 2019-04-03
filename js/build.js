@@ -40,6 +40,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var PAN_WINDOW_FRACTION = 3;
   var ANIMATION_SPEED_SLOW = 200;
   var ANIMATION_SPEED_FAST = 100;
+  var TAP_MOVE_THRESHOLD = 20;
   var hammer;
   var $wrapper = $('.chat-holder');
   var $chatOverlay = $('.chat-area');
@@ -1007,6 +1008,10 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       })
       .on('touchend', '.chat-card-holder', function() {
+        if (isNaN(totalMove) || Math.abs(totalMove) < 20) {
+          return;
+        }
+
         if (totalMove > -totalActionsWidth * 0.5) {
           toggleActions($(this).data('conversationId'), false);
         } else {
