@@ -40,6 +40,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var PAN_WINDOW_FRACTION = 3;
   var ANIMATION_SPEED_SLOW = 200;
   var ANIMATION_SPEED_FAST = 100;
+  var TAP_MOVE_THRESHOLD = 20;
   var hammer;
   var $wrapper = $('.chat-holder');
   var $chatOverlay = $('.chat-area');
@@ -967,9 +968,9 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('touchstart', '.chat-card-holder', function(event) {
         event.stopPropagation();
-        var rect = event.target.getBoundingClientRect();
+        var rect = event.currentTarget.getBoundingClientRect();
         elementStartX = event.originalEvent.touches[0].pageX - rect.left;
-        totalActionsWidth = $(event.target).next().find('.actions').width();
+        totalActionsWidth = $(event.currentTarget).next().find('.actions').width();
 
         $(this).addClass('draggable');
         $(this).addClass('hover');
@@ -1007,6 +1008,10 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       })
       .on('touchend', '.chat-card-holder', function() {
+        if (isNaN(totalMove) || Math.abs(totalMove) < 20) {
+          return;
+        }
+
         if (totalMove > -totalActionsWidth * 0.5) {
           toggleActions($(this).data('conversationId'), false);
         } else {
