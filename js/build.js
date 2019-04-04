@@ -826,6 +826,16 @@ Fliplet.Widget.instance('chat', function (data) {
       }
     }
 
+    function actionIsShown(id) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      return $chatCard.hasClass('show-actions');
+    }
+
+    function actionIsMoved(id) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      return $chatCard.find('.chat-card-holder').position().left !== 0;
+    }
+
     $(window).blur(function() { isActiveWindow = false; });
     $(window).focus(function() { isActiveWindow = true; });
 
@@ -990,6 +1000,10 @@ Fliplet.Widget.instance('chat', function (data) {
         allowClick = false;
         $(this).removeClass('hover');
 
+        $('.chat-card.show-actions').each(function () {
+          toggleActions($(this).data('conversationId'), false);
+        });
+
         var touchX = event.originalEvent.touches[0].clientX;
         totalMove = touchX - elementStartX;
 
@@ -1008,15 +1022,13 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       })
       .on('touchend', '.chat-card-holder', function() {
+        var convId = $(this).data('conversationId');
         if (isNaN(totalMove) || Math.abs(totalMove) < 20) {
+          toggleActions(convId, actionIsShown(convId) && actionIsMoved(convId));
           return;
         }
 
-        if (totalMove > -totalActionsWidth * 0.5) {
-          toggleActions($(this).data('conversationId'), false);
-        } else {
-          toggleActions($(this).data('conversationId'), true);
-        }
+        toggleActions(convId, (totalMove <= -totalActionsWidth * 0.5));
       })
       .on('focus', '[data-message-body]', onMessageAreaFocus)
       .on('blur', '[data-message-body]', onMessageAreaBlur)
