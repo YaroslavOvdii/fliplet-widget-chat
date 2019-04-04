@@ -52,6 +52,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $participantsList = $('.group-participants-list');
   var $messages;
   var $conversationsList = $wrapper.find('.chat-list');
+  var $loader = $('.chat-holder > .loading-area span');
   var listOffset;
   var opacity = 0.3;
   var allowClick = true;
@@ -149,6 +150,10 @@ Fliplet.Widget.instance('chat', function (data) {
   var jpegQuality = 80;
   var customWidth = 1024;
   var customHeight = 1024;
+
+  function setLoadingMessage(message) {
+    $loader.text(message);
+  }
 
   function panChat(e) {
     listOffset = listOffset || $list.offset().left;
@@ -2615,12 +2620,11 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    getContacts(false).then(function() {
+    getContacts(true).then(function() {
       return getConversations(true);
     }).then(function() {
       return chat.stream(onNewMessage, { offline: false });
     }).then(function() {
-
       var userId = Fliplet.Navigate.query.contactConversation;
 
       if (userId) {
