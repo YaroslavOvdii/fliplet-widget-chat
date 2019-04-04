@@ -52,6 +52,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $participantsList = $('.group-participants-list');
   var $messages;
   var $conversationsList = $wrapper.find('.chat-list');
+  var $loader = $('.chat-holder > .loading-area');
   var listOffset;
   var opacity = 0.3;
   var allowClick = true;
@@ -149,6 +150,10 @@ Fliplet.Widget.instance('chat', function (data) {
   var jpegQuality = 80;
   var customWidth = 1024;
   var customHeight = 1024;
+
+  function setLoadingMessage(message) {
+    $loader.text(message);
+  }
 
   function panChat(e) {
     listOffset = listOffset || $list.offset().left;
@@ -2615,12 +2620,17 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    getContacts(false).then(function() {
+    setLoadingMessage('Loading contacts...');
+
+    getContacts(true).then(function() {
+      setLoadingMessage('Loading conversations...');
+
       return getConversations(true);
     }).then(function() {
+      setLoadingMessage('Loading messages...');
+
       return chat.stream(onNewMessage, { offline: false });
     }).then(function() {
-
       var userId = Fliplet.Navigate.query.contactConversation;
 
       if (userId) {
@@ -2691,6 +2701,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }).then(function onLocalLoginAvailable(loginQuery) {
     return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
       messagesQueue = queue || [];
+      setLoadingMessage('Verifying your login...');
       return chat.login(loginQuery, { offline: false });
     });
   }).then(function onLoginSuccess(user) {
