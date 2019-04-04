@@ -990,6 +990,10 @@ Fliplet.Widget.instance('chat', function (data) {
         allowClick = false;
         $(this).removeClass('hover');
 
+        $('.chat-card.show-actions').each(function () {
+          toggleActions($(this).data('conversationId'), false);
+        });
+
         var touchX = event.originalEvent.touches[0].clientX;
         totalMove = touchX - elementStartX;
 
