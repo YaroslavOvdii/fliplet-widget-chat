@@ -1121,7 +1121,10 @@ Fliplet.Widget.instance('chat', function (data) {
             imageWidth: files ? files.imageWidth : undefined,
             imageHeight: files ? files.imageHeight : undefined,
             sentTime: new Date(),
-            conversationId: currentConversation.id
+            conversationId: currentConversation.id,
+            widgetInstanceId: data.id,
+            appId: Fliplet.Env.get('appId'),
+            pageId: Fliplet.Env.get('pageId')
           };
 
           messagesQueue.push(messageData);
