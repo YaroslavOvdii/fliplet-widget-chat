@@ -2620,15 +2620,9 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    setLoadingMessage('Loading contacts');
-
     getContacts(true).then(function() {
-      setLoadingMessage('Loading conversations');
-
       return getConversations(true);
     }).then(function() {
-      setLoadingMessage('Loading messages');
-
       return chat.stream(onNewMessage, { offline: false });
     }).then(function() {
       var userId = Fliplet.Navigate.query.contactConversation;
@@ -2701,7 +2695,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }).then(function onLocalLoginAvailable(loginQuery) {
     return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
       messagesQueue = queue || [];
-      setLoadingMessage('Verifying your login');
       return chat.login(loginQuery, { offline: false });
     });
   }).then(function onLoginSuccess(user) {
