@@ -52,7 +52,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $participantsList = $('.group-participants-list');
   var $messages;
   var $conversationsList = $wrapper.find('.chat-list');
-  var $loader = $('.chat-holder > .loading-area');
+  var $loader = $('.chat-holder > .loading-area span');
   var listOffset;
   var opacity = 0.3;
   var allowClick = true;
@@ -2620,14 +2620,14 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    setLoadingMessage('Loading contacts...');
+    setLoadingMessage('Loading contacts');
 
     getContacts(true).then(function() {
-      setLoadingMessage('Loading conversations...');
+      setLoadingMessage('Loading conversations');
 
       return getConversations(true);
     }).then(function() {
-      setLoadingMessage('Loading messages...');
+      setLoadingMessage('Loading messages');
 
       return chat.stream(onNewMessage, { offline: false });
     }).then(function() {
