@@ -40,6 +40,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var PAN_WINDOW_FRACTION = 3;
   var ANIMATION_SPEED_SLOW = 200;
   var ANIMATION_SPEED_FAST = 100;
+  var TAP_MOVE_THRESHOLD = 20;
   var hammer;
   var $wrapper = $('.chat-holder');
   var $chatOverlay = $('.chat-area');
@@ -51,6 +52,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $participantsList = $('.group-participants-list');
   var $messages;
   var $conversationsList = $wrapper.find('.chat-list');
+  var $loader = $('.chat-holder > .loading-area span');
   var listOffset;
   var opacity = 0.3;
   var allowClick = true;
@@ -149,6 +151,10 @@ Fliplet.Widget.instance('chat', function (data) {
   var jpegQuality = 80;
   var customWidth = 1024;
   var customHeight = 1024;
+
+  function setLoadingMessage(message) {
+    $loader.text(message);
+  }
 
   function panChat(e) {
     listOffset = listOffset || $list.offset().left;
@@ -826,6 +832,16 @@ Fliplet.Widget.instance('chat', function (data) {
       }
     }
 
+    function actionIsShown(id) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      return $chatCard.hasClass('show-actions');
+    }
+
+    function actionIsMoved(id) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      return $chatCard.find('.chat-card-holder').position().left !== 0;
+    }
+
     $(window).blur(function() { isActiveWindow = false; });
     $(window).focus(function() { isActiveWindow = true; });
 
@@ -968,9 +984,9 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('touchstart', '.chat-card-holder', function(event) {
         event.stopPropagation();
-        var rect = event.target.getBoundingClientRect();
+        var rect = event.currentTarget.getBoundingClientRect();
         elementStartX = event.originalEvent.touches[0].pageX - rect.left;
-        totalActionsWidth = $(event.target).next().find('.actions').width();
+        totalActionsWidth = $(event.currentTarget).next().find('.actions').width();
 
         $(this).addClass('draggable');
         $(this).addClass('hover');
@@ -990,6 +1006,10 @@ Fliplet.Widget.instance('chat', function (data) {
         allowClick = false;
         $(this).removeClass('hover');
 
+        $('.chat-card.show-actions').each(function () {
+          toggleActions($(this).data('conversationId'), false);
+        });
+
         var touchX = event.originalEvent.touches[0].clientX;
         totalMove = touchX - elementStartX;
 
@@ -1008,11 +1028,13 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       })
       .on('touchend', '.chat-card-holder', function() {
-        if (totalMove > -totalActionsWidth * 0.5) {
-          toggleActions($(this).data('conversationId'), false);
-        } else {
-          toggleActions($(this).data('conversationId'), true);
+        var convId = $(this).data('conversationId');
+        if (isNaN(totalMove) || Math.abs(totalMove) < 20) {
+          toggleActions(convId, actionIsShown(convId) && actionIsMoved(convId));
+          return;
         }
+
+        toggleActions(convId, (totalMove <= -totalActionsWidth * 0.5));
       })
       .on('focus', '[data-message-body]', onMessageAreaFocus)
       .on('blur', '[data-message-body]', onMessageAreaBlur)
@@ -1117,7 +1139,10 @@ Fliplet.Widget.instance('chat', function (data) {
             imageWidth: files ? files.imageWidth : undefined,
             imageHeight: files ? files.imageHeight : undefined,
             sentTime: new Date(),
-            conversationId: currentConversation.id
+            conversationId: currentConversation.id,
+            widgetInstanceId: data.id,
+            appId: Fliplet.Env.get('appId'),
+            pageId: Fliplet.Env.get('pageId')
           };
 
           messagesQueue.push(messageData);
@@ -2596,12 +2621,11 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    getContacts(false).then(function() {
+    getContacts(true).then(function() {
       return getConversations(true);
     }).then(function() {
       return chat.stream(onNewMessage, { offline: false });
     }).then(function() {
-
       var userId = Fliplet.Navigate.query.contactConversation;
 
       if (userId) {

@@ -110,6 +110,17 @@ html.native body,
   display: block;
 }
 
+.chat-holder.loading .loading-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0;
+}
+
+.chat-holder.loading .loading-area i {
+  margin-left: 5px;
+}
+
 .error-area .refresh-chat {
   border: 1px solid rgba(51, 51, 51, 0.6);
   border-radius: 20px;
