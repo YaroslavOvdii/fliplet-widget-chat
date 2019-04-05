@@ -1045,33 +1045,37 @@ html.native body,
   margin-top: 10px;
 }
 
-.chat-messages-holder .chat {
-  position: relative;
-  width: calc(100% - 8px);
-  margin-top: 7px;
-  display: flex;
-  justify-content: flex-start;
-  padding-top: 0;
-  transition: padding-top 0.2s ease-out;
+.chat-messages-holder {
   display: flex;
   flex-direction: column;
 }
 
+.chat-messages-holder .chat {
+  position: relative;
+  width: 85%;
+  margin-top: 7px;
+  padding-top: 0;
+  transition: padding-top 0.2s ease-out;
+}
+
 .chat-messages-holder .chat.chat-right {
+  align-self: flex-end;
   margin-top: 5px;
-  margin-left: 8px;
-  justify-content: flex-end;
+  text-align: right;
 }
 
 .chat-messages-holder .chat.chat-gap {
   flex: 1;
+  margin-top: 0;
 }
 
+.chat-messages-holder .chat:first-child,
 .chat-messages-holder .chat.chat-gap + .chat {
   margin-top: 0;
 }
 
 .chat .chat-body {
+  display: inline-block;
   position: relative;
   max-width: 100%;
   padding: 6px 15px;
@@ -1084,6 +1088,7 @@ html.native body,
   cursor: pointer;
   box-shadow: 1px 0px 2px 0px rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s ease-out;
+  text-align: left;
 }
 
 .chat.chat-right .chat-body {
@@ -1166,6 +1171,7 @@ html.native body,
   padding: 0 25px;
   opacity: 0;
   transition: opacity 0.1s ease-out;
+  pointer-events: none;
 }
 
 .chat.chat-right .message-hidden-controls {
@@ -1177,6 +1183,7 @@ html.native body,
 
 .chat.tapped .message-hidden-controls {
   opacity: 1;
+  pointer-events: all;
 }
 
 .chat .msg-time {
