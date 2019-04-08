@@ -2696,13 +2696,18 @@ Fliplet.Widget.instance('chat', function (data) {
   }).then(function onLocalLoginAvailable(loginQuery) {
     return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
       messagesQueue = queue || [];
-      return chat.login(loginQuery, { offline: false });
+      return chat.login(loginQuery, { offline: true });
     });
   }).then(function onLoginSuccess(user) {
     return setCurrentUser(user).then(onLogin);
   }).catch(function(error) {
     $wrapper.removeClass('loading');
     $wrapper.addClass('error');
+
+    // If for some reason our token has changed, let's remove it from the local one we use
+    if (error && error.code === 404) {
+      Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY);
+    }
 
     var actions = [];
     if (error) {
