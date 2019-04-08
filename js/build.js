@@ -2679,6 +2679,7 @@ Fliplet.Widget.instance('chat', function (data) {
     })
     .then(function(authId) {
       var where = {};
+      var allowOfflineLogin;
 
       if (!authId) {
         Fliplet.Navigate.to(securityScreenAction);
@@ -2687,16 +2688,16 @@ Fliplet.Widget.instance('chat', function (data) {
 
       if (authId.hasOwnProperty('flUserToken')) {
         where = authId; // Use 'User Token'
+        allowOfflineLogin = true;
       } else {
         where[crossLoginColumnName] = { $iLike: authId }; // Use 'Email'
+        allowOfflineLogin = false;
       }
 
-      return Promise.resolve(where);
-    });
-  }).then(function onLocalLoginAvailable(loginQuery) {
-    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
-      messagesQueue = queue || [];
-      return chat.login(loginQuery, { offline: true });
+      return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
+        messagesQueue = queue || [];
+        return chat.login(where, { offline: allowOfflineLogin });
+      });
     });
   }).then(function onLoginSuccess(user) {
     return setCurrentUser(user).then(onLogin);
