@@ -152,6 +152,20 @@ Fliplet.Widget.instance('chat', function (data) {
   var customWidth = 1024;
   var customHeight = 1024;
 
+  if (Fliplet.Navigate.query.conversationId) {
+    Fliplet.UI.Toast({
+      message: 'Opening channel...',
+      backdrop: true,
+      duration: false
+    });
+  } else if (Fliplet.Navigate.query.contactConversation) {
+    Fliplet.UI.Toast({
+      message: 'Opening conversation...',
+      backdrop: true,
+      duration: false
+    });
+  }
+
   function setLoadingMessage(message) {
     $loader.text(message);
   }
@@ -1813,13 +1827,18 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function normalizeData(users) {
-    users.forEach(function(user) {
-      user.data['flChatFirstName'] = user.data[firstNameColumnName] || '';
-      user.data['flChatLastName'] = user.data[lastNameColumnName] || '';
-      user.data['flChatFullName'] = user.data[fullNameColumnName] || '';
-    });
+    return _.compact(users.map(function(user) {
+      user.data.flChatFirstName = user.data[firstNameColumnName] || '';
+      user.data.flChatLastName = user.data[lastNameColumnName] || '';
+      user.data.flChatFullName = user.data[fullNameColumnName] || '';
 
-    return users;
+      // Filter profiles without a name
+      if (!user.data.flChatFirstName && !user.data.flChatLastName && !user.data.flChatFullName) {
+        return;
+      }
+
+      return user;
+    }));
   }
 
   /* Get contacts function */
@@ -2630,6 +2649,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
       if (userId) {
         createConversation([userId]);
+        Fliplet.UI.Toast.dismiss();
       }
 
       $wrapper.removeClass('loading');
@@ -2637,11 +2657,24 @@ Fliplet.Widget.instance('chat', function (data) {
 
       getContacts(false).then(function() {
         return getConversations(false);
+      }).then(function () {
+        var conversationId = Fliplet.Navigate.query.conversationId;
+        if (conversationId) {
+          var conversation = _.find(conversations, { id: parseInt(conversationId, 10) });
+
+          if (conversation) {
+            viewConversation(conversation);
+          }
+
+          Fliplet.UI.Toast.dismiss();
+        }
       });
     }).catch(function(error) {
       $wrapper.removeClass('loading');
       $wrapper.removeClass('empty');
       $wrapper.addClass('error');
+
+      Fliplet.UI.Toast.dismiss();
 
       var actions = [];
       if (error) {
@@ -2687,7 +2720,7 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
-      if (!userToken) {
+      if (!flUserToken) {
         Fliplet.Navigate.to(securityScreenAction);
         return Promise.reject(notLoggedInErrorMessage);
       }
