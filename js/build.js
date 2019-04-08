@@ -2661,42 +2661,42 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
+  var notLoggedInErrorMessage = 'Please log in with your account to access the chat.';
+
   /* Chat connection */
   chatConnection.then(function onChatConnectionAvailable(chatInstance) {
     chat = chatInstance;
     initialiseCode();
 
-    // Log in with the stored details
-    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(userToken) {
-      if (userToken) {
-        return Promise.resolve({
-          flUserToken: userToken
-        });
-      }
+    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY);
+  }).then(function(queue) {
+    messagesQueue = queue || [];
 
-      // Log in using authentication from a different component
-      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY);
-    })
-    .then(function(authId) {
-      var where = {};
+    // Log in using authentication from a different component
+    if (crossLoginColumnName) {
+      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
+        if (!email) {
+          Fliplet.Navigate.to(securityScreenAction);
+          return Promise.reject(notLoggedInErrorMessage);
+        }
 
-      if (!authId) {
+        var where = {};
+        where[crossLoginColumnName] = { $iLike: email };
+        return chat.login(where, { offline: true });
+      });
+    }
+
+    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
+      if (!userToken) {
         Fliplet.Navigate.to(securityScreenAction);
-        return Promise.reject('User is not logged in');
+        return Promise.reject(notLoggedInErrorMessage);
       }
 
-      if (authId.hasOwnProperty('flUserToken')) {
-        where = authId; // Use 'User Token'
-      } else {
-        where[crossLoginColumnName] = { $iLike: authId }; // Use 'Email'
-      }
-
-      return Promise.resolve(where);
-    });
-  }).then(function onLocalLoginAvailable(loginQuery) {
-    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
-      messagesQueue = queue || [];
-      return chat.login(loginQuery, { offline: false });
+      return chat.login({ flUserToken: flUserToken }, { offline: true }).catch(function (err) {
+        return Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+          return Promise.reject(err);
+        });
+      });
     });
   }).then(function onLoginSuccess(user) {
     return setCurrentUser(user).then(onLogin);
