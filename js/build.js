@@ -2692,19 +2692,17 @@ Fliplet.Widget.instance('chat', function (data) {
         return Promise.reject(notLoggedInErrorMessage);
       }
 
-      return chat.login({ flUserToken: flUserToken }, { offline: true });
+      return chat.login({ flUserToken: flUserToken }, { offline: true }).catch(function (err) {
+        return Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+          return Promise.reject(err);
+        });
+      });
     });
   }).then(function onLoginSuccess(user) {
     return setCurrentUser(user).then(onLogin);
   }).catch(function(error) {
     $wrapper.removeClass('loading');
     $wrapper.addClass('error');
-
-    // If for some reason our token has changed, let's remove it so the next login
-    // will fetch it from server
-    if (error && error.code === 404) {
-      Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY);
-    }
 
     var actions = [];
     if (error) {
