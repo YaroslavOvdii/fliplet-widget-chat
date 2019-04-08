@@ -1828,6 +1828,8 @@ Fliplet.Widget.instance('chat', function (data) {
       if (!user.data.flChatFirstName && !user.data.flChatLastName && !user.data.flChatFullName) {
         return;
       }
+
+      return user;
     }));
   }
 
