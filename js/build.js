@@ -2687,7 +2687,7 @@ Fliplet.Widget.instance('chat', function (data) {
     }
 
     return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
-      if (!userToken) {
+      if (!flUserToken) {
         Fliplet.Navigate.to(securityScreenAction);
         return Promise.reject(notLoggedInErrorMessage);
       }
