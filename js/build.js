@@ -2704,7 +2704,8 @@ Fliplet.Widget.instance('chat', function (data) {
     $wrapper.removeClass('loading');
     $wrapper.addClass('error');
 
-    // If for some reason our token has changed, let's remove it from the local one we use
+    // If for some reason our token has changed, let's remove it so the next login
+    // will fetch it from server
     if (error && error.code === 404) {
       Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY);
     }
