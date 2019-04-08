@@ -152,6 +152,12 @@ Fliplet.Widget.instance('chat', function (data) {
   var customWidth = 1024;
   var customHeight = 1024;
 
+  if (Fliplet.Navigate.query.conversationId) {
+    Fliplet.UI.Toast('Opening channel...');
+  } else if (Fliplet.Navigate.query.contactConversation) {
+    Fliplet.UI.Toast('Opening conversation...');
+  }
+
   function setLoadingMessage(message) {
     $loader.text(message);
   }
@@ -1813,13 +1819,16 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function normalizeData(users) {
-    users.forEach(function(user) {
-      user.data['flChatFirstName'] = user.data[firstNameColumnName] || '';
-      user.data['flChatLastName'] = user.data[lastNameColumnName] || '';
-      user.data['flChatFullName'] = user.data[fullNameColumnName] || '';
-    });
+    return _.compact(users.map(function(user) {
+      user.data.flChatFirstName = user.data[firstNameColumnName] || '';
+      user.data.flChatLastName = user.data[lastNameColumnName] || '';
+      user.data.flChatFullName = user.data[fullNameColumnName] || '';
 
-    return users;
+      // Filter profiles without a name
+      if (!user.data.flChatFirstName && !user.data.flChatLastName && !user.data.flChatFullName) {
+        return;
+      }
+    }));
   }
 
   /* Get contacts function */
@@ -2637,6 +2646,15 @@ Fliplet.Widget.instance('chat', function (data) {
 
       getContacts(false).then(function() {
         return getConversations(false);
+      }).then(function () {
+        var conversationId = Fliplet.Navigate.query.conversationId;
+        if (conversationId) {
+          var conversation = _.find(conversations, { id: parseInt(conversationId, 10) });
+
+          if (conversation) {
+            viewConversation(conversation);
+          }
+        }
       });
     }).catch(function(error) {
       $wrapper.removeClass('loading');
