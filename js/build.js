@@ -40,6 +40,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var PAN_WINDOW_FRACTION = 3;
   var ANIMATION_SPEED_SLOW = 200;
   var ANIMATION_SPEED_FAST = 100;
+  var TAP_MOVE_THRESHOLD = 20;
   var hammer;
   var $wrapper = $('.chat-holder');
   var $chatOverlay = $('.chat-area');
@@ -51,6 +52,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var $participantsList = $('.group-participants-list');
   var $messages;
   var $conversationsList = $wrapper.find('.chat-list');
+  var $loader = $('.chat-holder > .loading-area span');
   var listOffset;
   var opacity = 0.3;
   var allowClick = true;
@@ -81,7 +83,8 @@ Fliplet.Widget.instance('chat', function (data) {
   var conversationGroupsTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.conversations-group']());
   var conversationTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.conversation-item']());
   var chatHeaderTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.chat-header']());
-  var chatMessageTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-item']());
+  var chatMessageItemTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-item']());
+  var chatMessageGapTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-gap']());
   var chatQueueMessageTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.message-queue']());
   var groupTabsTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.group-tabs']());
   var contactsListTemplate = Handlebars.compile(Fliplet.Widget.Templates['templates.contacts-list']());
@@ -148,6 +151,24 @@ Fliplet.Widget.instance('chat', function (data) {
   var jpegQuality = 80;
   var customWidth = 1024;
   var customHeight = 1024;
+
+  if (Fliplet.Navigate.query.conversationId) {
+    Fliplet.UI.Toast({
+      message: 'Opening channel...',
+      backdrop: true,
+      duration: false
+    });
+  } else if (Fliplet.Navigate.query.contactConversation) {
+    Fliplet.UI.Toast({
+      message: 'Opening conversation...',
+      backdrop: true,
+      duration: false
+    });
+  }
+
+  function setLoadingMessage(message) {
+    $loader.text(message);
+  }
 
   function panChat(e) {
     listOffset = listOffset || $list.offset().left;
@@ -731,7 +752,7 @@ Fliplet.Widget.instance('chat', function (data) {
         closeGroupCreationSettings();
         closeContacts();
         scrollToMessageTs = 100;
-        $messagesHolder.html('');
+        $messagesHolder.html(chatMessageGapTemplate());
         viewConversation(channel);
 
         toast.then(function (instance) {
@@ -825,6 +846,16 @@ Fliplet.Widget.instance('chat', function (data) {
       }
     }
 
+    function actionIsShown(id) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      return $chatCard.hasClass('show-actions');
+    }
+
+    function actionIsMoved(id) {
+      var $chatCard = $('.chat-card[data-conversation-id="' + id + '"]');
+      return $chatCard.find('.chat-card-holder').position().left !== 0;
+    }
+
     $(window).blur(function() { isActiveWindow = false; });
     $(window).focus(function() { isActiveWindow = true; });
 
@@ -895,7 +926,7 @@ Fliplet.Widget.instance('chat', function (data) {
           var conversation = _.find(conversations, { id: id });
 
           scrollToMessageTs = 100;
-          $messagesHolder.html('');
+          $messagesHolder.html(chatMessageGapTemplate());
           viewConversation(conversation);
         }
       })
@@ -967,9 +998,9 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('touchstart', '.chat-card-holder', function(event) {
         event.stopPropagation();
-        var rect = event.target.getBoundingClientRect();
+        var rect = event.currentTarget.getBoundingClientRect();
         elementStartX = event.originalEvent.touches[0].pageX - rect.left;
-        totalActionsWidth = $(event.target).next().find('.actions').width();
+        totalActionsWidth = $(event.currentTarget).next().find('.actions').width();
 
         $(this).addClass('draggable');
         $(this).addClass('hover');
@@ -989,6 +1020,10 @@ Fliplet.Widget.instance('chat', function (data) {
         allowClick = false;
         $(this).removeClass('hover');
 
+        $('.chat-card.show-actions').each(function () {
+          toggleActions($(this).data('conversationId'), false);
+        });
+
         var touchX = event.originalEvent.touches[0].clientX;
         totalMove = touchX - elementStartX;
 
@@ -1007,11 +1042,13 @@ Fliplet.Widget.instance('chat', function (data) {
         });
       })
       .on('touchend', '.chat-card-holder', function() {
-        if (totalMove > -totalActionsWidth * 0.5) {
-          toggleActions($(this).data('conversationId'), false);
-        } else {
-          toggleActions($(this).data('conversationId'), true);
+        var convId = $(this).data('conversationId');
+        if (isNaN(totalMove) || Math.abs(totalMove) < 20) {
+          toggleActions(convId, actionIsShown(convId) && actionIsMoved(convId));
+          return;
         }
+
+        toggleActions(convId, (totalMove <= -totalActionsWidth * 0.5));
       })
       .on('focus', '[data-message-body]', onMessageAreaFocus)
       .on('blur', '[data-message-body]', onMessageAreaBlur)
@@ -1116,7 +1153,10 @@ Fliplet.Widget.instance('chat', function (data) {
             imageWidth: files ? files.imageWidth : undefined,
             imageHeight: files ? files.imageHeight : undefined,
             sentTime: new Date(),
-            conversationId: currentConversation.id
+            conversationId: currentConversation.id,
+            widgetInstanceId: data.id,
+            appId: Fliplet.Env.get('appId'),
+            pageId: Fliplet.Env.get('pageId')
           };
 
           messagesQueue.push(messageData);
@@ -1787,13 +1827,18 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function normalizeData(users) {
-    users.forEach(function(user) {
-      user.data['flChatFirstName'] = user.data[firstNameColumnName] || '';
-      user.data['flChatLastName'] = user.data[lastNameColumnName] || '';
-      user.data['flChatFullName'] = user.data[fullNameColumnName] || '';
-    });
+    return _.compact(users.map(function(user) {
+      user.data.flChatFirstName = user.data[firstNameColumnName] || '';
+      user.data.flChatLastName = user.data[lastNameColumnName] || '';
+      user.data.flChatFullName = user.data[fullNameColumnName] || '';
 
-    return users;
+      // Filter profiles without a name
+      if (!user.data.flChatFirstName && !user.data.flChatLastName && !user.data.flChatFullName) {
+        return;
+      }
+
+      return user;
+    }));
   }
 
   /* Get contacts function */
@@ -1965,7 +2010,7 @@ Fliplet.Widget.instance('chat', function (data) {
         closeContacts();
         var newConversation = _.find(conversations, { id: conversation.id });
         scrollToMessageTs = 100;
-        $messagesHolder.html('');
+        $messagesHolder.html(chatMessageGapTemplate());
         viewConversation(newConversation);
       });
     }).catch(function(error) {
@@ -2356,7 +2401,7 @@ Fliplet.Widget.instance('chat', function (data) {
         imgContainerHeight = reducedHeight + 'px';
       }
 
-      var $message = $(chatMessageTemplate({
+      var $message = $(chatMessageItemTemplate({
         id: message.id,
         isFromGroup: message.fromGroup,
         isFromChannel: message.fromChannel,
@@ -2423,7 +2468,7 @@ Fliplet.Widget.instance('chat', function (data) {
         imgContainerHeight = reducedHeight + 'px';
       }
 
-      var messageHTML = chatMessageTemplate({
+      var messageHTML = chatMessageItemTemplate({
         id: message.id,
         isFromCurrentUser: currentUser.flUserId === message.data.fromUserId,
         name: multipleNameColumns
@@ -2595,16 +2640,16 @@ Fliplet.Widget.instance('chat', function (data) {
   function onLogin() {
     Notification.requestPermission();
 
-    getContacts(false).then(function() {
+    getContacts(true).then(function() {
       return getConversations(true);
     }).then(function() {
       return chat.stream(onNewMessage, { offline: false });
     }).then(function() {
-
       var userId = Fliplet.Navigate.query.contactConversation;
 
       if (userId) {
         createConversation([userId]);
+        Fliplet.UI.Toast.dismiss();
       }
 
       $wrapper.removeClass('loading');
@@ -2612,11 +2657,24 @@ Fliplet.Widget.instance('chat', function (data) {
 
       getContacts(false).then(function() {
         return getConversations(false);
+      }).then(function () {
+        var conversationId = Fliplet.Navigate.query.conversationId;
+        if (conversationId) {
+          var conversation = _.find(conversations, { id: parseInt(conversationId, 10) });
+
+          if (conversation) {
+            viewConversation(conversation);
+          }
+
+          Fliplet.UI.Toast.dismiss();
+        }
       });
     }).catch(function(error) {
       $wrapper.removeClass('loading');
       $wrapper.removeClass('empty');
       $wrapper.addClass('error');
+
+      Fliplet.UI.Toast.dismiss();
 
       var actions = [];
       if (error) {
@@ -2636,42 +2694,42 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
+  var notLoggedInErrorMessage = 'Please log in with your account to access the chat.';
+
   /* Chat connection */
   chatConnection.then(function onChatConnectionAvailable(chatInstance) {
     chat = chatInstance;
     initialiseCode();
 
-    // Log in with the stored details
-    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(userToken) {
-      if (userToken) {
-        return Promise.resolve({
-          flUserToken: userToken
-        });
-      }
+    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY);
+  }).then(function(queue) {
+    messagesQueue = queue || [];
 
-      // Log in using authentication from a different component
-      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY);
-    })
-    .then(function(authId) {
-      var where = {};
+    // Log in using authentication from a different component
+    if (crossLoginColumnName) {
+      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
+        if (!email) {
+          Fliplet.Navigate.to(securityScreenAction);
+          return Promise.reject(notLoggedInErrorMessage);
+        }
 
-      if (!authId) {
+        var where = {};
+        where[crossLoginColumnName] = { $iLike: email };
+        return chat.login(where, { offline: true });
+      });
+    }
+
+    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
+      if (!flUserToken) {
         Fliplet.Navigate.to(securityScreenAction);
-        return Promise.reject('User is not logged in');
+        return Promise.reject(notLoggedInErrorMessage);
       }
 
-      if (authId.hasOwnProperty('flUserToken')) {
-        where = authId; // Use 'User Token'
-      } else {
-        where[crossLoginColumnName] = { $iLike: authId }; // Use 'Email'
-      }
-
-      return Promise.resolve(where);
-    });
-  }).then(function onLocalLoginAvailable(loginQuery) {
-    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY).then(function(queue) {
-      messagesQueue = queue || [];
-      return chat.login(loginQuery, { offline: false });
+      return chat.login({ flUserToken: flUserToken }, { offline: true }).catch(function (err) {
+        return Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+          return Promise.reject(err);
+        });
+      });
     });
   }).then(function onLoginSuccess(user) {
     return setCurrentUser(user).then(onLogin);
