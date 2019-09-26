@@ -1276,6 +1276,10 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.show-more-contacts .btn', function() {
         renderListOfPeople(otherPeopleSorted);
+        contactsSelected.forEach(function(elem) {
+          var contactId = "[data-contact-id='" + elem.id + "']";
+          $(contactId).addClass('contact-selected');
+        });
       })
       .on('change', '[name="group-tabs"]', function () {
         isViewingChannels = !!$('[name="group-tabs"]:checked').val();
