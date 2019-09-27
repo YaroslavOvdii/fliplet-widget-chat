@@ -1850,7 +1850,9 @@ Fliplet.Widget.instance('chat', function (data) {
         return Fliplet.Hooks.run('beforeChatContactsRendering', {
           contacts: response,
           container: $wrapper
-        }).then(function([ hookData ]) {
+        }).then(function(data) {
+          var hookData = data[0];
+          
           if (hookData) {
             contacts = hookData.contacts;
           } else {
