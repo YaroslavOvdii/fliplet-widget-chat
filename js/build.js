@@ -254,6 +254,15 @@ Fliplet.Widget.instance('chat', function (data) {
     isViewingChannels = false;
     switchToContactsList();
 
+    // Reset contacts list if limit is ON
+    if (data.limitContacts) {
+      showStartIndex = 0;
+      howManyEntriesToShow = data.howManyEntriesToShow;
+      showEndIndex = howManyEntriesToShow;
+      totalEntriesToShow = [];
+      renderListOfPeople(otherPeopleSorted);
+    }
+
     $wrapper.addClass('in-contacts');
   }
 
