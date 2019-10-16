@@ -39,6 +39,7 @@
       "vendor/load-image.all.min.js",
       "vendor/normalize.ie-polyfill.js",
       "js/build.templates.js",
+      "js/queue.js",
       "js/build.js",
       "css/chat.css"
     ]
