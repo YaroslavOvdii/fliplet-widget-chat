@@ -567,7 +567,6 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function deleteConversation(conversationId, userToRemove, isGroup, isChannel) {
-    var _this = this;
     var groupLabel = isChannel ? 'channel' : 'group';
     var isChannelOrGroup = isGroup || isChannel;
 
@@ -596,8 +595,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
           // Check if time group is empty, if it is, remove it
           $('.chat-group-holder').each(function() {
-            if ( !$.trim( $(_this).html() ).length ){
-              $(_this).parents('.chat-users-group').remove();
+            if ( !$.trim( $(this).html() ).length ){
+              $(this).parents('.chat-users-group').remove();
             }
           });
 
@@ -1865,7 +1864,7 @@ Fliplet.Widget.instance('chat', function (data) {
           container: $wrapper
         }).then(function(data) {
           var hookData = data[0];
-          
+
           if (hookData) {
             contacts = hookData.contacts;
           } else {
@@ -2667,9 +2666,6 @@ Fliplet.Widget.instance('chat', function (data) {
         Fliplet.UI.Toast.dismiss();
       }
 
-      $wrapper.removeClass('loading');
-      $wrapper.removeClass('error');
-
       getContacts(false).then(function() {
         return getConversations(false);
       }).then(function () {
@@ -2683,6 +2679,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
           Fliplet.UI.Toast.dismiss();
         }
+        $wrapper.removeClass('loading');
+        $wrapper.removeClass('error');
       });
     }).catch(function(error) {
       $wrapper.removeClass('loading');
