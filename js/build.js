@@ -98,7 +98,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var USERID_STORAGE_KEY = 'fl-chat-user-id';
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
-  var messagesQueue;
+  var queue = new Queue();
   var chat;
   var conversations;
   var currentConversation;
@@ -1135,91 +1135,17 @@ Fliplet.Widget.instance('chat', function (data) {
 
         updateMessage($(this));
       })
-      .on('click', '.send-button', function(e) {
+      .on('keyup', '[data-message-body]', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey && Fliplet.Env.is('web')) {
+          e.preventDefault();
+          var sendElement = $(this).parents('.chat-input-controls').find('.input-second-row .send-button');
+          sendMessage($(sendElement));
+        }
+      })
+      .on('click', '.send-button', function (e) {
         e.preventDefault();
 
-        var _this = $(this);
-        var $parentHolder = $(this).parents('.chat-input-controls');
-        var $holder = $(this).parents('.input-second-row');
-        var text = $messageArea.val();
-        var files;
-
-        $holder.addClass('sending');
-
-        messageAreaFocus();
-
-        getFileData().then(function(files) {
-          if (!$.trim(text).length && (typeof files === 'undefined' || files === '')) {
-            return;
-          }
-
-          var messageData = {
-            guid: Fliplet.guid(),
-            body: text,
-            file: files ? files.file : [],
-            fileType: files ? files.fileType : undefined,
-            imageWidth: files ? files.imageWidth : undefined,
-            imageHeight: files ? files.imageHeight : undefined,
-            sentTime: new Date(),
-            conversationId: currentConversation.id,
-            widgetInstanceId: data.id,
-            appId: Fliplet.Env.get('appId'),
-            pageId: Fliplet.Env.get('pageId')
-          };
-
-          messagesQueue.push(messageData);
-
-          // Saves new message in QUEUE
-          Fliplet.Storage.set(QUEUE_MESSAGE_KEY, messagesQueue)
-            .then(function(newQueue) {
-              renderQueueMessage(messageData);
-
-              // UI CHANGES
-              $messageArea.val('');
-              autosize.update($messageArea);
-              $parentHolder.removeClass('ready');
-              $holder.removeClass('sending');
-              resetImages();
-
-              // RETURN
-              return Promise.resolve(newQueue);
-            })
-            .then(function(savedQueue) {
-              var sendReqPromises = [];
-              if (Fliplet.Navigator.isOnline()){
-                savedQueue.forEach(function(message) {
-                  sendReqPromises.push(chat.message(currentConversation.id, message));
-                });
-
-                return Promise.all(sendReqPromises).then(function(results) {
-                  moveConversationToTop(currentConversation);
-                });
-              }
-            });
-        })
-        .catch(function(error) {
-          $holder.addClass('error');
-
-          var actions = [];
-          if (error) {
-            actions.push({
-              label: 'Details',
-              action: function () {
-                Fliplet.UI.Toast({
-                  message: Fliplet.parseError(error)
-                });
-              }
-            });
-          }
-          Fliplet.UI.Toast({
-            message: 'Error loading data',
-            actions: actions
-          });
-
-          setTimeout(function() {
-            $holder.removeClass('error');
-          }, 1000);
-        });
+        sendMessage($(this));
       })
       .on('keyup paste', '.search-holder input', function(e) {
         var searchQuery = $(this).val().toLowerCase();
@@ -1552,6 +1478,113 @@ Fliplet.Widget.instance('chat', function (data) {
       };
     }, function(err) {
       console.error(err);
+    });
+  }
+
+  function gatherMessageInformation(text, files) {
+    var messageData = {
+      guid: Fliplet.guid(),
+      body: text,
+      file: files ? files.file : [],
+      fileType: files ? files.fileType : undefined,
+      imageWidth: files ? files.imageWidth : undefined,
+      imageHeight: files ? files.imageHeight : undefined,
+      sentTime: new Date(),
+      sended: false,
+      conversationId: currentConversation.id,
+      widgetInstanceId: data.id,
+      appId: Fliplet.Env.get('appId'),
+      pageId: Fliplet.Env.get('pageId')
+    };
+
+    queue.add(messageData);   
+    // Saves new message in QUEUE
+    return Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getAllQueue()).then(function () {
+      return Promise.resolve(messageData);
+    });
+  }
+
+  function changeUIOnMessageSent($parentHolder, $holder) {
+    // UI CHANGES
+    $messageArea.val('');
+    autosize.update($messageArea);
+    $parentHolder.removeClass('ready');
+    $holder.removeClass('sending');
+    resetImages();
+
+    // RETURN
+    return Promise.resolve();
+  }
+
+  function processMessage() {
+    var notSendedMessages = queue.getNotSended();
+    var sendReqPromises = [];
+
+    if (Fliplet.Navigator.isOnline()) {
+      notSendedMessages.forEach(function (message) {
+        sendReqPromises.push(chat.message(currentConversation.id, message));
+      });
+
+      queue.sended(notSendedMessages);
+
+      return Promise.all(sendReqPromises).then(function () {
+        moveConversationToTop(currentConversation);
+      });
+    }
+
+    return Promise.resolve();
+  }
+
+  function handleErrorOnSentMessage($holder, error) {
+    $holder.addClass('error');
+
+    var actions = [];
+    if (error) {
+      actions.push({
+        label: 'Details',
+        action: function () {
+          Fliplet.UI.Toast({
+            message: Fliplet.parseError(error)
+          });
+        }
+      });
+    }
+    Fliplet.UI.Toast({
+      message: 'Error loading data',
+      actions: actions
+    });
+
+    setTimeout(function () {
+      $holder.removeClass('error');
+    }, 1000);
+  }
+
+  function sendMessage($element) {
+    var $parentHolder = $element.parents('.chat-input-controls');
+    var $holder = $element.parents('.input-second-row');
+    var text = $messageArea.val().trim();
+
+    $holder.addClass('sending');
+
+    messageAreaFocus();
+
+    getFileData().then(function (files) {
+      if (!$.trim(text).length && (typeof files === 'undefined' || files === '')) {
+        changeUIOnMessageSent($parentHolder, $holder);
+        return;
+      }
+
+      gatherMessageInformation(text, files)
+        .then(function (messageData) {
+          renderQueueMessage(messageData);
+          return changeUIOnMessageSent($parentHolder, $holder);
+        })
+        .then(function () {
+          processMessage();
+        });
+    })
+    .catch(function (error) {
+      handleErrorOnSentMessage($holder, error);
     });
   }
 
@@ -2330,9 +2363,9 @@ Fliplet.Widget.instance('chat', function (data) {
       }
     });
 
-    if (messagesQueue.length) {
-      setTimeout(function() {
-        messagesQueue.forEach(function(message) {
+    if (queue.getAllQueue().length) {
+      setTimeout(function () {
+        queue.getAllQueue().forEach(function (message) {
           if (message.conversationId === conversation.id) {
             renderQueueMessage(message);
           }
@@ -2585,11 +2618,9 @@ Fliplet.Widget.instance('chat', function (data) {
 
     var isCurrentConversation = currentConversation && message.dataSourceId === currentConversation.id;
 
-    _.remove(messagesQueue, function(messageQueued) {
-      return messageQueued.guid === message.data.guid;
-    });
+    queue.remove(message);
 
-    Fliplet.Storage.set(QUEUE_MESSAGE_KEY, messagesQueue)
+    Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getAllQueue())
       .then(function() {
         if (message.isDeleted || message.deletedAt !== null) {
           if ($('[data-message-id="' + message.id + '"]').length) {
@@ -2715,8 +2746,10 @@ Fliplet.Widget.instance('chat', function (data) {
     initialiseCode();
 
     return Fliplet.Storage.get(QUEUE_MESSAGE_KEY);
-  }).then(function(queue) {
-    messagesQueue = queue || [];
+  }).then(function (queues) {
+    if (queues) {
+      queue.init(queues);
+    }
 
     // Log in using authentication from a different component
     if (crossLoginColumnName) {
