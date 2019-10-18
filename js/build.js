@@ -98,7 +98,7 @@ Fliplet.Widget.instance('chat', function (data) {
   var USERID_STORAGE_KEY = 'fl-chat-user-id';
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
   var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
-  var queue = new Queue();
+  var queue = new ChatMessagesQueue();
   var chat;
   var conversations;
   var currentConversation;
@@ -1490,14 +1490,14 @@ Fliplet.Widget.instance('chat', function (data) {
       imageWidth: files ? files.imageWidth : undefined,
       imageHeight: files ? files.imageHeight : undefined,
       sentTime: new Date(),
-      sended: false,
+      sent: false,
       conversationId: currentConversation.id,
       widgetInstanceId: data.id,
       appId: Fliplet.Env.get('appId'),
       pageId: Fliplet.Env.get('pageId')
     };
 
-    queue.add(messageData);   
+    queue.push(messageData);
     // Saves new message in QUEUE
     return Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getAllQueue()).then(function () {
       return Promise.resolve(messageData);
@@ -1517,15 +1517,15 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function processMessage() {
-    var notSendedMessages = queue.getNotSended();
+    var unsentMessages = queue.getUnsent();
     var sendReqPromises = [];
 
     if (Fliplet.Navigator.isOnline()) {
-      notSendedMessages.forEach(function (message) {
+      unsentMessages.forEach(function (message) {
         sendReqPromises.push(chat.message(currentConversation.id, message));
       });
 
-      queue.sended(notSendedMessages);
+      queue.sended(unsentMessages);
 
       return Promise.all(sendReqPromises).then(function () {
         moveConversationToTop(currentConversation);
@@ -2618,7 +2618,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     var isCurrentConversation = currentConversation && message.dataSourceId === currentConversation.id;
 
-    queue.remove(message);
+    queue.pull(message);
 
     Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getAllQueue())
       .then(function() {

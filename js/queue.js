@@ -1,38 +1,36 @@
-var Queue = function () {
+var ChatMessagesQueue = function () {
   this.messageQueue = [];
 };
 
-Queue.prototype.add = function (message) {
+ChatMessagesQueue.prototype.push = function (message) {
   this.messageQueue.push(message);
   return this.messageQueue;
 };
 
-Queue.prototype.init = function (messages) {
+ChatMessagesQueue.prototype.init = function (messages) {
   this.messageQueue = messages;
 };
 
-Queue.prototype.getAllQueue = function () {
+ChatMessagesQueue.prototype.getAllQueue = function () {
   return this.messageQueue;
 };
 
-Queue.prototype.sended = function (messages) {
+ChatMessagesQueue.prototype.sent = function (messages) {
   var messageQueue = this.messageQueue;
-  messages.forEach(function (sendedItem) {
+  messages.forEach(function (sentItem) {
     messageQueue.forEach(function (message) {
-      if (message.guid === sendedItem.guid) {
-        message.sended = true;
+      if (message.guid === sentItem.guid) {
+        message.sent = true;
       }
     });
   });
-
-  return this.messageQueue;
 };
 
-Queue.prototype.getNotSended = function () {
+ChatMessagesQueue.prototype.getUnsent = function () {
   return _.filter(this.messageQueue, ['sended', false]);
 };
 
-Queue.prototype.remove = function (message) {
+ChatMessagesQueue.prototype.pull = function (message) {
   _.remove(this.messageQueue, function (messageQueued) {
     return messageQueued.guid === message.data.guid;
   });
