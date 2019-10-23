@@ -1499,7 +1499,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     queue.push(messageData);
     // Saves new message in QUEUE
-    return Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getAllQueue()).then(function () {
+    return Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages()).then(function () {
       return Promise.resolve(messageData);
     });
   }
@@ -1512,7 +1512,6 @@ Fliplet.Widget.instance('chat', function (data) {
     $holder.removeClass('sending');
     resetImages();
 
-    // RETURN
     return Promise.resolve();
   }
 
@@ -1525,7 +1524,7 @@ Fliplet.Widget.instance('chat', function (data) {
         sendReqPromises.push(chat.message(currentConversation.id, message));
       });
 
-      queue.sended(unsentMessages);
+      queue.sent(unsentMessages);
 
       return Promise.all(sendReqPromises).then(function () {
         moveConversationToTop(currentConversation);
@@ -2363,9 +2362,9 @@ Fliplet.Widget.instance('chat', function (data) {
       }
     });
 
-    if (queue.getAllQueue().length) {
+    if (queue.getMessages().length) {
       setTimeout(function () {
-        queue.getAllQueue().forEach(function (message) {
+        queue.getMessages().forEach(function (message) {
           if (message.conversationId === conversation.id) {
             renderQueueMessage(message);
           }
@@ -2620,7 +2619,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     queue.pull(message);
 
-    Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getAllQueue())
+    Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages())
       .then(function() {
         if (message.isDeleted || message.deletedAt !== null) {
           if ($('[data-message-id="' + message.id + '"]').length) {

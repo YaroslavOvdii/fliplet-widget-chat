@@ -11,7 +11,7 @@ ChatMessagesQueue.prototype.init = function (messages) {
   this.messageQueue = messages;
 };
 
-ChatMessagesQueue.prototype.getAllQueue = function () {
+ChatMessagesQueue.prototype.getMessages = function () {
   return this.messageQueue;
 };
 
@@ -27,7 +27,7 @@ ChatMessagesQueue.prototype.sent = function (messages) {
 };
 
 ChatMessagesQueue.prototype.getUnsent = function () {
-  return _.filter(this.messageQueue, ['sended', false]);
+  return _.filter(this.messageQueue, ['sent', false]);
 };
 
 ChatMessagesQueue.prototype.pull = function (message) {
