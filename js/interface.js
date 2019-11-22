@@ -28,6 +28,8 @@ if (!data.securityLinkAction) {
   };
 }
 
+data.securityLinkAction.omitPages = omitPages;
+
 if (data.howManyEntriesToShow) {
   $contactsNumber.val(data.howManyEntriesToShow.toString());
 }
