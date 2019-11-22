@@ -284,6 +284,7 @@ html.native body,
   margin: 8px 5px 8px 15px;
   flex: 1;
   align-self: center;
+  min-height: 50px;
 }
 
 .no-touchevents .chat-card-holder:active,
