@@ -1546,6 +1546,10 @@ html.native body,
   color: #337ab7;
 }
 
+.icon-show-more {
+  min-height: 70px;
+}
+
 @media screen and (min-width: 640px) {
   .offline-note,
   .top-header {
