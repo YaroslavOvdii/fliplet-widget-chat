@@ -1,7 +1,19 @@
-html.mode-interact body,
-html.native body,
 .fl-widget-instance[data-name="Chat"] {
-  height: 100% !important;
+  height: 100%;
+}
+
+.supports-container .fl-widget-instance[data-name="Chat"] {
+	height: 100vh;
+}
+
+.supports-container .fl-with-bottom-menu .fl-widget-instance[data-name="Chat"] {
+  height: calc(100vh - 65px);
+}
+
+.supports-container .fl-with-top-menu .fl-widget-instance[data-name="Chat"],
+.supports-container .fl-with-bottom-menu.fl-bar-padding .fl-widget-instance[data-name="Chat"],
+.supports-container .fl-with-bottom-menu.fl-minimal-padding .fl-widget-instance[data-name="Chat"] {
+  height: calc(100vh - 44px);
 }
 
 /* Locks scroll when panel is expanded */
