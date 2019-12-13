@@ -1663,3 +1663,7 @@
     padding-bottom: 44px;
   }
 }
+
+.empty-area .empty-area-information {
+  max-width: 100% !important;
+}
