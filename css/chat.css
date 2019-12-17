@@ -1,3 +1,5 @@
+html.no-supports-container.mode-interact body,
+html.no-supports-container.native body,
 .fl-widget-instance[data-name="Chat"] {
   height: 100%;
 }
