@@ -124,6 +124,10 @@
   z-index: 1;
 }
 
+.empty-area {
+  flex-flow: row nowrap;
+}
+
 .chat-holder.loading .loading-area,
 .chat-holder.error .error-area,
 .chat-holder.empty .empty-area {
@@ -1662,8 +1666,4 @@
   .fl-bar-padding .chat-input-controls {
     padding-bottom: 44px;
   }
-}
-
-.empty-area .empty-area-information {
-  max-width: 100% !important;
 }
