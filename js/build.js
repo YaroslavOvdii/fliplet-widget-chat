@@ -1499,7 +1499,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     queue.push(messageData);
     // Saves new message in QUEUE
-    return Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages()).then(function () {
+    return Fliplet.App.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages()).then(function () {
       return Promise.resolve(messageData);
     });
   }
@@ -2619,7 +2619,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     queue.pull(message);
 
-    Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages())
+    Fliplet.App.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages())
       .then(function() {
         if (message.isDeleted || message.deletedAt !== null) {
           if ($('[data-message-id="' + message.id + '"]').length) {
@@ -2678,6 +2678,40 @@ Fliplet.Widget.instance('chat', function (data) {
           renderConversations(conversation, true);
         }
       });
+  }
+
+  function getUserEmail() {
+    if (!crossLoginColumnName) {
+      return Promise.reject('Cannot find user email. Please review feature configuration.');
+    }
+
+    return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
+      if (email) {
+        return email;
+      }
+
+      // Fallback to use session data as the usage of
+      // the fl-chat-auth-email app storage is deprecated.
+      return Fliplet.User.getCachedSession().then(function (session) {
+        email = _.get(session, ['entries', 'dataSource', 'data', crossLoginColumnName]);
+
+        if (!email) {
+          return Promise.reject('User email not found. Please make sure the user is logged in.');
+        }
+
+        return email;
+      });
+    });
+  }
+
+  function redirectToLogin() {
+    return Fliplet.Hooks.run('flChatRedirectToLogin', securityScreenAction).then(function () {
+      if (!_.get(securityScreenAction, 'page')) {
+        return Fliplet.Navigate.toDefault();
+      }
+
+      return Fliplet.Navigate.to(securityScreenAction);
+    });
   }
 
   /* Login function */
@@ -2744,7 +2778,7 @@ Fliplet.Widget.instance('chat', function (data) {
     chat = chatInstance;
     initialiseCode();
 
-    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY);
+    return Fliplet.App.Storage.get(QUEUE_MESSAGE_KEY);
   }).then(function (queues) {
     if (queues) {
       queue.init(queues);
@@ -2752,21 +2786,25 @@ Fliplet.Widget.instance('chat', function (data) {
 
     // Log in using authentication from a different component
     if (crossLoginColumnName) {
-      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
+      return getUserEmail().then(function (email) {
         if (!email) {
-          Fliplet.Navigate.to(securityScreenAction);
+          redirectToLogin();
           return Promise.reject(notLoggedInErrorMessage);
         }
 
         var where = {};
+
         where[crossLoginColumnName] = { $iLike: email };
         return chat.login(where, { offline: true });
+      }).catch(function (error) {
+        redirectToLogin();
+        return Promise.reject(error);
       });
     }
 
     return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
       if (!flUserToken) {
-        Fliplet.Navigate.to(securityScreenAction);
+        redirectToLogin();
         return Promise.reject(notLoggedInErrorMessage);
       }
 
