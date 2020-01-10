@@ -2690,6 +2690,8 @@ Fliplet.Widget.instance('chat', function (data) {
         return email;
       }
 
+      // Fallback to use session data as the usage of
+      // the fl-chat-auth-email app storage is deprecated.
       return Fliplet.User.getCachedSession().then(function (session) {
         email = _.get(session, ['entries', 'dataSource', 'data', crossLoginColumnName]);
 
