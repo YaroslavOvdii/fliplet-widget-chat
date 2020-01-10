@@ -1161,7 +1161,7 @@ Fliplet.Widget.instance('chat', function (data) {
           messagesQueue.push(messageData);
 
           // Saves new message in QUEUE
-          Fliplet.Storage.set(QUEUE_MESSAGE_KEY, messagesQueue)
+          Fliplet.App.Storage.set(QUEUE_MESSAGE_KEY, messagesQueue)
             .then(function(newQueue) {
               renderQueueMessage(messageData);
 
@@ -2574,7 +2574,7 @@ Fliplet.Widget.instance('chat', function (data) {
       return messageQueued.guid === message.data.guid;
     });
 
-    Fliplet.Storage.set(QUEUE_MESSAGE_KEY, messagesQueue)
+    Fliplet.App.Storage.set(QUEUE_MESSAGE_KEY, messagesQueue)
       .then(function() {
         if (message.isDeleted || message.deletedAt !== null) {
           if ($('[data-message-id="' + message.id + '"]').length) {
@@ -2716,13 +2716,12 @@ Fliplet.Widget.instance('chat', function (data) {
     chat = chatInstance;
     initialiseCode();
 
-    return Fliplet.Storage.get(QUEUE_MESSAGE_KEY);
+    return Fliplet.App.Storage.get(QUEUE_MESSAGE_KEY);
   }).then(function(queue) {
     messagesQueue = queue || [];
 
     // Log in using authentication from a different component
     if (crossLoginColumnName) {
-      return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
       return getUserEmail().then(function (email) {
         if (!email) {
           Fliplet.Navigate.to(securityScreenAction);
