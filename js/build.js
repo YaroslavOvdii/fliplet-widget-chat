@@ -97,7 +97,6 @@ Fliplet.Widget.instance('chat', function (data) {
   var DEFAULT_CHAT_NAME = 'Group';
   var USERID_STORAGE_KEY = 'fl-chat-user-id';
   var USERTOKEN_STORAGE_KEY = 'fl-chat-user-token';
-  var CROSSLOGIN_EMAIL_KEY = 'fl-chat-auth-email';
   var messagesQueue;
   var chat;
   var conversations;
@@ -2636,6 +2635,22 @@ Fliplet.Widget.instance('chat', function (data) {
       });
   }
 
+  function getUserEmail() {
+    if (!crossLoginColumnName) {
+      return Promise.reject('Cannot find user email. Please review feature configuration.');
+    }
+
+    return Fliplet.User.getCachedSession().then(function (session) {
+      var email = _.get(session, ['entries', 'dataSource', 'data', crossLoginColumnName]);
+
+      if (!email) {
+        return Promise.reject('User email not found. Please make sure the user is logged in.');
+      }
+
+      return email;
+    });
+  }
+
   /* Login function */
   function onLogin() {
     Notification.requestPermission();
@@ -2708,6 +2723,7 @@ Fliplet.Widget.instance('chat', function (data) {
     // Log in using authentication from a different component
     if (crossLoginColumnName) {
       return Fliplet.App.Storage.get(CROSSLOGIN_EMAIL_KEY).then(function (email) {
+      return getUserEmail().then(function (email) {
         if (!email) {
           Fliplet.Navigate.to(securityScreenAction);
           return Promise.reject(notLoggedInErrorMessage);
