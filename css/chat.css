@@ -1,7 +1,21 @@
-html.mode-interact body,
-html.native body,
+html.no-supports-container.mode-interact body,
+html.no-supports-container.native body,
 .fl-widget-instance[data-name="Chat"] {
-  height: 100% !important;
+  height: 100%;
+}
+
+.supports-container .fl-widget-instance[data-name="Chat"] {
+	height: 100vh;
+}
+
+.supports-container .fl-with-bottom-menu .fl-widget-instance[data-name="Chat"] {
+  height: calc(100vh - 65px);
+}
+
+.supports-container .fl-with-top-menu .fl-widget-instance[data-name="Chat"],
+.supports-container .fl-with-bottom-menu.fl-bar-padding .fl-widget-instance[data-name="Chat"],
+.supports-container .fl-with-bottom-menu.fl-minimal-padding .fl-widget-instance[data-name="Chat"] {
+  height: calc(100vh - 44px);
 }
 
 /* Locks scroll when panel is expanded */
@@ -112,6 +126,10 @@ html.native body,
   z-index: 1;
 }
 
+.empty-area {
+  flex-flow: row nowrap;
+}
+
 .chat-holder.loading .loading-area,
 .chat-holder.error .error-area,
 .chat-holder.empty .empty-area {
@@ -219,6 +237,8 @@ html.native body,
 }
 
 .chat-card .actions-holder {
+  display: flex;
+  justify-content: flex-end;
   position: absolute;
   top: 1px;
   right: 1px;
@@ -234,14 +254,16 @@ html.native body,
 }
 
 .chat-card .actions-holder .actions {
-  display: inline-block;
+  display: flex;
   height: 100%;
 }
 
 .chat-card .actions-holder .action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 14px;
   font-weight: 200;
-  display: inline-block;
   width: 67px;
   height: 100%;
   line-height: 67px;
@@ -280,6 +302,7 @@ html.native body,
   margin: 8px 5px 8px 15px;
   flex: 1;
   align-self: center;
+  min-height: 50px;
 }
 
 .no-touchevents .chat-card-holder:active,
@@ -1539,6 +1562,10 @@ html.native body,
   border: 1px solid #337ab7;
   border-radius: 20px;
   color: #337ab7;
+}
+
+.icon-show-more {
+  min-height: 70px;
 }
 
 @media screen and (min-width: 640px) {

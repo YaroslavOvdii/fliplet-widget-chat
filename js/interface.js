@@ -1,7 +1,8 @@
 var widgetId = Fliplet.Widget.getDefaultId();
 var data = Fliplet.Widget.getData() || {};
 var organizationId = Fliplet.Env.get('organizationId');
-var widgetId = Fliplet.Widget.getDefaultId();
+var page = Fliplet.Widget.getPage();
+var omitPages = page ? [page.id] : [];
 var allDataSources = [];
 
 var $dataSources = $('[name="dataSource"]');
@@ -19,12 +20,15 @@ if (!data.securityLinkAction) {
   data.securityLinkAction = {
     action: 'screen',
     page: '',
+    omitPages: omitPages,
     transition: 'fade',
     options: {
       hideAction: true
     }
   };
 }
+
+data.securityLinkAction.omitPages = omitPages;
 
 if (data.howManyEntriesToShow) {
   $contactsNumber.val(data.howManyEntriesToShow.toString());
@@ -47,6 +51,7 @@ var linkSecurityProvider = Fliplet.Widget.open('com.fliplet.link', {
 
 linkSecurityProvider.then(function (result) {
   data.securityLinkAction = result.data;
+  data.securityLinkAction.omitPages = omitPages;
   save(true);
 });
 
