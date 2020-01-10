@@ -2657,9 +2657,14 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     });
   }
+
+  function redirectToLogin() {
+    return Fliplet.Hooks.run('flChatRedirectToLogin', securityScreenAction).then(function () {
+      if (!_.get(securityScreenAction, 'page')) {
+        return Fliplet.Navigate.toDefault();
       }
 
-      return email;
+      return Fliplet.Navigate.to(securityScreenAction);
     });
   }
 
@@ -2736,19 +2741,23 @@ Fliplet.Widget.instance('chat', function (data) {
     if (crossLoginColumnName) {
       return getUserEmail().then(function (email) {
         if (!email) {
-          Fliplet.Navigate.to(securityScreenAction);
+          redirectToLogin();
           return Promise.reject(notLoggedInErrorMessage);
         }
 
         var where = {};
+
         where[crossLoginColumnName] = { $iLike: email };
         return chat.login(where, { offline: true });
+      }).catch(function (error) {
+        redirectToLogin();
+        return Promise.reject(error);
       });
     }
 
     return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
       if (!flUserToken) {
-        Fliplet.Navigate.to(securityScreenAction);
+        redirectToLogin();
         return Promise.reject(notLoggedInErrorMessage);
       }
 
