@@ -1499,7 +1499,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     queue.push(messageData);
     // Saves new message in QUEUE
-    return Fliplet.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages()).then(function () {
+    return Fliplet.App.Storage.set(QUEUE_MESSAGE_KEY, queue.getMessages()).then(function () {
       return Promise.resolve(messageData);
     });
   }
