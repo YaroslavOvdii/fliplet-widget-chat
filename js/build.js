@@ -2690,10 +2690,16 @@ Fliplet.Widget.instance('chat', function (data) {
         return email;
       }
 
+      var options = {
+        crossLoginColumnName: crossLoginColumnName
+      };
+
       // Fallback to use session data as the usage of
       // the fl-chat-auth-email app storage is deprecated.
-      return Fliplet.User.getCachedSession().then(function (session) {
-        email = _.get(session, ['entries', 'dataSource', 'data', crossLoginColumnName]);
+      return Fliplet.Hooks.run('flChatBeforeGetUserEmail', options).then(function () {
+        return Fliplet.User.getCachedSession();
+      }).then(function (session) {
+        email = _.get(session, ['entries', 'dataSource', 'data', (options.crossLoginColumnName || crossLoginColumnName)]);
 
         if (!email) {
           return Promise.reject('User email not found. Please make sure the user is logged in.');
@@ -2705,9 +2711,9 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function redirectToLogin() {
-    return Fliplet.Hooks.run('flChatRedirectToLogin', securityScreenAction).then(function () {
+    return Fliplet.Hooks.run('flChatBeforeRedirectToLogin', securityScreenAction).then(function () {
       if (!_.get(securityScreenAction, 'page')) {
-        return Fliplet.Navigate.toDefault();
+        return Fliplet.App.Storage.remove('fl_enforce_user_data').then(Fliplet.Navigate.toDefault);
       }
 
       return Fliplet.Navigate.to(securityScreenAction);
@@ -2771,69 +2777,72 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
-  var notLoggedInErrorMessage = 'Please log in with your account to access the chat.';
+  Fliplet().then(function () {
+    var notLoggedInErrorMessage = 'Please log in with your account to access the chat.';
 
-  /* Chat connection */
-  chatConnection.then(function onChatConnectionAvailable(chatInstance) {
-    chat = chatInstance;
-    initialiseCode();
+    /* Chat connection */
+    chatConnection.then(function onChatConnectionAvailable(chatInstance) {
+      chat = chatInstance;
+      initialiseCode();
 
-    return Fliplet.App.Storage.get(QUEUE_MESSAGE_KEY);
-  }).then(function (queues) {
-    if (queues) {
-      queue.init(queues);
-    }
+      return Fliplet.App.Storage.get(QUEUE_MESSAGE_KEY);
+    }).then(function (queues) {
+      if (queues) {
+        queue.init(queues);
+      }
 
-    // Log in using authentication from a different component
-    if (crossLoginColumnName) {
-      return getUserEmail().then(function (email) {
-        if (!email) {
+      // Log in using authentication from a different component
+      if (crossLoginColumnName) {
+        return getUserEmail().then(function (email) {
+          if (!email) {
+            redirectToLogin();
+            return Promise.reject(notLoggedInErrorMessage);
+          }
+
+          var where = {};
+
+          where[crossLoginColumnName] = { $iLike: email };
+          return chat.login(where, { offline: true });
+        }).catch(function (error) {
+          // User not found in data source
+          return Promise.reject(error);
+        });
+      }
+
+      return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
+        if (!flUserToken) {
           redirectToLogin();
           return Promise.reject(notLoggedInErrorMessage);
         }
 
-        var where = {};
-
-        where[crossLoginColumnName] = { $iLike: email };
-        return chat.login(where, { offline: true });
-      }).catch(function (error) {
-        redirectToLogin();
-        return Promise.reject(error);
-      });
-    }
-
-    return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
-      if (!flUserToken) {
-        redirectToLogin();
-        return Promise.reject(notLoggedInErrorMessage);
-      }
-
-      return chat.login({ flUserToken: flUserToken }, { offline: true }).catch(function (err) {
-        return Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
-          return Promise.reject(err);
+        return chat.login({ flUserToken: flUserToken }, { offline: true }).catch(function (err) {
+          return Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+            return Promise.reject(err);
+          });
         });
       });
-    });
-  }).then(function onLoginSuccess(user) {
-    return setCurrentUser(user).then(onLogin);
-  }).catch(function(error) {
-    $wrapper.removeClass('loading');
-    $wrapper.addClass('error');
+    }).then(function onLoginSuccess(user) {
+      return setCurrentUser(user).then(onLogin);
+    }).catch(function(error) {
+      $wrapper.removeClass('loading');
+      $wrapper.addClass('error');
 
-    var actions = [];
-    if (error) {
-      actions.push({
-        label: 'Details',
-        action: function () {
-          Fliplet.UI.Toast({
-            message: Fliplet.parseError(error)
-          });
-        }
+      var actions = [];
+      if (error) {
+        actions.push({
+          label: 'Details',
+          action: function () {
+            Fliplet.UI.Toast({
+              message: Fliplet.parseError(error)
+            });
+          }
+        });
+      }
+      Fliplet.UI.Toast({
+        message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat'),
+        actions: actions
       });
-    }
-    Fliplet.UI.Toast({
-      message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat'),
-      actions: actions
     });
   });
+
 });
