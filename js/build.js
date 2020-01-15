@@ -2804,7 +2804,7 @@ Fliplet.Widget.instance('chat', function (data) {
           where[crossLoginColumnName] = { $iLike: email };
           return chat.login(where, { offline: true });
         }).catch(function (error) {
-          redirectToLogin();
+          // User not found in data source
           return Promise.reject(error);
         });
       }
