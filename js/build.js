@@ -2707,7 +2707,7 @@ Fliplet.Widget.instance('chat', function (data) {
   function redirectToLogin() {
     return Fliplet.Hooks.run('flChatRedirectToLogin', securityScreenAction).then(function () {
       if (!_.get(securityScreenAction, 'page')) {
-        return Fliplet.Navigate.toDefault();
+        return Fliplet.App.Storage.remove('fl_enforce_user_data').then(Fliplet.Navigate.toDefault);
       }
 
       return Fliplet.Navigate.to(securityScreenAction);
