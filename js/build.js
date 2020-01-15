@@ -2696,7 +2696,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
       // Fallback to use session data as the usage of
       // the fl-chat-auth-email app storage is deprecated.
-      return Fliplet.Hooks.run('flChatGetUserEmail', options).then(function () {
+      return Fliplet.Hooks.run('flChatBeforeGetUserEmail', options).then(function () {
         return Fliplet.User.getCachedSession();
       }).then(function (session) {
         email = _.get(session, ['entries', 'dataSource', 'data', (options.crossLoginColumnName || crossLoginColumnName)]);
@@ -2711,7 +2711,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function redirectToLogin() {
-    return Fliplet.Hooks.run('flChatRedirectToLogin', securityScreenAction).then(function () {
+    return Fliplet.Hooks.run('flChatBeforeRedirectToLogin', securityScreenAction).then(function () {
       if (!_.get(securityScreenAction, 'page')) {
         return Fliplet.App.Storage.remove('fl_enforce_user_data').then(Fliplet.Navigate.toDefault);
       }
