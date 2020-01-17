@@ -2176,8 +2176,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
       // Add a readable name to the conversation, based on the other people in the group
       conversations.forEach(function(conversation) {
-        var participants = conversation.definition.participants;
-        var allParticipants = _.compact(conversation.definition.participants.concat(conversation.definition.removedParticipants));
+        var participants = _.get(conversation, 'definition.participants');
+        var allParticipants = _.compact(_.get(conversation, 'definition.participants', []).concat(_.get(conversation, 'definition.removedParticipants')));
 
         // Client specific
         addUsersToAdminGroups(conversation);
@@ -2311,7 +2311,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function checkConversationStatus(conversation) {
-    if (conversation.definition.participants.length < 2) {
+    if (_.get(conversation, 'definition.participants', []).length < 2) {
       getConversations(false);
     }
   }
