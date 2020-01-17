@@ -2082,15 +2082,15 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function addUsersToAdminGroups(conversation) {
     // Adds new users to admin groups
-    if (conversation.definition.participants.type && conversation.definition.participants.type === 'Attendees') {
+    if (_.get(conversation, 'definition.participants.type') && _.get(conversation, 'definition.participants.type') === 'Attendees') {
       var userIds = getAllUSers();
       conversation.participants.add(userIds);
     }
-    if (conversation.definition.participants.type && conversation.definition.participants.type === 'Speakers') {
+    if (_.get(conversation, 'definition.participants.type') && _.get(conversation, 'definition.participants.type') === 'Speakers') {
       var userIds = getSpeakers();
       conversation.participants.add(userIds);
     }
-    if (conversation.definition.participants.type && conversation.definition.participants.type === 'Admins') {
+    if (_.get(conversation, 'definition.participants.type') && _.get(conversation, 'definition.participants.type') === 'Admins') {
       var userIds = getAdmins();
       conversation.participants.add(userIds);
     }
