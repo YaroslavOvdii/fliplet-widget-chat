@@ -2106,7 +2106,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
     getConversationsReqPromise = chat.conversations({ offline: fromOffline }).then(function(response) {
       // Set last message
-      conversations = response.map(function(c) {
+      conversations = _.map(_.filter(response, { type: 'conversation' }), function(c) {
         var existingConversation = _.find(conversations, { id: c.id });
         if (existingConversation) {
           c.unreadMessages = 0;
