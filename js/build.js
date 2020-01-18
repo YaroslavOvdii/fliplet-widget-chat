@@ -505,24 +505,11 @@ Fliplet.Widget.instance('chat', function (data) {
       renderConversations(currentConversation, true);
     })
     .catch(function(error) {
-      var actions = [];
-
       $parentHolder.removeClass('editing-message');
       $holder.removeClass('sending');
 
-      if (error) {
-        actions.push({
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              message: Fliplet.parseError(error)
-            });
-          }
-        });
-      }
-      Fliplet.UI.Toast({
-        message: 'Error updating the message. Please try again.',
-        actions: actions
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error updating the message. Please try again.'
       });
     });
   }
@@ -548,20 +535,8 @@ Fliplet.Widget.instance('chat', function (data) {
       });
     })
     .catch(function(error) {
-      var actions = [];
-      if (error) {
-        actions.push({
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              message: Fliplet.parseError(error)
-            });
-          }
-        });
-      }
-      Fliplet.UI.Toast({
-        message: 'Error deleting the message. Please try again.',
-        actions: actions
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error deleting the message'
       });
     });
   }
@@ -1241,20 +1216,8 @@ Fliplet.Widget.instance('chat', function (data) {
           return Promise.resolve();
         })
         .catch(function(error) {
-          var actions = [];
-          if (error) {
-            actions.push({
-              label: 'Details',
-              action: function () {
-                Fliplet.UI.Toast({
-                  message: Fliplet.parseError(error)
-                });
-              }
-            });
-          }
-          Fliplet.UI.Toast({
-            message: 'Error loading more messages.',
-            actions: actions
+          Fliplet.UI.Toast.error(error, {
+            message: 'Error loading more messages'
           });
         });
       }
@@ -1537,20 +1500,8 @@ Fliplet.Widget.instance('chat', function (data) {
   function handleErrorOnSentMessage($holder, error) {
     $holder.addClass('error');
 
-    var actions = [];
-    if (error) {
-      actions.push({
-        label: 'Details',
-        action: function () {
-          Fliplet.UI.Toast({
-            message: Fliplet.parseError(error)
-          });
-        }
-      });
-    }
-    Fliplet.UI.Toast({
-      message: 'Error loading data',
-      actions: actions
+    Fliplet.UI.Toast.error(error, {
+      message: 'Error loading data'
     });
 
     setTimeout(function () {
@@ -2060,22 +2011,10 @@ Fliplet.Widget.instance('chat', function (data) {
         viewConversation(newConversation);
       });
     }).catch(function(error) {
-      var actions = [];
       $('.contacts-done-holder').removeClass('creating');
 
-      if (error) {
-        actions.push({
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              message: Fliplet.parseError(error)
-            });
-          }
-        });
-      }
-      Fliplet.UI.Toast({
-        message: 'Error creating conversation.',
-        actions: actions
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error creating conversation.'
       });
     });
   }
@@ -2299,20 +2238,8 @@ Fliplet.Widget.instance('chat', function (data) {
 
       return Promise.resolve(previousMessages);
     }).catch(function(error) {
-      var actions = [];
-      if (error) {
-        actions.push({
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              message: Fliplet.parseError(error)
-            });
-          }
-        });
-      }
-      Fliplet.UI.Toast({
-        message: 'Error loading messages',
-        actions: actions
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error loading messages'
       });
     });
   }
@@ -2764,22 +2691,8 @@ Fliplet.Widget.instance('chat', function (data) {
       $wrapper.removeClass('empty');
       $wrapper.addClass('error');
 
-      Fliplet.UI.Toast.dismiss();
-
-      var actions = [];
-      if (error) {
-        actions.push({
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              message: Fliplet.parseError(error)
-            });
-          }
-        });
-      }
-      Fliplet.UI.Toast({
-        message: 'Error logging in',
-        actions: actions
+      Fliplet.UI.Toast.error(error, {
+        message: 'Error logging in'
       });
     });
   }
@@ -2834,18 +2747,7 @@ Fliplet.Widget.instance('chat', function (data) {
       $wrapper.removeClass('loading');
       $wrapper.addClass('error');
 
-      var actions = [];
-      if (error) {
-        actions.push({
-          label: 'Details',
-          action: function () {
-            Fliplet.UI.Toast({
-              message: Fliplet.parseError(error)
-            });
-          }
-        });
-      }
-      Fliplet.UI.Toast({
+      Fliplet.UI.Toast.error(error, {
         message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat'),
         actions: actions
       });
