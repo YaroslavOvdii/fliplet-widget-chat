@@ -274,7 +274,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function openGroupParticipantsPanel() {
-    var participantsIds = currentConversation.definition.participants;
+    var participantsIds = _.get(currentConversation, 'definition.participants', []);
     var participants = [];
     var participants = _.filter(contacts, function(contact) {
       return participantsIds.indexOf(contact.data.flUserId) > -1;
@@ -2155,19 +2155,26 @@ Fliplet.Widget.instance('chat', function (data) {
         }
 
         channels = result.map(function (channel) {
+          var participants = _.get(channel, 'definition.participants', []);
+
+          if (!participants.length) {
+            return;
+          }
+
           return {
             id: channel.id,
             isChannel: true,
             data: {
-              participants: channel.definition.participants,
+              participants: participants,
               fullName: channel.name,
               flChatFirstName: channel.name,
               flChatFullName: channel.name,
               flChatLastName: '',
-              flChatDescription: '<i class="fa fa-user"></i> ' + channel.definition.participants.length
+              flChatDescription: '<i class="fa fa-user"></i> ' + participants.length
             }
           };
         });
+        channels = _.compact(channels);
 
         $('.predefined-groups-holder').html(groupTabsTemplate({
           channels: channels
@@ -2177,7 +2184,7 @@ Fliplet.Widget.instance('chat', function (data) {
       // Add a readable name to the conversation, based on the other people in the group
       conversations.forEach(function(conversation) {
         var participants = _.get(conversation, 'definition.participants', []);
-        var allParticipants = _.compact(_.get(conversation, 'definition.participants', []).concat(_.get(conversation, 'definition.removedParticipants', [])));
+        var allParticipants = _.compact(_.concat(participants, _.get(conversation, 'definition.removedParticipants', [])));
 
         // Client specific
         addUsersToAdminGroups(conversation);
