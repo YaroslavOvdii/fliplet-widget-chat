@@ -553,32 +553,44 @@ Fliplet.Widget.instance('chat', function (data) {
         label: isChannelOrGroup ? 'Leave' : 'Delete',
         action: function () {
           // Get the conversation
-          conversationToBeRemoved = _.filter(conversations, function(conversation) {
-            return conversation.id === conversationId;
-          });
+          conversationToBeRemoved = _.find(conversations, { id: conversationId });
+
+          if (!conversationToBeRemoved) {
+            return Fliplet.UI.Toast.error('Conversation ' + conversationId + ' not found', {
+              message: isChannelOrGroup ? 'Error leaving conversation' : 'Error deleting conversation'
+            });
+          }
+
+          Fliplet.UI.Toast(isChannelOrGroup ? 'Leaving conversation...' : 'Deleting conversation...');
 
           // Remove current user from conversation
-          conversationToBeRemoved[0].participants.remove(userToRemove.id);
+          return conversationToBeRemoved.participants.remove(userToRemove.id)
+            .then(function () {
+              // Remove the conversation from the stored list
+              _.remove(conversations, function(conversation) {
+                return conversation.id === conversationId;
+              });
 
-          // Remove the conversation from the stored list
-          _.remove(conversations, function(conversation) {
-            return conversation.id === conversationId;
-          });
+              // Remove conversation UI from screen
+              $('.chat-card[data-conversation-id="' + conversationId + '"]').remove();
 
-          // Remove conversation UI from screen
-          $('.chat-card[data-conversation-id="' + conversationId + '"]').remove();
+              // Check if time group is empty, if it is, remove it
+              $('.chat-group-holder').each(function() {
+                if ( !$.trim( $(this).html() ).length ){
+                  $(this).parents('.chat-users-group').remove();
+                }
+              });
 
-          // Check if time group is empty, if it is, remove it
-          $('.chat-group-holder').each(function() {
-            if ( !$.trim( $(this).html() ).length ){
-              $(this).parents('.chat-users-group').remove();
-            }
-          });
-
-          // Check if conversation list is empty, if it is add empty state
-          if ( !$.trim( $('.chat-list').html() ).length ){
-            $('.chat-holder').addClass('empty');
-          }
+              // Check if conversation list is empty, if it is add empty state
+              if ( !$.trim( $('.chat-list').html() ).length ){
+                $('.chat-holder').addClass('empty');
+              }
+            })
+            .catch(function (error) {
+              Fliplet.UI.Toast.error(error, {
+                message: isChannelOrGroup ? 'Error leaving conversation' : 'Error deleting conversation'
+              });
+            });
         }
       }]
     });
