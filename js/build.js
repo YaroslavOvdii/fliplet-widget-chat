@@ -2673,7 +2673,12 @@ Fliplet.Widget.instance('chat', function (data) {
     getContacts(true).then(function() {
       return getConversations(true);
     }).then(function() {
-      return chat.stream(onNewMessage, { offline: false });
+      return chat.stream(onNewMessage, { offline: false }).catch(function (err) {
+        console.warn('Chat messages could not be retrieved', err);
+
+        // Silent failure
+        return Promise.resolve();
+      });
     }).then(function() {
       var userId = Fliplet.Navigate.query.contactConversation;
 
@@ -2681,6 +2686,9 @@ Fliplet.Widget.instance('chat', function (data) {
         createConversation([userId]);
         Fliplet.UI.Toast.dismiss();
       }
+
+      $wrapper.removeClass('loading');
+      $wrapper.removeClass('error');
 
       getContacts(false).then(function() {
         return getConversations(false);
@@ -2695,8 +2703,23 @@ Fliplet.Widget.instance('chat', function (data) {
 
           Fliplet.UI.Toast.dismiss();
         }
-        $wrapper.removeClass('loading');
-        $wrapper.removeClass('error');
+      }).catch(function (err) {
+        if (err && err.status === 403) {
+          // Log in again if the token does not seem valid
+          $wrapper.addClass('loading');
+
+          Fliplet.UI.Toast('Verifying your account...');
+
+          Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
+            attemptLogin(false).then(function () {
+              $('.refresh-chat').click();
+            });
+          });
+
+          return;
+        }
+
+        return Promise.reject(err);
       });
     }).catch(function(error) {
       $wrapper.removeClass('loading');
@@ -2709,39 +2732,31 @@ Fliplet.Widget.instance('chat', function (data) {
     });
   }
 
-  Fliplet().then(function () {
+  function attemptLogin(offline) {
     var notLoggedInErrorMessage = 'Please log in with your account to access the chat.';
+    var allowOffline = typeof offline === 'undefined' ? true : offline;
 
-    /* Chat connection */
-    chatConnection.then(function onChatConnectionAvailable(chatInstance) {
-      chat = chatInstance;
-      initialiseCode();
+    var loginOp;
 
-      return Fliplet.App.Storage.get(QUEUE_MESSAGE_KEY);
-    }).then(function (queues) {
-      if (queues) {
-        queue.init(queues);
-      }
+    // Log in using authentication from a different component
+    if (crossLoginColumnName) {
+      loginOp = getUserEmail().then(function (email) {
+        if (!email) {
+          redirectToLogin();
+          return Promise.reject(notLoggedInErrorMessage);
+        }
 
-      // Log in using authentication from a different component
-      if (crossLoginColumnName) {
-        return getUserEmail().then(function (email) {
-          if (!email) {
-            redirectToLogin();
-            return Promise.reject(notLoggedInErrorMessage);
-          }
+        var where = {};
 
-          var where = {};
+        where[crossLoginColumnName] = { $iLike: email };
 
-          where[crossLoginColumnName] = { $iLike: email };
-          return chat.login(where, { offline: true });
-        }).catch(function (error) {
-          // User not found in data source
-          return Promise.reject(error);
-        });
-      }
-
-      return Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
+        return chat.login(where, { offline: allowOffline });
+      }).catch(function (error) {
+        // User not found in data source
+        return Promise.reject(error);
+      });
+    } else {
+      loginOp = Fliplet.App.Storage.get(USERTOKEN_STORAGE_KEY).then(function(flUserToken) {
         if (!flUserToken) {
           redirectToLogin();
           return Promise.reject(notLoggedInErrorMessage);
@@ -2753,9 +2768,13 @@ Fliplet.Widget.instance('chat', function (data) {
           });
         });
       });
-    }).then(function onLoginSuccess(user) {
+    }
+
+    return loginOp.then(function onLoginSuccess(user) {
       return setCurrentUser(user).then(onLogin);
     }).catch(function(error) {
+      console.error('Error connecting to the chat', error);
+
       $wrapper.removeClass('loading');
       $wrapper.addClass('error');
 
@@ -2763,6 +2782,22 @@ Fliplet.Widget.instance('chat', function (data) {
         message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat'),
         actions: actions
       });
+    });
+  }
+
+  Fliplet().then(function () {
+    /* Chat connection */
+    chatConnection.then(function onChatConnectionAvailable(chatInstance) {
+      chat = chatInstance;
+      initialiseCode();
+
+      return Fliplet.App.Storage.get(QUEUE_MESSAGE_KEY);
+    }).then(function (queues) {
+      if (queues) {
+        queue.init(queues);
+      }
+
+      return attemptLogin();
     });
   });
 
