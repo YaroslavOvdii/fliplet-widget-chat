@@ -2704,10 +2704,10 @@ Fliplet.Widget.instance('chat', function (data) {
           Fliplet.UI.Toast.dismiss();
         }
       }).catch(function (err) {
-        // Log in again if the token does not seem valid
-        $wrapper.addClass('loading');
-
         if (err && err.status === 403) {
+          // Log in again if the token does not seem valid
+          $wrapper.addClass('loading');
+
           Fliplet.UI.Toast('Verifying your account...');
 
           Fliplet.App.Storage.remove(USERTOKEN_STORAGE_KEY).then(function () {
@@ -2715,7 +2715,11 @@ Fliplet.Widget.instance('chat', function (data) {
               $('.refresh-chat').click();
             });
           });
+
+          return;
         }
+
+        return Promise.reject(err);
       });
     }).catch(function(error) {
       $wrapper.removeClass('loading');
