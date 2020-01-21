@@ -5,6 +5,9 @@ var page = Fliplet.Widget.getPage();
 var omitPages = page ? [page.id] : [];
 var allDataSources = [];
 
+// New chat instances have the "Primary key" feature enabled
+var supportsPrimaryKey = !data.dataSourceId || data.primaryKey;
+
 var $dataSources = $('[name="dataSource"]');
 var $emailAddress = $('[name="emailAddress"]');
 var $firstName = $('[name="firstName"]');
@@ -118,6 +121,11 @@ function save(notifyComplete) {
     ? parseInt($contactsNumber.val(), 10)
     : '';
   data.limitContacts = !!data.howManyEntriesToShow;
+
+  // If supported, enable primary key by saving it into settings
+  if (supportsPrimaryKey && data.crossLoginColumnName) {
+    data.primaryKey = data.crossLoginColumnName;
+  }
 
   Fliplet.Widget.save(data).then(function () {
     if (notifyComplete) {

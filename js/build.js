@@ -142,7 +142,8 @@ Fliplet.Widget.instance('chat', function (data) {
     fullNameColumnName: fullNameColumnName
       ? fullNameColumnName
       : firstNameColumnName + ' ' + lastNameColumnName,
-    avatarColumnName: avatarColumnName
+    avatarColumnName: avatarColumnName,
+    primaryKey: data.primaryKey
   });
 
   var gallery;
