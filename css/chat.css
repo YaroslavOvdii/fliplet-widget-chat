@@ -35,6 +35,7 @@ html.no-supports-container.native body,
   background-color: #ffffff;
   line-height: 40px;
   z-index: 8;
+  min-height: 60px;
 }
 
 .fl-with-top-menu .top-header {
@@ -165,11 +166,13 @@ html.no-supports-container.native body,
 
 .chat-holder .chat-list {
   flex: 1;
+  padding-top: 15px;
   padding-right: 15px;
   padding-left: 15px;
-  padding-bottom: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  margin-top: 71px; /* 56 + 15 - Tweak this based on top bar */
+  padding-bottom: 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
+  margin-bottom: 0px;
+  margin-top: 60px;
   overflow-x: hidden;
   overflow-y: auto;
   opacity: 1;
@@ -179,17 +182,21 @@ html.no-supports-container.native body,
 }
 
 .fl-with-bottom-menu .chat-holder .chat-list {
-  padding-bottom: 80px;
-  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  margin-bottom: 80px;
+  margin-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.windows.web .chat-holder .chat-list:after {
+.windows.ie11 .chat-holder .chat-list {
+  padding: 0;
+}
+
+.windows.ie11 .chat-holder .chat-list:after {
   content: "";
-  height: 20px;
+  height: 15px;
   display: block;
 }
 
-.windows.web .fl-with-bottom-menu .chat-holder .chat-list:after {
+.windows.ie11 .fl-with-bottom-menu .chat-holder .chat-list:after {
   content: "";
   height: 80px;
   display: block;
@@ -620,6 +627,7 @@ html.no-supports-container.native body,
 
 .chat-top-header .chat-mute {
   position: absolute;
+  top: 5px;
   right: 15px;
   opacity: 0.5;
   width: 44px;
@@ -841,15 +849,28 @@ html.no-supports-container.native body,
   left: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 69px 15px 114px 15px;
-  padding-bottom: calc(114px + env(safe-area-inset-bottom));
+  padding: 15px 15px 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
+  margin-top: 54px;
+  margin-bottom: 100px;
+  margin-bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
-/* Fixes padding issue on IE */
-.windows.web .chat-messages-holder:after,
-.windows.web .all-users-holder:after {
+.windows.ie11 .chat-messages-holder,
+.windows.ie11 .all-users-holder {
+  padding-bottom: 0;
+}
+
+.windows.ie11 .chat-messages-holder:after {
   content: "";
-  height: 114px;
+  height: 15px;
+  display: block;
+  flex: none;
+}
+
+.windows.ie11 .all-users-holder:after {
+  content: "";
+  height: 15px;
   display: block;
 }
 
@@ -864,14 +885,15 @@ html.no-supports-container.native body,
 
 .all-users-holder {
   bottom: 0;
-  padding: 112px 15px 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  transition: padding-top 0.2s ease-out;
+  padding-top: 0;
+  margin-top: 108px;
+  margin-bottom: 0px;
+  transition: margin-top 0.2s ease-out;
   z-index: 1;
 }
 
 .showing ~ .all-users-holder {
-  padding-top: 221px;
+  margin-top: 221px;
 }
 
 .show-selected-users {
@@ -1088,6 +1110,8 @@ html.no-supports-container.native body,
 }
 
 .chat-messages-holder .chat {
+  flex: none;
+  overflow: hidden;
   position: relative;
   width: 85%;
   margin-top: 7px;
