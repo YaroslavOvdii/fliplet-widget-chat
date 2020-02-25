@@ -620,6 +620,7 @@ html.no-supports-container.native body,
 
 .chat-top-header .chat-mute {
   position: absolute;
+  top: 5px;
   right: 15px;
   opacity: 0.5;
   width: 44px;
