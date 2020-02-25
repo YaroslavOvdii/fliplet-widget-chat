@@ -183,13 +183,13 @@ html.no-supports-container.native body,
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.windows.web .chat-holder .chat-list:after {
+.windows.ie11.web .chat-holder .chat-list:after {
   content: "";
   height: 20px;
   display: block;
 }
 
-.windows.web .fl-with-bottom-menu .chat-holder .chat-list:after {
+.windows.ie11.web .fl-with-bottom-menu .chat-holder .chat-list:after {
   content: "";
   height: 80px;
   display: block;
@@ -846,10 +846,16 @@ html.no-supports-container.native body,
 }
 
 /* Fixes padding issue on IE */
-.windows.web .chat-messages-holder:after,
-.windows.web .all-users-holder:after {
+.windows.ie11.web .chat-messages-holder:after {
   content: "";
   height: 114px;
+  display: block;
+  flex: none;
+}
+
+.windows.ie11.web .all-users-holder:after {
+  content: "";
+  height: 20px;
   display: block;
 }
 
@@ -1088,6 +1094,7 @@ html.no-supports-container.native body,
 }
 
 .chat-messages-holder .chat {
+  flex: none;
   position: relative;
   width: 85%;
   margin-top: 7px;
