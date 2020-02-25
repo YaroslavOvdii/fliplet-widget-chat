@@ -169,6 +169,8 @@ html.no-supports-container.native body,
   padding-top: 15px;
   padding-right: 15px;
   padding-left: 15px;
+  padding-bottom: 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
   margin-bottom: 0px;
   margin-top: 60px;
   overflow-x: hidden;
@@ -184,14 +186,18 @@ html.no-supports-container.native body,
   margin-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
-.chat-holder .chat-list:after {
+.windows.ie11 .chat-holder .chat-list {
+  padding: 0;
+}
+
+.windows.ie11 .chat-holder .chat-list:after {
   content: "";
   height: 15px;
   height: calc(15px + env(safe-area-inset-bottom));
   display: block;
 }
 
-.fl-with-bottom-menu .chat-holder .chat-list:after {
+.windows.ie11 .fl-with-bottom-menu .chat-holder .chat-list:after {
   content: "";
   height: 80px;
   height: calc(80px + env(safe-area-inset-bottom));
@@ -845,13 +851,19 @@ html.no-supports-container.native body,
   left: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 15px 15px 0px;
+  padding: 15px 15px 15px;
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
   margin-top: 54px;
   margin-bottom: 100px;
   margin-bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
-.chat-messages-holder:after {
+.windows.ie11 .chat-messages-holder,
+.windows.ie11 .all-users-holder {
+  padding-bottom: 0;
+}
+
+.windows.ie11 .chat-messages-holder:after {
   content: "";
   height: 15px;
   height: calc(15px + env(safe-area-inset-bottom));
@@ -859,7 +871,7 @@ html.no-supports-container.native body,
   flex: none;
 }
 
-.all-users-holder:after {
+.windows.ie11 .all-users-holder:after {
   content: "";
   height: 15px;
   height: calc(15px + env(safe-area-inset-bottom));
@@ -877,7 +889,7 @@ html.no-supports-container.native body,
 
 .all-users-holder {
   bottom: 0;
-  padding: 0px 15px;
+  padding-top: 0;
   margin-top: 108px;
   margin-bottom: 0px;
   transition: margin-top 0.2s ease-out;
