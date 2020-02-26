@@ -856,6 +856,11 @@ html.no-supports-container.native body,
   margin-bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
+.chat-messages-holder {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .windows.ie11 .chat-messages-holder,
 .windows.ie11 .all-users-holder {
   padding-bottom: 0;
@@ -1122,6 +1127,7 @@ html.no-supports-container.native body,
 .chat-messages-holder .chat.chat-right {
   align-self: flex-end;
   margin-top: 5px;
+  padding-right: 15px;
   text-align: right;
 }
 
@@ -1199,6 +1205,7 @@ html.no-supports-container.native body,
 
 .chat-messages-holder .chat-right + .chat-left {
   margin-top: 12px;
+  padding-left: 15px;
 }
 
 .chat.tapped {
@@ -1257,7 +1264,7 @@ html.no-supports-container.native body,
 .sending-message-holder {
   position: absolute;
   top: 4px;
-  right: -8px;
+  right: 4px;
   font-size: 12px;
   line-height: 1;
   color: rgba(51, 51, 51, 0.3);
