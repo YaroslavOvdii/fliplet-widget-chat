@@ -2780,8 +2780,7 @@ Fliplet.Widget.instance('chat', function (data) {
       $wrapper.addClass('error');
 
       Fliplet.UI.Toast.error(error, {
-        message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat'),
-        actions: actions
+        message: (Fliplet.Env.get('interact') ? 'Chat is not available in edit mode' : 'Error connecting you to chat')
       });
     });
   }
