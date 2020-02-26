@@ -2533,7 +2533,7 @@ Fliplet.Widget.instance('chat', function (data) {
     }));
 
     var scrollTop = $messages.scrollTop();
-    var shouldScrollToBottom = scrollTop === 0 || $messages[0].scrollHeight - scrollTop === $messages.outerHeight(true);
+    var shouldScrollToBottom = scrollTop === 0 || $messages[0].scrollHeight - scrollTop === $messages[0].offsetHeight;
 
     $message.css('opacity', 0);
     $messages.append($message);
