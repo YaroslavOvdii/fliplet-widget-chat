@@ -1124,6 +1124,10 @@ html.no-supports-container.native body,
   transition: padding-top 0.2s ease-out;
 }
 
+.chat-messages-holder .chat.chat-left {
+  padding-left: 15px;
+}
+
 .chat-messages-holder .chat.chat-right {
   align-self: flex-end;
   margin-top: 5px;
@@ -1205,7 +1209,6 @@ html.no-supports-container.native body,
 
 .chat-messages-holder .chat-right + .chat-left {
   margin-top: 12px;
-  padding-left: 15px;
 }
 
 .chat.tapped {
