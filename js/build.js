@@ -2119,10 +2119,6 @@ Fliplet.Widget.instance('chat', function (data) {
         channels = result.map(function (channel) {
           var participants = _.get(channel, 'definition.participants', []);
 
-          if (!participants.length) {
-            return;
-          }
-
           return {
             id: channel.id,
             isChannel: true,
