@@ -2118,8 +2118,9 @@ Fliplet.Widget.instance('chat', function (data) {
 
         channels = result.map(function (channel) {
           var participants = _.get(channel, 'definition.participants', []);
+          var showWhenEmpty = _.get(channel, 'definition.showWhenEmpty', true);
 
-          if (!participants.length) {
+          if (!participants.length && !showWhenEmpty) {
             return;
           }
 
