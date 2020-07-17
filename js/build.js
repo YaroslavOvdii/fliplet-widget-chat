@@ -6,6 +6,9 @@ Handlebars.registerHelper('formatMessage', function(text) {
   var numberRegExp = /[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,8}/gm;
   var urlRegExp = /(?:^|[^@\.\w-])([a-z0-9]+:\/\/)?(\w(?!ailto:)\w+:\w+@)?([\w.-]+\.[a-z]{2,4})(:[0-9]+)?(\/.*)?(?=$|[^@\.\w-])/ig;
 
+  // Keep date format in English until localisation is correctly rollded out
+  moment.locale('en');
+
   if (text) {
     /* capture email addresses and turn into mailto links */
     text = text.replace(emailRegExp, '<a href="mailto:$&">$&</a>');
