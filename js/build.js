@@ -1853,6 +1853,10 @@ Fliplet.Widget.instance('chat', function (data) {
       user.data.flChatLastName = user.data[lastNameColumnName] || '';
       user.data.flChatFullName = user.data[fullNameColumnName] || '';
 
+      if (avatarColumnName && Array.isArray(user.data[avatarColumnName])) {
+        user.data[avatarColumnName] = _.first(user.data[avatarColumnName]);
+      }
+
       // Filter profiles without a name
       if (!user.data.flChatFirstName && !user.data.flChatLastName && !user.data.flChatFullName) {
         return;
