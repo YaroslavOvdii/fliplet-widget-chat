@@ -95,7 +95,8 @@ function initDataSourceProvider(currentDataSourceId) {
         allow: 'all',
         enabled: true,
         type: [
-          'select'
+          'select',
+          'update'
         ]
       }
     ]
