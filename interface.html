@@ -14,17 +14,7 @@
       <h2><small>Contacts Data</small></h2>
       <p class="text-helper">Chat requires you to provide a contact list data source. This will be a list of the users with access to chat.</p>
       <div class="form-group clearfix">
-        <div class="col-sm-4 control-label">
-          <label for="contactsList">Select a data source of the contacts list</label>
-        </div>
-        <div class="col-sm-8">
-          <select name="dataSource" id="contactsList" data-label="select" class="hidden-select form-control" disabled>
-            <option value="none">-- Select a data source</option>
-            <option disabled>------</option>
-            <option value="new">Create a new data source</option>
-            <option disabled>------</option>
-          </select>
-          <small id="manage-data" class="hidden"><a href="#">Edit data source</a></small>
+        <div id="dataSourceProvider" class="col-sm-8 ui-sortable">
         </div>
       </div>
       <div class="column-selection">
