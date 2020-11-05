@@ -137,6 +137,10 @@ Fliplet.Widget.instance('chat', function (data) {
     multipleNameColumns = true;
   }
 
+  if (data.dataSourceId === 'none') {
+    delete data.dataSourceId;
+  }
+
   var securityScreenAction = data.securityLinkAction;
   var chatConnection = Fliplet.Chat.connect({
     encryptMessages: true,
