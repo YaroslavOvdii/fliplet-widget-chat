@@ -139,6 +139,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   if (data.dataSourceId === 'none') {
     delete data.dataSourceId;
+    Fliplet.UI.Toast('Cannot connect to contact list. Please check it\'s configured correctly.');
   }
 
   var securityScreenAction = data.securityLinkAction;
