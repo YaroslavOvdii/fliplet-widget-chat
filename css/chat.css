@@ -181,8 +181,7 @@ html.no-supports-container.native body,
   transition: opacity 0.1s ease-out, transform 0.2s ease-out, padding-top 0.2s ease-out;
 }
 
-.fl-with-bottom-menu .chat-holder .chat-list,
-.fl-with-bottom-menu .chat-area
+.fl-with-bottom-menu .chat-holder .chat-list
  {
   margin-bottom: 80px;
   margin-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -531,7 +530,7 @@ html.no-supports-container.native body,
   bottom: 0;
   left: 0;
   background: #ffffff;
-  z-index: 11;
+  z-index: 1010;
   -webkit-transform: translate3d(100%, 0, 0);
   transform: translate3d(100%, 0, 0);
   transition: all 0.2s ease-out;
