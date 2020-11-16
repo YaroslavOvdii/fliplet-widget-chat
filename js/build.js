@@ -262,10 +262,14 @@ Fliplet.Widget.instance('chat', function (data) {
     $('.chat-card-holder[data-conversation-id="'+ conversationId +'"]').addClass('open');
   }
 
-  function showChatInFullScreen() {
+  function enterChatFullScreen() {
     if (hasTopMenu && isMobile) {
       $wrapper.css('top', '-' + bodyPaddingTop);
     }
+  }
+
+  function exitChatFullScreen() {
+    $wrapper.css('top', '');
   }
 
   function openContacts() {
@@ -365,7 +369,7 @@ Fliplet.Widget.instance('chat', function (data) {
 
   function closeConversation(clickedChat) {
     $wrapper.removeClass('chat-open');
-    $wrapper.css('top', '');
+    exitChatFullScreen();
     $('.long-pressed').removeClass('long-pressed');
     $('.chat-area').removeClass('message-focused');
     $('.chat-card-holder').removeClass('open');
@@ -802,7 +806,7 @@ Fliplet.Widget.instance('chat', function (data) {
   }
 
   function createNewChatGroupSettings() {
-    showChatInFullScreen();
+    enterChatFullScreen();
 
     if (isViewingChannels) {
       return joinPublicChannel();
@@ -939,7 +943,7 @@ Fliplet.Widget.instance('chat', function (data) {
       })
       .on('click', '.chat-card-holder[data-conversation-id]', function() {
         if (allowClick) {
-          showChatInFullScreen();
+          enterChatFullScreen();
 
           var id = $(this).data('conversation-id');
           var conversation = _.find(conversations, { id: id });

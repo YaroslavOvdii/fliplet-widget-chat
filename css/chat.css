@@ -181,8 +181,7 @@ html.no-supports-container.native body,
   transition: opacity 0.1s ease-out, transform 0.2s ease-out, padding-top 0.2s ease-out;
 }
 
-.fl-with-bottom-menu .chat-holder .chat-list
- {
+.fl-with-bottom-menu .chat-holder .chat-list {
   margin-bottom: 80px;
   margin-bottom: calc(80px + env(safe-area-inset-bottom));
 }
